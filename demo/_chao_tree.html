@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Test Zoom</title>
+    <script type="text/javascript" src="../lib/twaver.js"></script>
+    <script type="text/javascript">
+        var box;
+        var tbl1;
+        var tbl2;
+        function init()
+        {
+           tbl1=document.getElementById("tree");
+                box = new twaver.ElementBox();
+           var tree = new twaver.controls.Tree(box);
+           var group = new twaver.Group();
+           group.setName('Group');
+           box.add(group);
+           for(var i = 0; i < 3; i++){
+           var node1 = new twaver.Node();
+           node1.setIcon("images/twaver-small.png");
+           node1.setName("Node-"+i);
+           node1.setParent(group);
+           box.add(node1);
+           for(var j = 0; j < 9; j++){
+           var node2 = new twaver.Node();
+           node2.setName("Node-"+ i + "-"+ j);
+           node2.getAlarmState().setNewAlarmCount(twaver.AlarmSeverity.MAJOR, 1);
+
+           node2.setParent(node1);
+           box.add(node2);
+           }
+           }
+           tree.setCheckMode("descendantAncestor");
+           var treeDom = tree.getView();
+           treeDom.style.width = "20%";
+           treeDom.style.height = "50%";
+           tbl1.appendChild(treeDom);
+           tree.expandAll();
+        }
+        function next_step()
+        {
+              tbl2=document.getElementById("table2");
+              tbl1.style.display="none";
+              tbl2.style.display="block";
+        }
+        function back_up()
+        {
+              //alert(box.size());
+              tbl1.style.display="block";
+              tbl2.style.display="none";
+        }
+        function selectAll()
+        {
+           var model = box.getSelectionModel();
+           model.selectAll();
+
+        }
+    </script>
+</head>
+<body onload="init()"style="margin:0;">
+  <input type="button" style="width: 58px" value="全选" onclick="selectAll()"/>   
+  <div id="tree" >
+  <table id="table1" width="auto" border="1" align="center" cellpadding="0" cellspacing="0"></table>   
+  <p align="center"><input type="button" id="next_step"  value="下一步 >"  onclick="next_step()"/></p>
+  </div>      
+  <div id="table2" style="display:none" >
+  <p>hello tree</p>
+  <table id="table" width="auto" border="1" align="center" cellpadding="0" cellspacing="0"></table>   
+  <p align="center"><input type="button" id="up_step"  value="< 上一步" onclick="back_up()"/></p>
+  </div>   
+</body>
+</html>

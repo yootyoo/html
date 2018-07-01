@@ -1,0 +1,272 @@
+var navigationTreeDataMap = {
+  '': [{
+    "domainTypeId": 1000,
+    "domainName": "ROOT",
+    "description": "",
+    "id": 28439741111,
+    "parentDn": "",
+    "isLeaf": false,
+    "ico": "images/Navigation_icon/icon_datacenter.png",
+    "domainDn": "/"
+  }, {
+    "domainTypeId": 10000,
+    "domainName": "数据中心",
+    "description": "",
+    "id": 2843974937874432,
+    "parentDn": "/",
+    "isLeaf": false,
+    "ico": "images/Navigation_icon/icon_datacenter.png",
+    "domainDn": "2828395011653632"
+  }, {
+    "domainTypeId": 10003,
+    "domainName": "building1",
+    "description": "",
+    "id": 2843976516505601,
+    "parentDn": "2828395011653632",
+    "isLeaf": false,
+    "ico": "images/Navigation_icon/icon_building.png",
+    "domainDn": "28439749374433123"
+  }, {
+    "domainTypeId": -1,
+    "domainName": "乌兰察布云服务数据中心",
+    "description": "",
+    "id": 2843974937871232,
+    "parentDn": "/",
+    "isLeaf": false,
+    "ico": "images/Navigation_icon/icon_datacenter.png",
+    "domainDn": "2828395011653123"
+  }, {
+    "domainTypeId": 10003,
+    "domainName": "主机房楼",
+    "description": "",
+    "id": 2843976516505602,
+    "parentDn": "2828395011653123",
+    "isLeaf": false,
+    "ico": "images/Navigation_icon/icon_building.png",
+    "domainDn": "284397493787123123"
+  }, {
+    "domainTypeId": 10003,
+    "domainName": "辅助楼",
+    "description": "",
+    "id": 2843976516505603,
+    "parentDn": "2828395011653123",
+    "isLeaf": false,
+    "ico": "images/Navigation_icon/icon_building.png",
+    "domainDn": "284397493787123321"
+  }],
+
+  //主机机房楼楼层数据
+  '284397493787123123': [{
+    "domainTypeId": 10019,
+    "domainName": "1层",
+    "description": "",
+    "id": 2843974937874432,
+    "parentDn": "284397493787123123",
+    "isLeaf": false,
+    "ico": "images/Navigation_icon/icon_floor.png",
+    "domainDn": "2828395011653632098"
+  }, {
+    "domainTypeId": 10019,
+    "domainName": "2层",
+    "description": "",
+    "id": 2843976516505601,
+    "parentDn": "284397493787123123",
+    "isLeaf": false,
+    "ico": "images/Navigation_icon/icon_floor.png",
+    "domainDn": "2843974937871232099"
+  }, {
+    "domainTypeId": 10019,
+    "domainName": "3层",
+    "description": "",
+    "id": 2843974937871232,
+    "parentDn": "284397493787123123",
+    "isLeaf": false,
+    "ico": "images/Navigation_icon/icon_floor.png",
+    "domainDn": "2828395011653123088"
+  }],
+
+  //2层数据
+  '2843974937871232099': [{
+    "domainTypeId": 10019,
+    "domainName": "L25",
+    "description": "",
+    "id": 2843974937874432,
+    "parentDn": "2843974937871232099",
+    "isLeaf": false,
+    "ico": "images/Navigation_icon/icon_room.png",
+    "domainDn": "2828395011653632098666"
+  }, {
+    "domainTypeId": 10019,
+    "domainName": "L23",
+    "description": "",
+    "id": 2843974937874432,
+    "parentDn": "2843974937871232099",
+    "isLeaf": false,
+    "ico": "images/Navigation_icon/icon_room.png",
+    "domainDn": "2828395011653632098777"
+  }, {
+    "domainTypeId": 10019,
+    "domainName": "L21",
+    "description": "",
+    "id": 2843974937874432,
+    "parentDn": "2843974937871232099",
+    "isLeaf": false,
+    "ico": "images/Navigation_icon/icon_room.png",
+    "domainDn": "2843531653632098666"
+  }, {
+    "domainTypeId": 10019,
+    "domainName": "H21",
+    "description": "",
+    "id": 2843974937874432,
+    "parentDn": "2843974937871232099009",
+    "isLeaf": false,
+    "ico": "images/Navigation_icon/icon_room.png",
+    "domainDn": "2828395011653632098333"
+  }, {
+    "domainTypeId": 10019,
+    "domainName": "L22",
+    "description": "",
+    "id": 2843974937874432,
+    "parentDn": "2843974937871232099",
+    "isLeaf": false,
+    "ico": "images/Navigation_icon/icon_room.png",
+    "domainDn": "2828395011653632098015"
+  }, {
+    "domainTypeId": 10019,
+    "domainName": "L24",
+    "description": "",
+    "id": 2843974937874432,
+    "parentDn": "2843974937871232099",
+    "isLeaf": false,
+    "ico": "images/Navigation_icon/icon_room.png",
+    "domainDn": "2828395011653632098099"
+  }],
+
+  //L21数据
+  '2828395011653632098666': [{
+    "domainTypeId": 10019,
+    "domainName": "rack1",
+    "description": "",
+    "id": 2843974937874432,
+    "parentDn": "2828395011653632098666",
+    "isLeaf": true,
+    "ico": "images/Navigation_icon/icon_rack.png",
+    "domainDn": "2828395011653632098123456"
+  }, {
+    "domainTypeId": 10019,
+    "domainName": "rack2",
+    "description": "",
+    "id": 2843976516505601,
+    "parentDn": "2828395011653632098666",
+    "isLeaf": true,
+    "ico": "images/Navigation_icon/icon_rack.png",
+    "domainDn": "2843974937871232099123455"
+  }, {
+    "domainTypeId": 10019,
+    "domainName": "rack3",
+    "description": "",
+    "id": 2843974937871232,
+    "parentDn": "2828395011653632098666",
+    "isLeaf": true,
+    "ico": "images/Navigation_icon/icon_rack.png",
+    "domainDn": "2828395011653123088123444"
+  }, {
+    "domainTypeId": 10019,
+    "domainName": "rack4",
+    "description": "",
+    "id": 2843974937871232,
+    "parentDn": "2828395011653632098666",
+    "isLeaf": true,
+    "ico": "images/Navigation_icon/icon_rack.png",
+    "domainDn": "28283950116531230881236666"
+  }, {
+    "domainTypeId": 10019,
+    "domainName": "rack5",
+    "description": "",
+    "id": 2843974937871232,
+    "parentDn": "2828395011653632098666",
+    "isLeaf": true,
+    "ico": "images/Navigation_icon/icon_rack.png",
+    "domainDn": "28283950116531230881239999"
+  }],
+};
+
+var catalogTreeDatas = [{
+  "name": "Appliance",
+  "description": "Appliance",
+  "parentName": "Infrastructure",
+  "ico": "images/Catalog_icon/03.png",
+  "id": "1080",
+  "type": "hw_rh2288_v3"
+}, {
+  "name": "Infrastructure",
+  "description": "Infrastructure",
+  "parentName": "Equipment",
+  "ico": "images/Catalog_icon/02.png",
+  "id": "1045",
+  "type": "hw_rh2288_v3"
+}, {
+  "name": "Dell PowerEdge M1000e",
+  "description": "Printer",
+  "parentName": "Equipment",
+  "ico": "images/Catalog_icon/02.png",
+  "id": "1054",
+  "type": "dell_poweredge_m1000e"
+}, {
+  "name": "Dell PowerEdge M710H",
+  "description": "Dell PowerEdge M710H",
+  "parentName": "Equipment",
+  "ico": "images/Catalog_icon/02.png",
+  "id": "1062",
+  "type": "dell_powerEdge_m710h"
+}, {
+  "name": "Huawei FusionServer RH2288 V3",
+  "description": "Huawei FusionServer RH2288 V3",
+  "parentName": "Equipment",
+  "ico": "images/Catalog_icon/02.png",
+  "id": "1058",
+  "type": "hw_rh2288_v3"
+}, {
+  "name": "Lenovo System x3650 M5",
+  "description": "Lenovo System x3650 M5",
+  "parentName": "Equipment",
+  "ico": "images/Catalog_icon/02.png",
+  "id": "1062",
+  "type": "lenovo_system_x3650_m5"
+}, {
+  "name": "Equipment",
+  "description": "Equipment",
+  "parentName": "",
+  "ico": "images/Catalog_icon/01.png",
+  "id": "1028",
+  "type": "hw_rh2288_v3"
+}];
+
+var navigationSearchDatas = [{
+  "domainTypeId": 1000,
+  "domainName": "ROOT",
+  "description": "",
+  "id": 28439741111,
+  "parentDn": "",
+  "isLeaf": false,
+  "ico": "images/Navigation_icon/icon_datacenter.png",
+  "domainDn": "/"
+}, {
+  "domainTypeId": -1,
+  "domainName": "乌兰察布云服务数据中心",
+  "description": "",
+  "id": 2843974937871232,
+  "parentDn": "/",
+  "isLeaf": false,
+  "ico": "images/Navigation_icon/icon_datacenter.png",
+  "domainDn": "2828395011653123"
+}, {
+  "domainTypeId": 10003,
+  "domainName": "主机房楼",
+  "description": "",
+  "id": 2843976516505602,
+  "parentDn": "2828395011653123",
+  "isLeaf": false,
+  "ico": "images/Navigation_icon/icon_building.png",
+  "domainDn": "284397493787123123"
+}];

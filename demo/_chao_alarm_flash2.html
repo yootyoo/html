@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>TWaver HTML5 Demo - Alarm</title>
+    <script type="text/javascript" src="../lib/twaver.js"></script>
+    <script type="text/javascript">
+        var network = new twaver.network.Network();
+        var box = network.getElementBox();
+
+        function init() {
+            var networkDom = network.getView();
+            networkDom.style.width = "100%";
+            networkDom.style.height = "100%";
+            document.body.appendChild(networkDom);
+
+            initBox();
+        }
+        function initBox() {
+            var self = this;
+
+            var node1 = new twaver.Node("node1");
+            node1.setName("node1");
+            node1.setLocation(100, 100);
+            box.add(node1);
+
+            addAlarm("alarm 1", node1.getId(), twaver.AlarmSeverity.CRITICAL, box.getAlarmBox());
+
+            var oldAlarmLabel = network.getAlarmLabel;
+            var newAlarmLabel = function(element){
+                if(element.getName() == 'node1' || element.getName() == 'BSC_2' || element.getName() == 'BSC_3' ){
+                    return null;
+                }
+                return Network.prototype.getAlarmLabel(element);
+            }
+
+            setInterval(function(){
+                if(self.network.getAlarmLabel == oldAlarmLabel){
+                    self.network.getAlarmLabel = newAlarmLabel;
+                    self.network.getInnerColor  = function(data){
+                        return "#FF00FF";
+                    }
+                } else if(self.network.getAlarmLabel === newAlarmLabel){
+                    self.network.getAlarmLabel = oldAlarmLabel;
+                    self.network.getInnerColor  = function(data){
+                        return "#FFF00F";
+                    }
+                }
+                self.network.invalidateElementUIs();
+            },500);
+        }
+
+        function addAlarm(alarmID, elementID, alarmSeverity, alarmBox) {
+            var alarm = new twaver.Alarm(alarmID, elementID, alarmSeverity);
+            alarmBox.add(alarm);
+        }
+
+    </script>
+</head>
+<body onload="init()" style="margin:0; ">
+
+</input>
+</body>
+</html>

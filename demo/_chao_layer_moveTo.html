@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta http-equiv="pragma" content="no-cache">
+   <title></title>
+   <script type="text/javascript" src="../lib/twaver.js"></script>
+   <script type="text/javascript">
+      
+      var box = new twaver.ElementBox();
+      var network = new twaver.vector.Network(box);
+      var layerBox = box.getLayerBox();
+
+      var box2 = new twaver.ElementBox();
+      var network2 = new twaver.vector.Network(box2);
+      
+      function init () {
+
+         document.body.appendChild(network.getView());
+         network.adjustBounds({ x: 0, y: 0, width: 1024, height: 768 });
+
+         var layer0 = new twaver.Layer("layer0");
+         layerBox.add(layer0);
+         var layer1 = new twaver.Layer("layer1");
+         layerBox.add(layer1);
+
+         // layerBox.moveUp(layer1);
+
+         var node0 = new twaver.Node();
+         node0.setLayerId(layer0.getId());
+         node0.setSize(400,300);
+         node0.setLocation(500,300);
+         node0.setStyle('body.type', 'vector');
+         node0.setStyle('vector.shape', "oval");
+         box.add(node0);
+
+         var node1 = new twaver.Node();
+         node1.setLayerId(layer1.getId());
+         node1.setLocation(700,450);
+         box.add(node1);
+
+         var node2 = new twaver.Node();
+         node2.setLayerId(layer1.getId());
+         node2.setLocation(200,100);
+         box.add(node2);
+
+         var xmlSerializer = new twaver.XmlSerializer(box).serialize();
+         console.log(xmlSerializer);
+
+         document.body.appendChild(network2.getView());
+         network2.adjustBounds({ x: 1024, y: 0, width: 1024, height: 768 });
+
+         var serializer = new twaver.XmlSerializer(box2);
+         serializer.deserialize(xmlSerializer);
+
+      }
+      
+      
+   </script>
+</head>
+<body onload="init()">
+</body>
+</html>

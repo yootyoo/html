@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="../lib/twaver.js"></script>
+  <script>
+
+    // var CLink = function(id, fromNode, toNode){
+    //   CLink.superClass.constructor.apply(this, arguments);
+    // };
+    // twaver.Util.ext('CLink', twaver.Link, {
+    //   reverseBundleExpanded : function() {
+    //     return false;
+    //   }
+    // });
+
+    function init() {
+      var box = new twaver.ElementBox();
+      var network = new twaver.vector.Network(box);
+      // network.setDoubleClickToLinkBundle(false);
+
+      var originalFunc = network.getLinkHandlerLabel;
+      network.getLinkHandlerLabel = function (link) {
+        return null;
+      };
+      // network.isDoubleClickToLinkBundle = function(){
+      //   return false;
+      // }
+      
+      document.body.appendChild(network.getView());
+      network.adjustBounds({ x: 0, y: 0, width: 500, height: 500 });
+      
+      var node1 = new twaver.Node();
+      node1.setName('node1');
+      node1.setLocation(100, 100);
+      box.add(node1);
+      
+      var node2 = new twaver.Node();
+      node2.setName('node2');
+      node2.setLocation(300, 100);
+      box.add(node2);
+      
+      var link1 = new twaver.Link(node1, node2);
+      link1.setName('link1!');
+      link1.setToolTip('<b>Hello link1!</b>');
+      box.add(link1);
+
+      var link2 = new twaver.Link(node1, node2);
+      link2.setName('link2!');
+      link2.setToolTip('<b>Hello link2!</b>');
+      box.add(link2);
+
+
+    }
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

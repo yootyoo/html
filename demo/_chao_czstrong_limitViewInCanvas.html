@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="../lib/twaver.js"></script>
+  <script>
+    function init() {
+      var box = new twaver.ElementBox();
+      var network = new twaver.vector.Network(box);
+      
+      document.body.appendChild(network.getView());
+      network.adjustBounds({ x: 0, y: 0, width: 500, height: 500 });
+      //network.setLimitViewInCanvas(true);
+      network.setDragToPan(false);
+      network.setWheelToZoom(false);
+      
+      var node1 = new twaver.Node();
+      node1.setName('TWaver');
+      node1.setLocation(100, 100);
+      box.add(node1);
+      
+      var node2 = new twaver.Node();
+      node2.setName('HTML5');
+      node2.setLocation(800, 200);
+      box.add(node2);
+      
+      var link = new twaver.Link(node1, node2);
+      link.setName('Hello!');
+      link.setToolTip('<b>Hello!</b>');
+      box.add(link);
+
+      var node3 = new twaver.Node();
+      node3.setName('return');
+      node3.setLocation(400, 400);
+      node3.setClient("location",node3.getLocation());
+      box.add(node3);
+
+      network.getView().addEventListener("mousemove" ,function(event) {
+        var location = node3.getClient("location");
+        var viewRect = network.getViewRect();
+        node3.setLocation(location.x+ viewRect.x, location.y+ viewRect.y);
+      });
+
+      network.getView().addEventListener("mousewheel" ,function(event) {
+        var location = node3.getClient("location");
+        var viewRect = network.getViewRect();
+        node3.setLocation(location.x+ viewRect.x, location.y+ viewRect.y);
+      });
+
+
+      // var viewRectWidth = network.getViewRect().width;
+      // var viewRectHeight = network.getViewRect().height;
+      // //network.viewRect = {x:1000,y:100,width:viewRectWidth,height:viewRectHeight};
+      // network.setViewRect(100,100,viewRectWidth,viewRectHeight);
+      var animate = new twaver.Animate({
+          from: { x: 0, y: 0 },
+          to:{x:500, y:0},
+          type: 'point',
+          delay: 1000,
+          dur: 1000,
+          easing: 'easeNone',
+          onUpdate: function (value) {
+            var viewRectWidth = network.getViewRect().width;
+            var viewRectHeight = network.getViewRect().height;
+            // network.viewRect = {x:value.x,y:value.y,width:viewRectWidth,height:viewRectHeight};
+            // network.setViewOffSet(value.x, value.y);
+            network.setViewRect(value.x,value.y,viewRectWidth,viewRectHeight);
+            if (network.invalidateElementUIs) {
+                network.invalidateElementUIs();
+            }
+            if (network.invalidateDisplay) {
+                network.invalidateDisplay();
+            }
+            
+          }
+        });
+
+      network.getView().addEventListener("click" ,function(event) {
+        animate.play();
+      });
+
+    }
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Test Zoom</title>
+<script src="../../lib/twaver.js"></script>
+<script>
+var box = new twaver.ElementBox();
+var tree = new twaver.controls.Tree(box);
+
+function init() {
+ registerImage();
+ initTreeView();
+ initDataBox();
+}
+
+function initTreeView() {
+    var treeDom = tree.getView();
+    treeDom.style.width = "100%";
+    treeDom.style.height = "100%";
+    document.body.appendChild(treeDom);
+    
+    tree.setCheckMode("descendantAncestor");
+    // tree.getToggleImage = function (data) {
+    //     return './collapse_icon.png';
+    // };
+    tree.setLineType('dotted');//线条类型
+tree.setLineColor('#000000');//线条颜色
+tree.setLineAlpha(1);//线条透明度
+tree.setLineThickness(1);//线条厚度
+tree.setLineDash([10,2]);//线条虚线样式，在linetype为'dotted'情况下有效。
+tree.expandAll();
+}
+function registerImage() {
+    registerNormalImage('./collapse_icon.png','collapse_icon1');
+    registerNormalImage('./expand_icon.png','expand_icon1');
+}
+
+function initDataBox() {
+    var group = new twaver.Group();
+    group.setName('Group');
+    box.add(group);
+
+    for (var i = 0; i < 3; i++) {
+        var node1 = new twaver.Node({
+            name:'Node-'+i,
+            location:{
+                x:100,
+                y:200
+            },
+            // icon:'../images/collapse_icon.png'
+        });
+        node1.setParent(group);
+        box.add(node1);
+        for(var j=0;j<3;j++){
+            var node2 = new twaver.Node();
+            node2.setName('Node-'+i+'-'+j);
+            node2.getAlarmState().setNewAlarmCount(twaver.AlarmSeverity.MAJOR,1);
+            node2.setParent(node1);
+            box.add(node2);
+        }
+    }
+
+}
+function registerNormalImage(url, name) {
+    var image = new Image();
+    image.src = url;
+    image.onload = function() {
+        twaver.Util.registerImage(name, image, image.width, image.height);
+        image.onload = null;
+    };
+}
+</script>
+</head>
+<body onload="init()">
+</body>
+</html>

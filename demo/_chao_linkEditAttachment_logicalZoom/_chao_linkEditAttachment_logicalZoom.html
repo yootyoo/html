@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="../../lib/twaver.js"></script>
+  <script src="test.js"></script>
+  <script>
+    var testFrame,box,network;
+    function init() {
+      testFrame = new TestFrame();
+      box = testFrame.box;
+      network = testFrame.network;
+
+      test();
+      testFrame.app();
+    }
+
+    function test() {
+      network.setEditInteractions();
+      testFrame.initBox = function() {
+        var from = new twaver.Node({
+          location:{x:100,y:100},
+        });
+        box.add(from);
+
+        var to = new twaver.Node({
+          location:{x:300,y:300},
+        });
+        box.add(to);
+
+        var link = new twaver.Link(from,to);
+        box.add(link);
+
+        box.getSelectionModel().appendSelection(box.toDatas());
+      }
+    }
+  </script>
+</head>
+<body onload="init()">
+  <div id='main'>
+  </div>
+</body>
+</html>

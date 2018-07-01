@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head><title>TWaver HTML5 Demo</title>
+    <script type="text/javascript" src="../../../lib/twaver.js"></script>
+    <script type="text/javascript" src="CGroup.js"></script>
+    <script type="text/javascript">
+        var network = new twaver.network.Network();
+        var box = network.getElementBox();
+
+        function init() {
+            var networkDom = network.getView();
+            networkDom.style.width = "100%";
+            networkDom.style.height = "100%";
+            document.body.appendChild(networkDom);
+
+            createGroup("A");
+            createGroup("B");
+           // createGroup("C");
+           /* createGroup("C");
+            createGroup("D");
+            createGroup("E");
+            createGroup("F");*/
+
+            var shapeLink = new twaver.ShapeLink(box.getDataById("nodeA1"), box.getDataById("nodeB1"));
+            box.add(shapeLink);
+
+          /*  var shapeLink = new twaver.ShapeLink(box.getDataById("nodeA1"), box.getDataById("nodeB1"));
+            box.add(shapeLink);
+            shapeLink = new twaver.ShapeLink(box.getDataById("nodeA2"), box.getDataById("nodeB2"));
+            box.add(shapeLink);
+            shapeLink = new twaver.ShapeLink(box.getDataById("nodeA3"), box.getDataById("nodeB3"));
+            box.add(shapeLink);
+            shapeLink = new twaver.ShapeLink(box.getDataById("nodeA1"), box.getDataById("nodeC1"));
+            box.add(shapeLink);
+            shapeLink = new twaver.ShapeLink(box.getDataById("nodeA2"), box.getDataById("nodeC2"));
+            box.add(shapeLink);
+            shapeLink = new twaver.ShapeLink(box.getDataById("nodeA3"), box.getDataById("nodeC3"));
+            box.add(shapeLink);*/
+           /* var shapeLink = new twaver.ShapeLink(box.getDataById("nodeC1"), box.getDataById("nodeD2"));
+            box.add(shapeLink);
+            shapeLink = new twaver.ShapeLink(box.getDataById("nodeF1"), box.getDataById("nodeA2"));
+            box.add(shapeLink);
+            shapeLink = new twaver.ShapeLink(box.getDataById("nodeA1"), box.getDataById("nodeB2"));
+            box.add(shapeLink);
+            shapeLink = new twaver.ShapeLink(box.getDataById("nodeE2"), box.getDataById("nodeF2"));
+            box.add(shapeLink);
+            shapeLink = new twaver.ShapeLink(box.getDataById("nodeD3"), box.getDataById("nodeB3"));
+            box.add(shapeLink);*/
+
+
+            box.addDataPropertyChangeListener(function (e) {
+                var object = e.source;
+                if (object instanceof  twaver.Node) {
+                    var links = object.getLinks();
+                    if (links) {
+                        for (var i = 0; i < links.size(); i++) {
+                            var fromNode = links.get(i).getFromNode();
+                            var toNode = links.get(i).getToNode();
+                            var fromParent = fromNode.getParent();
+                            var fromTopPoint = fromParent.getTopPoint(),
+                                    fromLeftPoint = fromParent.getLeftPoint(),
+                                    fromBottomPoint = fromParent.getBottomPoint(),
+                                    fromRightPoint = fromParent.getRightPoint();
+                            var toParent = toNode.getParent();
+                            var toTopPoint = toParent.getTopPoint(),
+                                    toLeftPoint = toParent.getLeftPoint(),
+                                    toBottomPoint = toParent.getBottomPoint(),
+                                    toRightPoint = toParent.getRightPoint();
+
+                            var newFromPoint = {};
+                            var newToPoint = {};
+
+                            if (fromBottomPoint.y < toTopPoint.y) {//from左to右
+                                newFromPoint = newFromLeftPoint(fromNode);
+                                newToPoint = newToRightPoint(toNode);
+                                /*var newFromPoint = {x: xFrom, y: yFrom + 10};
+                                var newToPoint = {x: xTo, y: yTo - 10};*/
+                            } else if (toTopPoint.y <= fromBottomPoint.y && toTopPoint.y >= fromLeftPoint.y) {
+                                if(toLeftPoint.x<fromLeftPoint.x){//from左to右
+                                    newFromPoint = newFromLeftPoint(fromNode);
+                                    newToPoint = newToRightPoint(toNode);
+                                }else{
+                                    newFromPoint = newFromLeftPoint(fromNode);
+                                    newToPoint = newToLeftPoint(toNode);
+                                }
+                               /* var newFromPoint = {x: xFrom, y: yFrom};
+                                var newToPoint = {x: xTo, y: yTo};*/
+                            }else if(fromTopPoint.y > toLeftPoint.y && fromTopPoint.y<toBottomPoint.y){//from左to左
+                                newFromPoint = newFromLeftPoint(fromNode);
+                                newToPoint = newToLeftPoint(toNode);
+                            }else if(fromTopPoint.y >toBottomPoint.y){//from右to左
+                                newFromPoint = newFromRightPoint(fromNode);
+                                newToPoint = newToLeftPoint(toNode);
+                            } else {
+                                if(fromRightPoint.x<toRightPoint.x && fromLeftPoint.y < toLeftPoint.y+10){//from左to左
+                                    newFromPoint = newFromLeftPoint(fromNode);
+                                    newToPoint = newToLeftPoint(toNode);
+                                }else if(fromRightPoint.x>=toRightPoint.x){//from左to右
+                                    newFromPoint = newFromLeftPoint(fromNode);
+                                    newToPoint = newToRightPoint(toNode);
+                                }else{
+                                    newFromPoint = newFromRightPoint(fromNode);
+                                    newToPoint = newToLeftPoint(toNode);
+                                }
+                            }
+                            links.get(i).setPoint(0, newFromPoint);
+                            links.get(i).setPoint(1, newToPoint);
+                        }
+                    }
+                }
+            });
+        }
+
+        function newFromLeftPoint(fromNode){
+            var fromParent = fromNode.getParent();
+            var fromTopPoint = fromParent.getTopPoint(),
+                fromLeftPoint = fromParent.getLeftPoint(),
+                fromBottomPoint = fromParent.getBottomPoint(),
+                fromRightPoint = fromParent.getRightPoint();
+
+            var slope1 = (fromTopPoint.y - fromLeftPoint.y) / (fromTopPoint.x - fromLeftPoint.x);
+            var slope2 = (fromLeftPoint.y - fromBottomPoint.y) / (fromLeftPoint.x - fromBottomPoint.x);
+            var xFrom = (fromLeftPoint.y - fromNode.getY() + slope1 * fromNode.getX() - slope2 * fromLeftPoint.x) / (slope1 - slope2);
+            var yFrom = fromLeftPoint.y + slope2 * (fromLeftPoint.y - fromNode.getY() + slope1 * fromNode.getX() - slope1 * fromLeftPoint.x) / (slope1 - slope2);
+
+            return {x:xFrom,y:yFrom};
+        }
+        function newFromRightPoint(fromNode){
+            var fromParent = fromNode.getParent();
+            var fromTopPoint = fromParent.getTopPoint(),
+                    fromLeftPoint = fromParent.getLeftPoint(),
+                    fromBottomPoint = fromParent.getBottomPoint(),
+                    fromRightPoint = fromParent.getRightPoint();
+
+            var slope1 = (fromTopPoint.y + 40 - fromLeftPoint.y) / (fromTopPoint.x - fromLeftPoint.x);
+            var slope2 = (fromTopPoint.y - fromRightPoint.y) / (fromTopPoint.x - fromRightPoint.x);
+
+            var xFrom = (fromTopPoint.y - fromNode.getY() + slope1 * fromNode.getX() - slope2 * fromTopPoint.x) / (slope1 - slope2);
+            var yFrom = fromTopPoint.y + slope2 * (fromTopPoint.y - fromNode.getY() + slope1 * fromNode.getX() - slope1 * fromTopPoint.x) / (slope1 - slope2);
+
+            return {x:xFrom,y:yFrom};
+        }
+        function newToLeftPoint(toNode){
+            var toParent = toNode.getParent();
+            var toTopPoint = toParent.getTopPoint(),
+                    toLeftPoint = toParent.getLeftPoint(),
+                    toBottomPoint = toParent.getBottomPoint(),
+                    toRightPoint = toParent.getRightPoint();
+            var slope1 = (toTopPoint.y - toLeftPoint.y) / (toTopPoint.x - toLeftPoint.x);
+            var slope2 = (toLeftPoint.y - toBottomPoint.y) / (toLeftPoint.x - toBottomPoint.x);
+
+            var xTo = (toLeftPoint.y - toNode.getY() + slope1 * toNode.getX() - slope2 * toLeftPoint.x) / (slope1 - slope2);
+            var yTo = toLeftPoint.y + slope2 * (toLeftPoint.y - toNode.getY() + slope1 * toNode.getX() - slope1 * toLeftPoint.x) / (slope1 - slope2);
+
+            return {x:xTo,y:yTo};
+        }
+        function newToRightPoint(toNode,xTo,yTo){
+            var toParent = toNode.getParent();
+            var toTopPoint = toParent.getTopPoint(),
+                    toLeftPoint = toParent.getLeftPoint(),
+                    toBottomPoint = toParent.getBottomPoint(),
+                    toRightPoint = toParent.getRightPoint();
+            var slope1 = (toTopPoint.y + 30 - toLeftPoint.y) / (toTopPoint.x - toLeftPoint.x);
+            var slope2 = (toTopPoint.y - toRightPoint.y) / (toTopPoint.x - toRightPoint.x);
+            xTo = (toTopPoint.y - toNode.getY() + slope1 * toNode.getX() - slope2 * toTopPoint.x) / (slope1 - slope2);
+            yTo = toTopPoint.y + slope2 * (toTopPoint.y - toNode.getY() + slope1 * toNode.getX() - slope1 * toTopPoint.x) / (slope1 - slope2);
+
+            return {x:xTo,y:yTo};
+        }
+
+        function createGroup(name) {
+            var group = new CGroup();
+            group.setName("Group" + name);
+            group.setExpanded(true);
+
+            box.add(group);
+
+            for (var i = 0; i < 4; i++) {
+                var node = new twaver.Node("node" + name + i);
+                node.setName("Node" + name + i);
+                node.setLocation(100 + 50 * i, i < 3 ? 100 + 20 * i : 150);
+                box.add(node);
+                group.addChild(node);
+            }
+
+        }
+        function createLink(from, to, name, groupID, color, type, groupIndependent, gap, offset, bundleEnable) {
+            var link = new twaver.Link(from, to);
+            link.setName(name);
+
+            if (type) {
+                link.setStyle("link.type", type);
+            }
+            if (color) {
+                link.setStyle("link.color", color);
+            }
+            if (groupID >= 0) {
+                link.setStyle("link.bundle.id", groupID);
+            }
+            if (gap > 0) {
+                link.setStyle("link.bundle.gap", gap);
+            }
+            if (offset > 0) {
+                link.setStyle("link.bundle.offset", offset);
+            }
+            link.setStyle("link.bundle.independent", groupIndependent);
+            link.setStyle("link.bundle.enable", bundleEnable);
+            box.add(link);
+            return link;
+        }
+    </script>
+</head>
+<body onload="init()" style="margin:0;">
+<canvas id="main" width="100%" height="100%"></canvas>
+
+</body>
+</html>

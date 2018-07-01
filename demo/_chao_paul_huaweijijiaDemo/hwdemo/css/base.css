@@ -1,0 +1,13 @@
+#search-box{width:326px;height:29px;background:url(divcss5-so-bg.gif) no-repeat 0 0; margin:0 auto}
+.input-box{ float:left; width:220px; height:29px; line-height:29px; padding-left:11px; border:0; background:none; text-align:left; font-size:14px}
+.button{ float:right; border:0; background:none; text-indent:-999px; width:70px; height:29px; cursor:pointer}
+
+  #menu {
+   position: fixed;
+   left:0;
+   top:0;
+   width:200px;
+   height: 400px;
+   background-color: blue;
+   display: none;
+  }

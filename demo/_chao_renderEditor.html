@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="pragma" content="no-cache">
+<meta charset='UTF-8'>
+<title></title>
+<script type="text/javascript" src="../lib/twaver.js"></script>
+<script type="text/javascript">
+var box = new twaver.ElementBox();
+var network = new twaver.vector.Network(box);
+var propertysheet = new twaver.controls.PropertySheet(box);
+
+function init() {
+    initNetwork();
+    initBox();
+    initSheet();
+}
+
+function initNetwork(){
+    var networkPane = network.getView();
+    var pane = new twaver.controls.SplitPane(propertysheet, network, 'horizontal', 0.3);
+    var view = pane.getView();
+    view.style.left = '0px';
+    view.style.top = '0px';
+    view.style.right = '0px';
+    view.style.bottom = '0px';
+    document.body.appendChild(view);
+    window.onresize = function () {
+        pane.invalidate();
+    };
+    box.addDataPropertyChangeListener(function(e){
+        if(e.property === 'alarmState'){
+            var ele = e.source;
+            ele.setClient('alarmColor',ele.getAlarmState().getHighestNewAlarmSeverity().color);
+        }
+    });
+
+}
+
+function initSheet(){
+    var propertyBox = propertysheet.getPropertyBox();
+    propertysheet.setRowHeight(20);
+    propertysheet.setSelectColor('red');
+    propertysheet.setBorderColor(twaver.Colors.orange_light);
+    addAccessorProperty(propertyBox,"Name","Accessor");
+    addAccessorProperty(propertyBox,"Icon","Accessor");
+    addAccessorProperty(propertyBox,"X","Accessor");
+    addAccessorProperty(propertyBox,"Y","Accessor");
+    addStyleProperty(propertyBox,"label.color","Styles");
+    addClientProperty(propertyBox,'alarmColor','Client').setValueType('string');
+    propertysheet.setEditable(true);
+    propertysheet.setBorderColor("#06387a");
+    propertysheet.setIndent(0);
+    propertysheet.setSelectColor();
+    propertysheet.setPropertyNameWidth(60);
+
+            propertysheet.renderEditor = function(rowInfo){
+                if(rowInfo.view._currentEditor){
+                    return rowInfo.view._currentEditor;
+                }
+
+                if (rowInfo.property.getPropertyName() === 'Name') {
+
+                    var editInfo = rowInfo.valueRender._editInfo;
+                    var view = document.createElement('input');
+                    if (editInfo.value != null) {
+                        view.value = editInfo.value;
+                    }
+
+                    // view.onkeydown = function(e){
+                    //     console.log(view.value.length);
+                    //     if(view.value.length >= 10){
+                    //         alert('字符串最大长度为10');
+                    //     }
+                    // }
+                    
+                    view.maxLength=10;
+
+                    var editor = {
+                        view:view,
+                    };
+                    return editor;
+                }
+                return null;
+            }
+        }
+
+
+        function addStyleProperty (box, propertyName, category, name) {
+            return _addProperty(box, propertyName, category, name, 'style');
+        }
+        function addClientProperty (box, propertyName, category, name) {
+            return _addProperty(box, propertyName, category, name, 'client');
+        }
+        function addAccessorProperty (box, propertyName, category, name) {
+            return _addProperty(box, propertyName, category, name, 'accessor');
+        }
+        function _addProperty(box, propertyName, category, name, proprtyType) {
+            var property = new twaver.Property();
+            property.setCategoryName(category);
+            if (!name) {
+                name = _getNameFromPropertyName(propertyName);
+            }
+            property.setName(name);
+            property.setEditable(true);
+            property.setPropertyType(proprtyType);
+            property.setPropertyName(propertyName);
+
+            var valueType;
+            if (proprtyType === 'style') {
+                valueType = twaver.SerializationSettings.getStyleType(propertyName);
+            } else if (proprtyType === 'client') {
+                valueType = twaver.SerializationSettings.getClientType(propertyName);
+            } else {
+                valueType = twaver.SerializationSettings.getPropertyType(propertyName);
+            }
+            if (valueType) {
+                property.setValueType(valueType);
+            }
+
+            box.add(property);
+            return property;
+        }
+
+        function _getNameFromPropertyName (propertyName) {
+            var names = propertyName.split('.');
+            var name = '';
+            for (var i = 0; i < names.length; i++) {
+                if (names[i].length > 0) {
+                    name += names[i].substring(0, 1).toUpperCase() + names[i].substring(1, names[i].length);
+                }
+                if (i < names.length - 1) {
+                    name += ' ';
+                }
+            }
+            return name;
+        }
+
+
+        function initBox() {
+            var from = new twaver.Node();
+            from.setLocation(200,200);
+            from.setName("from");
+            from.setClient('client1','client1');
+            from.setClient('client2','client2');
+            from.setClient('client3','client3');
+            from.setClient('client4','client4');
+            from.setClient('client5','client5');
+            from.setClient('client6','client6');
+            from.setClient('client7','client7');
+            from.setClient('client8','client8');
+            from.setClient('client9','client9');
+            from.setClient('client10','client10');
+            from.setClient('client11','client11');
+            from.setStyle('label.color',twaver.Colors.orange);
+            from.setStyle('shadow.blur',20);
+            from.setStyle('shadow.xoffset',5);
+            from.setStyle('shadow.yoffset',5);
+            from.setStyle('select.color',twaver.Colors.orange);
+
+            addAlarm("alarm 1", from.getId(), twaver.AlarmSeverity.CRITICAL, box.getAlarmBox());
+
+            box.add(from);
+
+            var to = new twaver.Node();
+            to.setName("to");
+            to.setLocation(500,400);
+            addAlarm("alarm 3", to.getId(), twaver.AlarmSeverity.WARNING, box.getAlarmBox());
+            box.add(to);
+
+            var link = new twaver.Link(from,to);
+            link.setName("link");
+            addAlarm("alarm 2", link.getId(), twaver.AlarmSeverity.MAJOR, box.getAlarmBox());
+            box.add(link);
+
+            box.getSelectionModel().setSelection(from);
+
+            box.addDataPropertyChangeListener(function(e){
+
+            });
+        }
+
+        function addAlarm(alarmID, elementID, alarmSeverity, alarmBox) {
+            var alarm = new twaver.Alarm(alarmID, elementID, alarmSeverity);
+            alarmBox.add(alarm);
+        }
+
+        </script>
+        </head>
+        <body onload="init()">
+        </body>
+        </html>

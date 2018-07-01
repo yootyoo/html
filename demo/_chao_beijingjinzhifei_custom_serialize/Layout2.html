@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>TWaver HTML5</title>
+<script src="../../lib/twaver.js"></script>
+<script src="images.js"></script>
+<script>
+
+	function parseJsonObj(box ,jsonObj){
+		var nodeMap = {};
+		function createNodeMap(box,nodes,parentId){
+			
+			var i;
+			for(i=0;i<nodes.length;i++){
+				var node;
+				if(nodes[i].type === "server"){
+					node = new twaver.Node();
+					node.setImage("server");
+				}else if(nodes[i].type === "pc"){
+					node = new twaver.Node();
+					node.setImage("pc");
+					node.setSize(46,46);
+				}else if(nodes[i].type === "subNetwork"){
+					node = new twaver.SubNetwork();
+					node.setImage("subNetwork");
+					node.setSize(46,46);
+				}
+				node.setName(nodes[i].ip);
+				node.setName2(nodes[i].name);
+				node.setLocation(nodes[i].location.x, nodes[i].location.y);
+				node.setClient("id",nodes[i].id);
+				if(parentId){
+					nodeMap[parentId].addChild(node);
+				}
+				nodeMap[nodes[i].id] = node;
+				box.add(node);
+				if(nodes[i].children){
+					createNodeMap(box,nodes[i].children,nodes[i].id);
+				}
+			}
+		}
+
+		function addLinks(box,links){
+			var i;
+			for(i=0;i<links.length;i++){
+				var link;
+				var fromNode = nodeMap[links[i].from];
+				var toNode = nodeMap[links[i].to];
+				link = new twaver.Link(fromNode,toNode);
+				link.setName(links[i].name);
+				box.add(link);
+			}
+		}
+		createNodeMap(box,jsonObj.nodes);
+		addLinks(box,jsonObj.links);
+	}
+
+	function serializeBox(box){
+		function serializeRootNodes(rootNodes){
+			var returnArr = [];
+			var i;
+			for(i=0;i<rootNodes.length;i++){
+				returnArr.push(serializeNode(rootNodes[i]));
+			}
+			return returnArr;
+		}
+		function serializeNode(node){
+			var nodeObj={};
+			var childrenList = node.getChildren();
+			var childrenSize = childrenList.size();
+			var i;
+			if(childrenSize > 0){
+				nodeObj.children = [];
+				for(i=0;i<childrenSize;i++){
+					nodeObj.children.push(serializeNode(childrenList.get(i)));
+				}
+			}		
+			nodeObj.id = node.getClient("id");
+			nodeObj.name = node.getName2();
+			nodeObj.ip = node.getName();
+			nodeObj.location = node.getLocation();
+			var im = node.getImage();
+			if(node instanceof twaver.SubNetwork){
+				nodeObj.type = "subNetwork";
+			}else{
+				var image = node.getImage();
+				if(image === "server"){
+					nodeObj.type = "server";
+				}else if(image === "pc"){
+					nodeObj.type = "pc";
+				}
+			}
+			return nodeObj;
+		}
+
+		function serializeLinks(links){
+			var returnArr = [];
+			var i;
+			for(i=0;i<links.length;i++){
+				var linkObj ={};
+				linkObj.from = links[i].getFromNode().getClient("id");
+				linkObj.to = links[i].getToNode().getClient("id");
+				linkObj.name = links[i].getName();
+				linkObj.style = {};
+				returnArr.push(linkObj);
+			}
+			return returnArr;
+		}
+
+		function separateNodesAndLinks(dataList){
+			var i;
+			var returnObj = {
+				rootNodes:[],
+				otherNodes:[],
+				links:[]
+			};		
+			for(i=0;i<dataList.size();i++){
+				var data = dataList.get(i);
+				if(data instanceof twaver.Node){
+					if(data.getParent()){
+						returnObj.otherNodes.push(data);
+					}else{
+						returnObj.rootNodes.push(data);
+					}
+				}else if(data instanceof twaver.Link){
+					returnObj.links.push(data);
+				}
+			}
+			return returnObj;
+		}
+		var returnObj = {};
+		var jsonObj = separateNodesAndLinks(box.getDatas());
+		returnObj.nodes = serializeRootNodes(jsonObj.rootNodes);
+		returnObj.links = serializeLinks(jsonObj.links);
+		return returnObj;
+	}
+
+	
+
+	function init() {
+		registImages();
+		var jsonStr = 
+	'{"nodes":[{"id":"0","name":"服务器一","ip":"192.168.1.2","type":"server","location":{"x":200,"y":120}},{"id":"1","name":"服务器二","ip":"192.168.1.3","type":"server","location":{"x":200,"y":220}},{"id":"2","name":"终端一","ip":"192.168.1.4","type":"pc","location":{"x":50,"y":100}},{"id":"3","name":"终端二","ip":"192.168.1.5","type":"pc","location":{"x":50,"y":200}},{"id":"4","name":"子网一","ip":"192.168.1.6","type":"subNetwork","location":{"x":400,"y":100},"children":[{"id":"6","name":"终端一","ip":"192.168.1.8","type":"pc","location":{"x":150,"y":150}},{"id":"7","name":"终端三","ip":"192.168.1.9","type":"pc","location":{"x":250,"y":250}}]},{"id":"5","name":"子网二","ip":"192.168.1.7","type":"subNetwork","location":{"x":400,"y":200},"children":[{"id":"8","name":"终端二","ip":"192.168.1.10","type":"pc","location":{"x":250,"y":150}},{"id":"9","name":"终端三","ip":"192.168.1.11","type":"pc","location":{"x":150,"y":250}}]}],"links":[{"from":"0","to":"2","name":"link1","style":{}},{"from":"0","to":"4","name":"link2","style":{}},{"from":"1","to":"3","name":"link3","style":{}},{"from":"1","to":"5","name":"link4","style":{}},{"from":"6","to":"7","name":"->","style":{}},{"from":"8","to":"9","name":"->","style":{}}]}';
+
+		var box = new twaver.ElementBox();
+		var network = new twaver.vector.Network(box);
+
+		document.body.appendChild(network.getView());
+		network.adjustBounds({x:0,y:0,width:document.documentElement.clientWidth,height:document.documentElement.clientHeight});
+		var jsonObj = JSON.parse(jsonStr);
+		parseJsonObj(box,jsonObj);
+
+		var jsonStr = JSON.stringify(serializeBox(box));
+		console.log(jsonStr);
+		
+  }
+
+  function registerTheImage(url) {
+      registerImage(url, this.network);
+  }
+  function registerImage(url, svg) {
+      var image = new Image();
+      image.src = url;
+      var views = arguments;
+      image.onload = function () {
+          twaver.Util.registerImage(getImageName(url), image, image.width, image.height, svg);
+          image.onload = null;
+          for (var i = 1; i < views.length; i++) {
+              var view = views[i];
+              if (view.invalidateElementUIs) {
+                  view.invalidateElementUIs();
+              }
+              if (view.invalidateDisplay) {
+                  view.invalidateDisplay();
+              }
+          }
+      };
+  }
+  function getImageName(url) {
+      var index = url.lastIndexOf('/');
+      var name = url;
+      if (index >= 0) {
+          name = url.substring(index + 1);
+      }
+      index = name.lastIndexOf('.');
+      if (index >= 0) {
+          name = name.substring(0, index);
+      }
+      return name;
+  }
+
+  function registImages(){
+  	this.registerTheImage("images/pc.png");
+    this.registerTheImage("images/subNetwork.png");
+  }
+
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

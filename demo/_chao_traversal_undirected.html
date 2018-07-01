@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="../lib/twaver.js"></script>
+
+  <script>
+    //  所有节点的连线关系如图
+
+    //  00——03——06
+    //  | \ | /   \
+    //  09——12——15——18
+    //    \ | /   \ |
+    //      21——————23
+    //
+    //  01——04
+    //  |   |
+    //  07——10——13
+    //      |   |
+    //      16——19——22
+    //
+    //  02——05——08
+    //  | / |  /
+    //  11——14
+    //  | / |
+    //  17——20
+
+    var box = new twaver.ElementBox();
+    var network = new twaver.vector.Network(box);
+    var autoLayouter = new twaver.layout.AutoLayouter(box);
+
+    function init() {
+        initNetwork();
+        initDataBox();
+    };
+
+    function initNetwork() {
+        var view = network.getView();
+        document.body.appendChild(view);
+        network.adjustBounds({x: 0, y: 0, width: 1300, height: 800});
+    };
+
+    function initDataBox() {
+
+        for(var i=0;i<24;i++){
+            var newNode = new twaver.Node("node"+i);
+            newNode.setName("Node"+i);
+            box.add(newNode);
+        }
+
+        var quickfinder = new twaver.QuickFinder(box, "id");
+        var node00 = quickfinder.findFirst("node0");
+        var node01 = quickfinder.findFirst("node1");
+        var node02 = quickfinder.findFirst("node2");
+        var node03 = quickfinder.findFirst("node3");
+        var node04 = quickfinder.findFirst("node4");
+        var node05 = quickfinder.findFirst("node5");
+        var node06 = quickfinder.findFirst("node6");
+        var node07 = quickfinder.findFirst("node7");
+        var node08 = quickfinder.findFirst("node8");
+        var node09 = quickfinder.findFirst("node9");
+        var node10 = quickfinder.findFirst("node10");
+        var node11 = quickfinder.findFirst("node11");
+        var node12 = quickfinder.findFirst("node12");
+        var node13 = quickfinder.findFirst("node13");
+        var node14 = quickfinder.findFirst("node14");
+        var node15 = quickfinder.findFirst("node15");
+        var node16 = quickfinder.findFirst("node16");
+        var node17 = quickfinder.findFirst("node17");
+        var node18 = quickfinder.findFirst("node18");
+        var node19 = quickfinder.findFirst("node19");
+        var node20 = quickfinder.findFirst("node20");
+        var node21 = quickfinder.findFirst("node21");
+        var node22 = quickfinder.findFirst("node22");
+        var node23 = quickfinder.findFirst("node23");
+
+        node00.setLocation(100,200);
+        node03.setLocation(150,200);
+        node06.setLocation(200,200);
+        node09.setLocation(100,240);
+        node12.setLocation(150,240);
+        node15.setLocation(200,240);
+        node18.setLocation(250,240);
+        node21.setLocation(150,280);
+        node23.setLocation(250,280);
+        node01.setLocation(100,420);
+        node04.setLocation(150,420);
+        node07.setLocation(100,460);
+        node10.setLocation(150,460);
+        node13.setLocation(200,460);
+        node16.setLocation(150,500);
+        node19.setLocation(200,500);
+        node22.setLocation(250,500);
+        node02.setLocation(100,640);
+        node05.setLocation(150,640);
+        node08.setLocation(200,640);
+        node11.setLocation(100,680);
+        node14.setLocation(150,680);
+        node17.setLocation(100,720);
+        node20.setLocation(150,720);
+
+        var link00_03 = new twaver.Link("link00_03", node00, node03);
+        var link00_09 = new twaver.Link("link00_09", node00, node09);
+        var link00_12 = new twaver.Link("link00_12", node00, node12);
+        var link03_06 = new twaver.Link("link03_06", node03, node06);
+        var link03_12 = new twaver.Link("link03_12", node03, node12);
+        var link06_12 = new twaver.Link("link06_12", node06, node12);
+        var link06_18 = new twaver.Link("link06_18", node06, node18);
+        var link09_12 = new twaver.Link("link09_12", node09, node12);
+        var link09_21 = new twaver.Link("link09_21", node09, node21);
+        var link12_15 = new twaver.Link("link12_15", node12, node15);
+        var link12_21 = new twaver.Link("link12_21", node12, node21);
+        var link15_18 = new twaver.Link("link15_18", node15, node18);
+        var link15_21 = new twaver.Link("link15_21", node15, node21);
+        var link15_23 = new twaver.Link("link15_23", node15, node23);
+        var link18_23 = new twaver.Link("link18_23", node18, node23);
+        var link21_23 = new twaver.Link("link21_23", node21, node23);
+
+        var link01_04 = new twaver.Link("link01_04", node01, node04);
+        var link01_07 = new twaver.Link("link01_07", node01, node07);
+        var link04_10 = new twaver.Link("link04_10", node04, node10);
+        var link07_10 = new twaver.Link("link07_10", node07, node10);
+        var link10_13 = new twaver.Link("link10_13", node10, node13);
+        var link10_16 = new twaver.Link("link10_16", node10, node16);
+        var link13_19 = new twaver.Link("link13_19", node13, node19);
+        var link16_19 = new twaver.Link("link16_19", node16, node19);
+        var link19_22 = new twaver.Link("link19_22", node19, node22);
+
+        var link02_05 = new twaver.Link("link02_05", node02, node05);
+        var link02_11 = new twaver.Link("link02_11", node02, node11);
+        var link05_08 = new twaver.Link("link05_08", node05, node08);
+        var link05_11 = new twaver.Link("link05_11", node05, node11);
+        var link05_14 = new twaver.Link("link05_14", node05, node14);
+        var link08_14 = new twaver.Link("link08_14", node08, node14);
+        var link11_14 = new twaver.Link("link11_14", node11, node14);
+        var link11_17 = new twaver.Link("link11_17", node11, node17);
+        var link14_17 = new twaver.Link("link14_17", node14, node17);
+        var link14_20 = new twaver.Link("link14_20", node14, node20);
+        var link17_20 = new twaver.Link("link17_20", node17, node20);
+
+        box.add(link00_03);
+        box.add(link00_09);
+        box.add(link00_12);
+        box.add(link03_06);
+        box.add(link03_12);
+        box.add(link06_12);
+        box.add(link06_18);
+        box.add(link09_12);
+        box.add(link09_21);
+        box.add(link12_15);
+        box.add(link12_21);
+        box.add(link15_18);
+        box.add(link15_21);
+        box.add(link15_23);
+        box.add(link18_23);
+        box.add(link21_23);
+        box.add(link01_04);
+        box.add(link01_07);
+        box.add(link04_10);
+        box.add(link07_10);
+        box.add(link10_13);
+        box.add(link10_16);
+        box.add(link13_19);
+        box.add(link16_19);
+        box.add(link19_22);
+        box.add(link02_05);
+        box.add(link02_11);
+        box.add(link05_08);
+        box.add(link05_11);
+        box.add(link05_14);
+        box.add(link08_14);
+        box.add(link11_14);
+        box.add(link11_17);
+        box.add(link14_17);
+        box.add(link14_20);
+        box.add(link17_20);
+
+        var adjList = createAdjacencyListForNodes(box);
+
+        console.log("无向图深度优先遍历结果：");
+        DFSNodeInUndirectedGraph(adjList);
+
+        console.log("++++++++++++++++++++++++++++++++++++++++\n              我是分割线\n++++++++++++++++++++++++++++++++++++++++");
+
+        clearIsVisited(adjList);
+
+        console.log("无向图广度优先遍历结果：");
+        BFSNodeInUndirectedGraph(adjList);
+    };
+
+    var createAdjacencyListForNodes = function(dataBox){
+      var adjList = []; 
+      for(var i=0;i<dataBox._rootList._as.length;i++){
+        var twaverData = dataBox._rootList._as[i];
+        if(twaverData instanceof twaver.Node){
+          adjList.push(twaverData);
+          var adjNodes = [];
+          twaverData.setClient("adjNodes",adjNodes);
+          if(twaverData._fromLinks){
+            for(var j=0;j<twaverData._fromLinks._as.length;j++){
+              var fromLink = twaverData._fromLinks._as[j];
+              adjNodes.push(fromLink._toNode);
+            }
+          }
+          if(twaverData._toLinks){
+            for(var j=0;j<twaverData._toLinks._as.length;j++){
+              var toLink = twaverData._toLinks._as[j];
+              adjNodes.push(toLink._fromNode);
+            }
+          }
+        }
+      }
+      return adjList;
+    };
+
+    var clearIsVisited = function(adjList){
+      for(var i=0;i<adjList.length;i++){
+        adjList[i].setClient("isVisited",false);
+      }
+    };
+
+
+    var DFSNodeInUndirectedGraph = function(adjList){
+
+      var depthFirstSearchNode = function(currentData){
+        if(currentData.getClient("isVisited")) return;
+        else{
+          console.log(currentData.getName());
+          currentData.setClient("isVisited",true);
+          var adjNodes = currentData.getClient("adjNodes");
+          for(var i=0;i<adjNodes.length;i++){
+            depthFirstSearchNode(adjNodes[i])
+          }
+        }
+      };
+
+      for(var i=0;i<adjList.length;i++){
+        var twaverData = adjList[i];
+        if(!twaverData.getClient("isVisited")){
+          depthFirstSearchNode(twaverData);
+          console.log("--------------以上为一个连通子图");
+        }
+      }
+    };
+
+
+    var BFSNodeInUndirectedGraph = function(adjList){
+
+      var breadthFirstSearchNode = function(startData){
+        if(!startData.getClient("isVisited")){
+          var queue = [];
+          queue.push(startData);
+          startData.setClient("isVisited",true);
+          while(queue.length>0){
+            var dequeueData = queue[0];
+            queue.splice(0,1);
+            console.log(dequeueData.getName());
+            var adjNodes = dequeueData.getClient("adjNodes");
+            for(var i=0;i<adjNodes.length;i++){
+              var adjNode = adjNodes[i];
+              if(!adjNode.getClient("isVisited")){
+                queue.push(adjNode);
+                adjNode.setClient("isVisited",true);
+              }
+            }
+          }
+        }
+      };
+
+      for(var i=0;i<adjList.length;i++){
+        var twaverData = adjList[i];
+        if(!twaverData.getClient("isVisited")){
+          breadthFirstSearchNode(twaverData);
+          console.log("--------------以上为一个连通子图");
+        }
+      }
+    };
+
+
+
+    //下面的是带回调函数的形式，原理同上。
+
+
+    // var dealWithDataCallback = function (data){
+    //   console.log(data.getName());
+    // };
+
+    // var dealWithConnectCallback = function(){
+    //   console.log("-------------以上为一个连通子图");
+    // }
+
+
+    // var DFSNodeInUndirectedGraph = function(adjList, dealWithDataFunction, dealWithConnectFunction, scope){
+
+    //   var depthFirstSearchNode = function(currentData, dealWithDataFunction, scope){
+    //     if(currentData.getClient("isVisited")) return;
+    //     else{
+    //       dealWithDataFunction.call(scope,currentData);
+    //       currentData.setClient("isVisited",true);
+    //       var adjNodes = currentData.getClient("adjNodes");
+    //       for(var i=0;i<adjNodes.length;i++){
+    //         depthFirstSearchNode(adjNodes[i],dealWithDataFunction,scope)
+    //       }
+    //     }
+    //   };
+
+    //   for(var i=0;i<adjList.length;i++){
+    //     var twaverData = adjList[i];
+    //     if(!twaverData.getClient("isVisited")){
+    //       depthFirstSearchNode(twaverData,dealWithDataFunction,scope);
+    //       dealWithConnectFunction.call(scope);
+    //     }
+    //   }
+    // };
+
+
+    // var BFSNodeInUndirectedGraph = function(adjList, dealWithDataFunction, dealWithConnectFunction, scope){
+
+    //   var breadthFirstSearchNode = function(startData, dealWithDataFunction, scope){
+    //     if(!startData.getClient("isVisited")){
+    //       var queue = [];
+    //       queue.push(startData);
+    //       startData.setClient("isVisited",true);
+    //       while(queue.length>0){
+    //         var dequeueData = queue[0];
+    //         queue.splice(0,1);
+    //         dealWithDataFunction.call(scope,dequeueData);
+    //         var adjNodes = dequeueData.getClient("adjNodes");
+    //         for(var i=0;i<adjNodes.length;i++){
+    //           var adjNode = adjNodes[i];
+    //           if(!adjNode.getClient("isVisited")){
+    //             queue.push(adjNode);
+    //             adjNode.setClient("isVisited",true);
+    //           }
+    //         }
+    //       }
+    //     }
+    //   };
+
+    //   for(var i=0;i<adjList.length;i++){
+    //     var twaverData = adjList[i];
+    //     if(!twaverData.getClient("isVisited")){
+    //       breadthFirstSearchNode(twaverData,dealWithDataFunction,scope);
+    //       dealWithConnectFunction.call(scope);
+    //     }
+    //   }
+    // };
+
+  </script>
+</head>
+<body onload="init()">
+ <h3> 请看控制台打印结果</h3>
+</body>
+</html>

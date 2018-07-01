@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <script type="text/javascript" src="../lib/twaver.js"></script>
+    <script type="text/javascript">
+        function init() {
+            var box = new twaver.ElementBox();
+            var network = new twaver.network.Network(box);
+
+
+            var node = new twaver.Node();
+            node.setName("node");
+            node.setLocation(50,60);
+            box.add(node);
+
+            var node1 = new twaver.Node();
+            node1.setName("node1");
+            node1.setLocation(60,90);
+            node1.setClient("visible", false);
+            box.add(node1);
+
+            var node2 = new twaver.Node();
+            node2.setName("node2");
+            node2.setLocation(80,100);
+            box.add(node2);
+
+            var node3 = new twaver.Node();
+            node3.setName("node3");
+            node3.setLocation(120,210);
+            box.add(node3);
+
+
+            var group = new twaver.Group();
+            group.addChild(node3);
+            group.addChild(node2);
+            box.add(group);
+
+
+
+            network.setVisibleFunction(function(element) {
+                    if(element.getClient("visible") == false) {
+                        return false;
+                    }
+                    return true;
+            });
+
+            var networkDom = network.getView();
+            networkDom.style.width = "100%";
+            networkDom.style.height = "100%";
+            document.getElementById("main").appendChild(networkDom);
+
+
+        }
+    </script>
+</head>
+<body onload="init()">
+<div id="main"></div>
+</body>
+</html>

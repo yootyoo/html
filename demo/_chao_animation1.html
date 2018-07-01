@@ -1,0 +1,44 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Animate Location</title>
+  <script type="text/javascript" src="../lib/twaver.js"></script>
+  <script type="text/javascript">
+    
+    var box = new twaver.ElementBox();
+    var network = new twaver.vector.Network(box);
+    
+    function init () {
+      var view = network.getView();
+      document.body.appendChild(view);
+      network.adjustBounds({ x: 0, y: 0, width: 800, height: 600 });
+    
+      var node = new twaver.Node();
+      node.setLocation(100, 100);
+      box.add(node);
+ 
+      new twaver.Animate({
+        from: { x: 100, y: 100 },
+        to: { x: 300, y: 200 },
+        type: 'point',
+        delay: 1000,
+        dur: 1000,
+        easing: 'easeNone',
+        onUpdate: function (value) {
+          node.setLocation(value.x, value.y);
+        }
+      }).chain(new twaver.Animate({
+        source: node,
+        attr: 'location',
+        to: { x: 100, y: 100 },
+        type: 'point',
+        easing: 'bounceBoth'
+      })).play();
+    }
+    
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

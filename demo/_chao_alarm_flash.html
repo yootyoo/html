@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="pragma" content="no-cache">
+    <title>Blinking Demo</title>
+    <script type="text/javascript" src="../lib/twaver.js"></script>
+    <script type="text/javascript">
+
+        var box = new twaver.ElementBox();
+        var network = new twaver.network.Network(box);
+        var showColor = true;
+
+        function init() {
+            var pane = new twaver.controls.BorderPane(network);
+            var view = pane.getView();
+            view.style.left = '0px';
+            view.style.top = '0px';
+            view.style.right = '0px';
+            view.style.bottom = '0px';
+            document.body.appendChild(view);
+            initBox();
+            setInterval(blinkingNode,500);
+        }
+
+        function blinkingNode(){
+            box.forEach(function (element) {
+                if(element.getClient('blinking')){
+                    if(showColor){
+                        element.setStyle('inner.color', '#FF00FF');
+                    }else{
+                        element.setStyle('inner.color', '#C0FF3E');
+                    }
+                }
+            });
+            showColor = !showColor;
+        }
+
+        function initBox () {
+            for(var i=0; i<10; i++){
+                var node = new twaver.Node();
+                node.setName('Node' +i);
+                if(i%2 == 0){
+                    node.setClient("blinking", true);
+                }
+                node.setLocation({x:200+i*60,y:200});
+                box.add(node);
+            }
+        }
+    </script>
+</head>
+<body onload="init()">
+</body>
+</html>

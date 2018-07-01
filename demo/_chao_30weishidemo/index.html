@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="UTF-8">
+  <title>Demo</title>
+  <script src="lib/twaver.js"></script>
+  <script src="demo.js"></script>
+  <script type="text/javascript">
+    
+    var box = new twaver.ElementBox();
+    var network = new twaver.vector.Network(box);
+    var toolbar = document.createElement('div');
+    var popupMenu = new twaver.controls.PopupMenu(network);
+    var textArea = document.createElement('textarea');
+    var propertySheet = new twaver.controls.PropertySheet(box);
+
+    twaver.SerializationSettings.setClientType("C1", 'string');
+    twaver.SerializationSettings.setClientType("C2", 'string');
+    
+    function init () {
+      initToolbar();
+      var splitPane = new twaver.controls.SplitPane(propertySheet, textArea, 'vertical', 0.7);
+      var pane = new twaver.controls.BorderPane(network, toolbar, splitPane);
+      pane.setTopHeight(25);
+      pane.setRightWidth(200);
+      var view = pane.getView();
+      view.style.left = '0px';
+      view.style.top = '0px';
+      view.style.right = '0px';
+      view.style.bottom = '0px';
+      document.body.appendChild(view);
+      window.onresize = function () {
+        pane.invalidate();
+      };
+    
+      initNetwork();
+      initPropertySheet();
+      initBoxListener();
+      initPopupMenu();
+      initBox();
+      filterProperty();
+    }
+
+    function initNetwork() {
+      network.getToolTip = function (data) {
+        if (data instanceof twaver.Node) {
+          var ports = data.getClient('ports');
+          if (ports && ports.length) {
+            return '<div style="color: red; font-size: 20px;">' + ports.join('<br>') + '</div>';
+          }
+          return null;
+        } else {
+          return '从 "' + data.getClient('fromPort') + '" 连到 "' + data.getClient('toPort') + '"';
+        }
+      };
+
+      var GAP = 10;
+      //节点拖动到组里
+      network.addInteractionListener(function (e) {
+        console.log(e);
+        if (e.kind === 'liveMoveEnd') {
+          var node = network.getSelectionModel().getLastData();
+          if (!node.getParent() && !(node instanceof twaver.Group)) {
+            var nodeUIRect = network.getElementUI(node).getZoomViewRect();
+            // var point = network.getLogicalPoint(e.event);
+            // var elements = network.getElementsAtRect({x: point.x - 1, y: point.y - 1, width: 2, height: 2}, true);
+            var elements = network.getElementsAtRect(nodeUIRect, true); 
+            if (elements) {
+              console.log(elements);
+              elements.forEach(function (element) {
+                if (element instanceof twaver.Group) {
+                  element.addChild(node);
+                }
+              });
+            }
+          }
+          // 吸附
+          if (node instanceof twaver.Node) {
+            node.setLocation(Math.floor(node.getX() / GAP) * GAP, Math.floor(node.getY() / GAP) * GAP);
+          }
+        }
+      });
+      // 画网格
+      network.paintBottom = function (g) {
+        var viewRect = this.getViewRect();
+        var zoom = this.getZoom();
+        var width = viewRect.width / zoom;
+        var height = viewRect.height / zoom;
+        var x = 0, y = 0;
+        var colCount = width / GAP;
+        var rowCount = height / GAP;
+        g.save();
+        g.strokeStyle = 'rgba(0,0,0,0.1)';
+        g.lineWidth = 1;
+        g.beginPath();
+        g.translate(viewRect.x/zoom - 0.5, viewRect.y/zoom - 0.5);
+        for (var col=0; col<colCount; col++) {
+          g.moveTo(x, 0);
+          g.lineTo(x, height);
+          x += GAP;
+        }
+        for (var row=0; row<rowCount; row++) {
+          g.moveTo(0, y);
+          g.lineTo(width, y);
+          y += GAP;
+        }
+        g.stroke();
+        g.restore();
+      };
+    }
+
+    function initPropertySheet() {
+      var property = demo.Util._addProperty(propertySheet.getPropertyBox(), 'C1', '自定义属性', null, 'client');
+      property.setName('属性1');
+      property.setEditable(true);
+      property.isVisible = function (data) {
+        return data instanceof twaver.Node;
+      };
+
+      property = demo.Util._addProperty(propertySheet.getPropertyBox(), 'C2', '自定义属性', null, 'client');
+      property.setName('属性2');
+      property.setEditable(true);
+      property.isVisible = function (data) {
+        return data instanceof twaver.Node;
+      };
+
+      demo.Util.initPropertySheet(propertySheet);
+    }
+    //不同节点显示不同属性，只有名为"右键添加端口"的节点才会显示Basic下的icon属性
+    function filterProperty(){
+      var propertyList = propertySheet.getPropertyBox().getDatas();
+      var i;
+      var selectedProperty = null;
+      for(var i=0;i< propertyList.size();i++){
+        var theProperty = propertyList.get(i);
+        if(theProperty.getCategoryName() === "Basic" && theProperty.getPropertyName() === "icon"){
+          selectedProperty = theProperty;
+          break;
+        }
+      }
+
+      if(selectedProperty){
+        selectedProperty.isVisible = function(data){
+          if(data instanceof twaver.Node && data.getName() === "右键添加端口"){
+            return true;
+          }else {
+            return false;
+          }
+        }
+      }
+    }
+
+    function initBoxListener () {
+      box.addDataBoxChangeListener(function (e) {
+        console.log(e);
+        if (e.kind === 'add' || e.kind === 'remove') {
+          appendLog(e.kind + ":" + e.data.getClassName() + ":" + e.data.getName() + '\n');
+        } else {
+          appendLog(e.kind + '\n');
+        }
+      });
+      box.addDataPropertyChangeListener(function (e) {
+        console.log(e);
+        if (e.property === 'location') {
+          appendLog(e.property + ":" + e.oldValue.x + ',' + e.oldValue.y + '->' + e.newValue.x + ',' + e.newValue.y + '\n');
+        }
+      });
+    }
+
+    function appendLog (log) {
+      if (textArea.value.length > 1000) {
+        textArea.value = '';
+      }
+      textArea.value = log + textArea.value;
+    }
+
+    function initPopupMenu () {
+      popupMenu.setMenuItems([
+        {
+          label: '添加端口',
+          action: function () {
+            var lastData = network.getSelectionModel().getLastData();
+            var ports = lastData.getClient('ports');
+            if (!ports) {
+              ports = [];
+              lastData.setClient('ports', ports);
+            }
+            var port = '端口' + Math.floor(Math.random() * 10 + 1);
+            ports.push(port);
+            alert('添加端口成功: ' + port);
+          }
+        },
+        {
+          label: '从Group中移除',
+          action: function () {
+            var lastData = network.getSelectionModel().getLastData();
+            lastData.setParent(null);
+          }
+        }
+      ]);
+      popupMenu.isVisible = function (menuItem) {
+        var lastData = network.getSelectionModel().getLastData();
+        if (lastData instanceof twaver.Node) {
+          if (menuItem.label === '从Group中移除') {
+            if (lastData.getParent()) {
+              return true;
+            } else {
+              return false;
+            }
+          }
+          return true;
+        } else {
+          return false;
+        }
+      };
+    }
+    
+    function initBox () {
+      func1();
+      func2();
+      func3();
+      func4();
+    }
+
+    // 右键点击弹出右键菜单，创建端口
+    function func1 () {
+      var node = new twaver.Node();
+      node.setClient('C1', '属性值1');
+      node.setClient('C2', '属性值2');
+      node.setName('右键添加端口');
+      node.setLocation(100, 100);
+      box.add(node);
+      box.getSelectionModel().setSelection(node);
+    }
+
+    // 鼠标停留在连线上显示连线的端口信息
+    function func2 () {
+      var node1 = new twaver.Node();
+      node1.setName('起始节点');
+      node1.setLocation(200, 100);
+      node1.setClient('ports', ['端口1', '端口2'])
+      box.add(node1);
+      var node2 = new twaver.Node();
+      node2.setName('起始节点');
+      node2.setLocation(500, 100);
+      node2.setClient('ports', ['端口1', '端口2'])
+      box.add(node2);
+      var link = new twaver.Link(node1, node2);
+      link.setName('Link');
+      link.setClient('fromPort', '端口2');
+      link.setClient('toPort', '端口1');
+      link.setName('鼠标停留在连线上显示连线的端口信息');
+      box.add(link);
+    }
+
+    // 从Group中移除节点
+    function func3 () {
+      var node = new twaver.Node();
+      node.setName('拖拽到下面的Group中放手添加到Group中\n右键从Group中移除节点');
+      node.setLocation(700, 20);
+      box.add(node);
+
+      var group = new twaver.Group();
+      group.setExpanded(true);
+      box.add(group);
+      var node1 = new twaver.Node();
+      node1.setLocation(600, 100);
+      group.addChild(node1);
+      box.add(node1);
+      var node2 = new twaver.Node();
+      node2.setLocation(800, 200);
+      group.addChild(node2);
+      box.add(node2);
+    }
+
+    //创建新组
+    function func4 () {
+
+      var group = new twaver.Group();
+      group.setExpanded(false);
+      group.setLocation(600, 400);
+      box.add(group);
+
+      var group = new twaver.Group();
+      group.setExpanded(true);
+      group.setLocation(100, 400);
+      box.add(group);
+    }
+    
+    function initToolbar() {
+      addButton(toolbar, '序列化', function () {
+        var text = new twaver.JsonSerializer(box).serialize();
+        textArea.value = JSON.stringify(JSON.parse(text), null, 2);
+      });
+      addCheckBox(toolbar, '禁止拖拽', function () {
+        if (this.checked) {
+          network.setMovableFunction(function (data) {
+            return false;
+          });
+          network.setDragToPan(false);
+        } else {
+          network.setMovableFunction(null);
+          network.setDragToPan(true);
+        }
+      });
+    }
+    
+    function addButton(toolbar, label, handler) {
+      var button = document.createElement('input');
+      button.type = 'button';
+      button.value =  label;
+      button.onclick = handler;
+      toolbar.appendChild(button);
+    }
+    
+    function addCheckBox(toolbar, label, handler) {
+      var checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.value =  label;
+      checkbox.onchange = handler;
+      var labelDom = document.createElement('label');
+      labelDom.innerText = label;
+      labelDom.appendChild(checkbox);
+      toolbar.appendChild(labelDom);
+    }
+
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

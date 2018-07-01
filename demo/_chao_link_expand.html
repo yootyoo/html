@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="../lib/twaver.js"></script>
+  <script>
+    function init() {
+      var box = new twaver.ElementBox();
+      var network = new twaver.vector.Network(box);
+      
+      document.body.appendChild(network.getView());
+      network.adjustBounds({ x: 0, y: 0, width: 500, height: 500 });
+      
+      var node1 = new twaver.Node();
+      node1.setName('node1');
+      node1.setLocation(100, 100);
+      box.add(node1);
+      
+      var node2 = new twaver.Node();
+      node2.setName('node2');
+      node2.setLocation(300, 100);
+      box.add(node2);
+      
+      var link1 = new twaver.Link(node1, node2);
+      link1.setName('link1!');
+      link1.setStyle('link.width',5);
+      link1.setToolTip('<b>Hello link1!</b>');
+      box.add(link1);
+
+      var link2 = new twaver.Link(node1, node2);
+      link2.setName('link2!');
+      link2.setStyle('link.width',10);
+      link2.setToolTip('<b>Hello link2!</b>');
+      box.add(link2);
+
+      var node3 = new twaver.Node();
+      node3.setName('node3');
+      node3.setLocation(100, 300);
+      box.add(node3);
+
+      var node4 = new twaver.Node();
+      node4.setName('node4');
+      node4.setLocation(300, 300);
+      box.add(node4);
+
+      var link3 = new twaver.Link(node3, node4);
+      link3.setName('link3!');
+      link3.setToolTip('<b>Hello link3!</b>');
+      box.add(link3);
+      var bundleLinks = link3.getBundleLinks();
+
+      var link4 = new twaver.Link(node3, node4);
+      link4.setName('link4!');
+      link4.setToolTip('<b>Hello link4!</b>');
+      box.add(link4);
+
+      link1.setStyle("link.bundle.expanded",false);
+      link2.setStyle("link.bundle.expanded",false);
+
+    }
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

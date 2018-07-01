@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="pragma" content="no-cache">
+    <title></title>
+    <script type="text/javascript" src="lib/twaver.js"></script>
+    <script type="text/javascript">
+
+        var box = new twaver.ElementBox();
+        var network = new twaver.vector.Network(box);
+
+        function init () {
+            var view = network.getView();
+            document.body.appendChild(view);
+            network.adjustBounds({ x: 0, y: 0, width: 800, height: 600 });
+
+            twaver.Util.registerImage('line',{
+                "w": 200,
+                "h": 200,
+                "origin": {
+                    "x": 0,
+                    "y": 0
+                },
+                "v": [
+                    {
+                        "shape": "g",
+                        "v": [
+                            {
+                                "shape": "ellipse",
+                                "cx": 100,
+                                "cy": 100,
+                                "rx": 100,
+                                "ry": 100,
+                                "gradient": {
+                                    "type": "linear",
+                                    "x1": 29.2891,
+                                    "y1": 29.2891,
+                                    "x2": 170.7111,
+                                    "y2": 170.7111,
+                                    "stop": [
+                                        {
+                                            "offset": "0",
+                                            "color": "#FFFFFF"
+                                        },
+                                        {
+                                            "offset": "1",
+                                            "color": "#0D0D0D"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "shape": "path",
+                                "data": "M100,1c54.588,0,99,44.411,99,99s-44.411,99-99,99c-54.589,0-99-44.411-99-99S45.412,1,100,1 M100,0   C44.772,0,0,44.771,0,100s44.771,100,100,100c55.228,0,100-44.771,100-100S155.229,0,100,0L100,0z",
+                                "gradient": {
+                                    "type": "linear",
+                                    "x1": 29.2891,
+                                    "y1": 29.2891,
+                                    "x2": 170.7111,
+                                    "y2": 170.7111,
+                                    "stop": [
+                                        {
+                                            "offset": "0",
+                                            "color": "#BFBFBF"
+                                        },
+                                        {
+                                            "offset": "1",
+                                            "color": "#0D0D0D"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "shape": "ellipse",
+                        "cx": 100,
+                        "cy": 100,
+                        "rx": 90,
+                        "ry": 90,
+                        "gradient": {
+                            "type": "linear",
+                            "x1": 163.6406,
+                            "y1": 163.6396,
+                            "x2": 36.3614,
+                            "y2": 36.3604,
+                            "stop": [
+                                {
+                                    "offset": "0",
+                                    "color": "#FFFFFF"
+                                },
+                                {
+                                    "offset": "1",
+                                    "color": "#0D0D0D"
+                                }
+                            ]
+                        },
+                        "lineColor": "url(#SVGID_4_)",
+                        "lineWidth": 1
+                    },
+                    {
+                        "shape": "ellipse",
+                        "cx": 100,
+                        "cy": 100,
+                        "rx": 82.5,
+                        "ry": 82.5,
+                        "gradient": {
+                            "type": "radial",
+                            "cx": 89,
+                            "cy": 91,
+                            "r": 107.0186,
+                            "fx": 65.9799,
+                            "fy": 64.1433,
+                            "stop": [
+                                {
+                                    "offset": "0",
+                                    "color": "#F1F1EE"
+                                },
+                                {
+                                    "offset": "0.6963",
+                                    "color": "#D8D9D0"
+                                }
+                            ]
+                        },
+                        "lineColor": "url(#SVGID_6_)",
+                        "lineWidth": 1
+                    },
+                    {
+                        "shape": "path",
+                        "data": "M100,34.544  c36.284,0,65.699,29.414,65.699,65.698c0,10.757-2.602,20.899-7.186,29.86",
+                        "lineWidth": 0.9385,
+                        "lineColor": "#000000",
+//                        "fill": "#000000"
+                    },
+                    {
+                        "shape": "path",
+                        "data": "M100,34.544  c-36.284,0-65.698,29.414-65.698,65.698c0,10.774,2.611,20.933,7.208,29.907l0,0",
+                        "lineWidth": 0.9385,
+                        "lineColor": "#80080E",
+//                        "fill": "#000000"
+                    }
+                ]
+            });
+
+            var line = new twaver.Node();
+            line.setImage('line');
+            line.setLocation(0, 0);
+            box.add(line);
+
+        }
+
+    </script>
+</head>
+<body onload="init()">
+</body>
+</html>

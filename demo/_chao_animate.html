@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="pragma" content="no-cache">
+  <meta charset="UTF-8">
+  <title></title>
+    <style type="text/css">
+        body{
+            font-family: "Microsoft Yahei","Open Sans",Helvetica,Arial,sans-serif;
+            font-size: 13px;
+        }
+        .dialog{
+            width: 240px;
+            height: 165px;
+            border: 1px solid #8E8E8F;
+            border-radius: 10px;
+            box-shadow: 4px 4px 3px rgba(20%,20%,40%,0.5);
+            position: absolute;
+            background-color: white;
+        }
+        .table2{
+            border: 1px solid #BEBEBE;
+            margin-left: 5px;
+            margin-right: 5px;
+            width: 95%;
+            text-align: right;
+        }
+        .table1{
+             margin: 0 5px 0 5px;
+            width: 200px;
+        }
+        tr{
+            height:16px;
+        }
+        td{
+            font-family:'Calibri', 'Open Sans',sans-serif;
+            font-size: 11px;
+        }
+        .table1 .td1{
+            text-align: right;
+            width: 50%;
+        }
+        .td1{
+            color: #E09E00;
+        }
+        #dialogHeader{
+            width: 100%;
+            height: 20px;
+            margin-top: 5px;
+            font-family:'Open Sans',sans-serif;
+            font-size: 12px;
+        }
+        #titleImg{
+            width: 12px;
+            height: 12px;
+            margin: 0 5px 0 5px;
+        }
+        .btn-group{
+            position: absolute;
+            top: 10px;
+            right: 60px;
+            z-index: 999;
+        }
+        .btn-group input{
+            margin-left: 10px;
+        }
+    </style>
+  <script type="text/javascript" src="../lib/twaver.js"></script>
+  <script type="text/javascript">
+    
+    var box = new twaver.ElementBox();
+    var network = new twaver.vector.Network(box);
+    var toolbar = document.createElement('div');
+    
+    function init () {
+      initToolbar();
+      var pane = new twaver.controls.BorderPane(network, toolbar);
+      pane.setTopHeight(25);
+      var view = pane.getView();
+      view.style.left = '0px';
+      view.style.top = '0px';
+      view.style.right = '0px';
+      view.style.bottom = '0px';
+      document.body.appendChild(view);
+      window.onresize = function () {
+        pane.invalidate();
+      };
+    
+      network.setLinkFlowEnabled(true);
+      initImages();
+      box.getSelectionModel().setFilterFunction(function (element) {
+        return element.getClient('selectable') !== false;
+      });
+
+      var dialog = initDialog();
+      network.addInteractionListener(function(e){
+          if(e.kind == 'clickElement' && e.element && e.element.getName()){
+              var titleImg = document.getElementById('titleImg');
+              var ei = twaver.Util.getImageAsset(e.element.getImage())._cache;
+              titleImg.src = ei.toDataURL();
+
+              var titleTxt = document.getElementById('titleTxt');
+              var txt = '';
+              if(e.element.getName()){
+                  txt = e.element.getName();
+              }
+              titleTxt.innerHTML = txt;
+              var s = dialog.style;
+              s.display = 'block';                    
+              s.left = e.event.clientX+'px';
+              s.top = e.event.clientY+'px';
+          } else {
+              dialog.style.display = 'none';
+          }
+      });
+
+      initBox();
+    }
+    
+    function initBox () {
+      var loading = new twaver.Follower();
+      loading.setClient('percent', 0);
+      loading.setClient('selectable', false);
+      loading.setCenterLocation(200, 70);
+      loading.setImage('loading_bar');
+      box.add(loading);
+
+      var loadingNode = new twaver.Node();
+      loadingNode.setCenterLocation(200, 100);
+      loading.setHost(loadingNode);
+      box.add(loadingNode);
+
+      var gauge = new twaver.Follower();
+      gauge.setClient('selectable', false);
+      gauge.setImage('gauge');
+      gauge.setSize(90, 80);
+      gauge.setCenterLocation(350 , 65);
+      gauge.setClient('value', parseInt(Math.random() * 100));
+      gauge.setClient('range', 180);
+      gauge.setClient('section', 4);
+      gauge.setClient('step', 1);
+      box.add(gauge);
+
+      var gaugeNode = new twaver.Node();
+      gaugeNode.setCenterLocation(350, 100);
+      gauge.setHost(gaugeNode);
+      box.add(gaugeNode);
+
+      var link = new twaver.Link(loadingNode, gaugeNode);
+      link.setStyle('link.color', '#EC6C00');
+      link.setStyle('link.width', 1);
+      box.add(link);
+
+      var subNetwork = new twaver.SubNetwork();
+      subNetwork.setCenterLocation(500, 70);
+      subNetwork.setName('Test');
+      box.add(subNetwork);
+
+      link = new twaver.Link(gaugeNode, subNetwork);
+      link.setStyle('link.color', '#F400F7');
+      link.setStyle('link.width', 2);
+      link.setStyle('link.pattern', [5, 5]);
+      link.setStyle('link.flow', true);
+      link.setStyle('link.flow.color', 'white');
+
+      box.add(link);
+
+      var node1 = new twaver.Node();
+      node1.setCenterLocation(150, 300);
+      box.add(node1);
+
+      var node2 = new twaver.Node();
+      node2.setCenterLocation(350, 300);
+      box.add(node2);
+
+      var node3 = new twaver.Node();
+      node3.setCenterLocation(550, 300);
+      box.add(node3);
+
+      var link1 = new twaver.Link(gaugeNode, node2);
+      link1.setStyle('link.color', '#EC6C00');
+      link1.setStyle('link.width', 1);
+      link1.setClient('type', 'Files');
+      link1.setStyle('icons.names', ['flow_type']);
+      link1.setStyle('icons.position', ['from']);
+      link1.setStyle('icons.xoffset', 0);
+      box.add(link1);
+
+      var link2 = new twaver.Link(node2, node1);
+      link2.setStyle('link.color', 'blue');
+      link2.setStyle('link.width', 2);
+      link2.setStyle('link.pattern', [5, 5]);
+      link2.setStyle('link.flow', true);
+      link2.setStyle('link.flow.color', 'white');
+      box.add(link2);
+
+      link3 = new twaver.Link(node2, node3);
+      link3.setStyle('link.color', '#EC6C00');
+      link3.setStyle('link.width', 1);
+      link3.setStyle('icons.names', ['icon_server']);
+      link3.setStyle('icons.position', ['from']);
+      link3.setStyle('icons.xoffset', 0);
+      box.add(link3);
+
+      setInterval(function() {
+        gauge.setClient('value', Math.round(Math.random() * 100));
+      }, 1000);
+      var add = true;
+      setInterval(function() {
+        loading.setClient('percent', loading.getClient('percent') > 1 ? 0 : (loading.getClient('percent') + 0.01));
+        link1.setStyle('icons.xoffset', link1.getStyle('icons.xoffset') > 1 ? 0 : (link1.getStyle('icons.xoffset') + 0.01));
+        var offset = link3.getStyle('icons.xoffset');
+        if (offset > 1) {
+          add = false;
+        }
+        if (offset < 0) {
+          add = true;
+        }
+        link3.setStyle('icons.xoffset', offset + (add ? 1 : -1) * 0.01);
+      }, 20);
+    }
+
+    function initImages () {
+      twaver.Util.registerImage('loading_bar', {
+        w: 100,
+        h: 100,  
+        v: [{
+          shape: 'rect',
+          x: -30,
+          y: -30, 
+          w: 60, 
+          h: 10,      
+          fill: 'black',
+          lineColor:'black',
+        },{
+          shape: 'rect',
+          x: -29,
+          y: -29, 
+          w: 58, 
+          h: 8,     
+          fill: 'white',
+          lineWidth: 0,
+        },{
+          shape: 'rect',
+          x: -29,
+          y: -29, 
+          w: function (data, view) {
+            return 58 * data.getClient('percent');
+          }, 
+          h: 8,   
+          fill: '#EC6C00',
+          lineWidth: 0
+        },{
+          shape: 'text',
+          text: function (data, view) {
+            return parseInt(data.getClient('percent') * 100) + '%';
+          },
+          fill:'black',
+          x:15,
+          y:-24,
+          font: '11px',
+        }],
+      });
+
+      twaver.Util.registerImage('gauge', {
+        w: 180,
+        h: 160,
+        font: '15px Calibri',
+        textAlign: 'center',
+        textBaseline: 'middle',
+
+        _radius: 60,
+        _sectionColors: ['#A6C567', '#A6C567', '#A6C567', '#FCBB69', '#FCBB69', '#E19094', ],
+        _sectionGap: 5,
+        _min: 0, //gauge min value.
+        _max: 100, //gauge max value.    
+
+        getSection: function(data) {
+          return data.getClient('section');
+        },
+        getRange: function(data) {
+          return data.getClient('range') || 280;
+        },
+        getFromAngle: function(data) {
+          return (360 - this.getRange(data)) / 2 + 90;
+        },
+        getToAngle: function(data) {
+          return this.getFromAngle(data) + this.getRange(data);
+        },
+        getValueAngle: function(data) {
+          var valueRange = this._max - this._min;
+          var value = data.getClient('value') || 0;
+          value = value > valueRange ? valueRange : value;
+          value = value < 0 ? 0 : value;
+          var angle = value / valueRange * this.getRange(data);
+          return angle + this.getFromAngle(data);
+        },
+
+        v: [
+          {
+            shape: 'line',
+            x2: '<%= this._radius-7 %>',
+            rotate: '<%= this.getValueAngle(data) %>',
+            lineColor: '<% if(getClient("value")>=this._max){return "#E19094";}else{return "#43474B";} %>',
+            lineWidth: 2.5,
+            animate: [
+              {
+                attr: 'rotate',
+                easing: 'elasticBoth'
+              }
+            ]
+          },
+          {
+            shape: 'circle',
+            r: 7,
+            lineColor: '#43474B',
+            lineWidth: 2.5,
+            fill: 'white',
+          },
+          {
+            shape: 'draw',
+            draw: function(g, data, view) {
+              g.lineWidth = 5;
+              var section = this.getSection(data);
+              var sectionAngle = this.getRange(data) / section;
+              for (var i = 0; i < section; i++) {
+                var from = this.getFromAngle(data) + i * sectionAngle + this._sectionGap / 2;
+                var to = from + sectionAngle - this._sectionGap;
+                g.strokeStyle = this._sectionColors[i];
+                g.beginPath();
+                g.arc(0, 0, this._radius, from * Math.PI / 180, to * Math.PI / 180);
+                g.stroke();
+                g.closePath();
+
+                var textAngle = from * Math.PI / 180;
+                var textRadius = this._radius + 20;
+                var text = parseInt(this._min + i * (this._max - this._min) / section);
+                g.fillText(text, textRadius * Math.cos(textAngle), textRadius * Math.sin(textAngle));
+
+                if (i == section - 1) {
+                  textAngle = to * Math.PI / 180;
+                  text = this._max;
+                  g.fillText(text, textRadius * Math.cos(textAngle), textRadius * Math.sin(textAngle));
+                }
+              }
+            }
+          },
+          {
+            shape: 'text',
+            y: 20,
+            text: '<%= getClient("value") %>',
+            fill: '#777777',
+            font: '18px Calibri bold',
+          },
+          {
+            shape: 'text',
+            y: 75,
+            text: '<%= getClient("title") %>',
+            fill: '#777777',
+            font: '20px Calibri',
+          }
+        ]
+      });
+
+      twaver.Util.registerImage('icon_server', {
+          "w": 16,
+          "h": 16,
+          "origin":{"x":0,"y":0},
+          "v":[{"shape":"path","data":"M9.986,15c0,0.552-0.448,1-1,1H1c-0.552,0-1-0.448-1-1V1c0-0.552,0.448-1,1-1h7.986c0.552,0,1,0.448,1,1V15   z","fill":"#FFFFFF"},{"shape":"path","data":"M8.986,13.989C8.986,14.547,8.533,15,7.975,15H2.011C1.453,15,1,14.547,1,13.989V2.011   C1,1.453,1.453,1,2.011,1h5.964c0.558,0,1.011,0.453,1.011,1.011V13.989z","fill":"#ED6C00"},{"shape":"ellipse","cx":6.768,"cy":11.43,"rx":1,"ry":1,"fill":"#FFFFFF"},{"shape":"path","data":"M7.993,3.5c0,0.276-0.224,0.5-0.5,0.5h-5c-0.276,0-0.5-0.224-0.5-0.5l0,0c0-0.276,0.224-0.5,0.5-0.5h5   C7.769,3,7.993,3.224,7.993,3.5L7.993,3.5z","fill":"#FFFFFF"},{"shape":"path","data":"M7.993,5.5c0,0.276-0.224,0.5-0.5,0.5h-5c-0.276,0-0.5-0.224-0.5-0.5l0,0c0-0.276,0.224-0.5,0.5-0.5h5   C7.769,5,7.993,5.224,7.993,5.5L7.993,5.5z","fill":"#FFFFFF"},{"shape":"path","data":"M7.993,7.5c0,0.276-0.224,0.5-0.5,0.5h-5c-0.276,0-0.5-0.224-0.5-0.5l0,0c0-0.276,0.224-0.5,0.5-0.5h5   C7.769,7,7.993,7.224,7.993,7.5L7.993,7.5z","fill":"#FFFFFF"}]
+      });
+
+      twaver.Util.registerImage('flow_type', {
+        w: 80,
+        h: 60,
+        cache: false,
+        v: [{
+          shape: 'vector',
+          name: 'icon_server',  
+          x: -20, 
+          y: 0,
+        },{
+          shape: 'text',
+          text: function (data) {
+            return data.getClient('type');
+          },
+          x: 0,
+          y: 0
+        }]
+      });
+    }
+
+    function initDialog(){
+        var div = document.createElement('div');
+        div.className = 'dialog';
+        div.innerHTML = "<div id='dialogHeader'>"+
+            "<img id='titleImg'></img>"+
+            "<b><label id='titleTxt'></label></b>"+
+        "</div>"+
+        "<table class='table1'>"+
+            "<tr><td class='td1'>Type</td><td class='td2'>Database Instance</td></tr>"+
+            "<tr><td class='td1'>Host</td><td class='td21'>msdbsvr 1</td></tr>"+
+            "<tr><td class='td1'>Incidents</td><td class='td21'>alert 2</td></tr>"+
+        "</table>"+
+        "<table class='table2'>"+
+            "<tr><td class='td1'>Wait Time(%)</td><td class='td2'>15.73</td></tr>"+
+            "<tr><td class='td1'>Active Sessions Using CPU</td><td class='td2'>0.002</td></tr>"+
+            "<tr><td class='td1'>Active Sessions Waiting:I/O</td><td class='td2'>0</td></tr>"+
+            "<tr><td class='td1'>Host CPU Utilization(%)</td><td class='td2'>4.51</td></tr>"+
+        "</table>";
+        document.body.appendChild(div);
+        div.style.display = 'none';
+        div.style.zIndex = 100;
+        return div;
+    }
+    
+    function initToolbar() {
+      addButton(toolbar, 'Zoom In', function () {
+        network.zoomIn();
+      });
+      addButton(toolbar, 'Zoom Out', function () {
+        network.zoomOut();
+      });
+      addButton(toolbar, 'Zoom Overview', function () {
+        network.zoomOverview();
+      });
+      addButton(toolbar, 'Zoom Reset', function () {
+        network.zoomReset();
+      });
+    }
+    
+    function addButton(toolbar, label, handler) {
+      var button = document.createElement('input');
+      button.type = 'button';
+      button.value =  label;
+      button.onclick = handler;
+      toolbar.appendChild(button);
+    }
+    
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

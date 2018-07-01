@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="twaver.js"></script>
+  <script>
+    function init() {
+      twaver.Util.registerImage('fromArrow', {    
+        w: 12,
+        h: 24,
+        origin: { x: 0, y: 0 },
+        v: [
+        {
+          shape: "line",
+          p1: {
+            x: 0,
+            y: 12
+          },
+          p2: {
+            x: 12,
+            y: 12
+          },
+          lineColor: "black",
+          lineWidth: 2.5
+        },{
+          shape: "line",
+          p1: {
+            x: 6,
+            y: 6
+          },
+          p2: {
+            x: 12,
+            y: 12
+          },
+          lineColor: "black",
+          lineWidth: 2.5
+        },{
+          shape: "line",
+          p1: {
+            x: 6,
+            y: 18
+          },
+          p2: {
+            x: 12,
+            y: 12
+          },
+          lineColor: "black",
+          lineWidth: 2.5
+        }
+
+        ],
+      });
+
+      twaver.Util.registerImage('toArrow', {    
+        w: 12,
+        h: 24,
+        origin: { x: 0, y: 0 },
+        v: [
+        {
+          shape: "line",
+          p1: {
+            x: 0,
+            y: 12
+          },
+          p2: {
+            x: 12,
+            y: 12
+          },
+          lineColor: "black",
+          lineWidth: 2.5
+        },{
+          shape: "line",
+          p1: {
+            x: 6,
+            y: 6
+          },
+          p2: {
+            x: 0,
+            y: 12
+          },
+          lineColor: "black",
+          lineWidth: 2.5
+        },{
+          shape: "line",
+          p1: {
+            x: 6,
+            y: 18
+          },
+          p2: {
+            x: 0,
+            y: 12
+          },
+          lineColor: "black",
+          lineWidth: 2.5
+        }
+
+        ],
+      });
+      var box = new twaver.ElementBox();
+      var network = new twaver.vector.Network(box);
+      
+      document.body.appendChild(network.getView());
+      network.adjustBounds({ x: 0, y: 0, width: 500, height: 500 });
+      
+      var node1 = new twaver.Node();
+      node1.setName('TWaver');
+      node1.setLocation(100, 100);
+      box.add(node1);
+      
+      var node2 = new twaver.Node();
+      node2.setName('HTML5');
+      node2.setLocation(300, 200);
+      box.add(node2);
+      
+      var link = new twaver.Link(node1, node2);
+      link.setName('Hello!');
+      link.setToolTip('<b>Hello!</b>');
+      link.setStyle("icons.names",[["fromArrow"],["toArrow"]]);
+      link.setStyle("icons.position",["from","to"]);
+      link.setStyle("icons.xoffset",[[25],[25]]);
+      link.setStyle("link.pattern",[10,2]);
+      link.setStyle('link.icons.rotatable',[true,true]);
+      box.add(link);
+
+
+    }
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

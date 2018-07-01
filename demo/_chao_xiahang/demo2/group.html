@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="js/twaver.js"></script>
+  <script src="config.js"></script>
+  <script>
+    function init() {
+
+      var useConfig = false;
+      var groupXoffset = 600;
+      var groupYoffset = 600;
+      DemoGroupUI = function (network, element) {
+        twaver.vector.GroupUI.superClass.constructor.call(this, network, element);
+      };
+
+      twaver.Util.ext('DemoGroupUI', twaver.vector.GroupUI, {
+        validateBodyBounds: function () {
+          if(!useConfig){
+            var $math=_twaver.math;
+            this.getBodyRect();
+            if (this._shapeRect) {
+              var rect = this.getPathRect("group", false);
+              var deep = this.getStyle('group.deep');
+              $math.grow(rect,deep+1,deep+1);
+              this.addBodyBounds(rect);
+
+              var bound=_twaver.cloneRect(rect);
+              bound.width+=10;
+              bound.height+=10;
+              this.addBodyBounds(bound);
+
+            } else {
+              twaver.vector.GroupUI.superClass.validateBodyBounds.call(this);
+            } 
+          }else{
+            DemoGroupUI.superClass.validateBodyBounds.apply(this,arguments);
+          }         
+        },
+
+        drawPath : function(ctx, prefix, padding, pattern, points, segments, close) {
+          if(!useConfig){
+            var $g=_twaver.g;
+            var zoomManager = this._network.zoomManager;
+            var node = this._element;
+            var rect = null;
+            if (prefix == 'group') {
+              rect = this._shapeRect;
+            } else {
+              rect = this.getZoomBodyRect();
+            };
+            if (padding) {
+              $math.addPadding(rect, node, prefix + '.padding', 1);
+            }
+            var lineWidth = node.getStyle(prefix + '.outline.width');
+            this.setShadow(this, ctx);
+            if (node.getAngle() != 0) {
+              if (!( node instanceof $Group)) {
+                rect = node.getOriginalRect();
+                rect = zoomManager._getElementZoomRect(this, rect);
+              }
+              ctx.save();
+              twaver.Util.rotateCanvas(ctx, rect, node.getAngle());
+            }
+
+            var fill = node.getStyle(prefix + '.fill');
+            var fillColor;
+            if (fill) {
+              if (this._innerColor && !$element.hasDefault(this._element)) {
+                fillColor = this._innerColor;
+              } else {
+                fillColor = node.getStyle(prefix + '.fill.color');
+              }
+              var gradient = node.getStyle(prefix + '.gradient');
+              if (gradient) {
+                $g.fill(ctx, fillColor, gradient, node.getStyle(prefix + '.gradient.color'), rect);
+              } else {
+                ctx.fillStyle = fillColor;
+              }
+            }       
+
+            //draw round rect body.
+            var roundRadius=10;
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(rect.x+roundRadius, rect.y);
+            ctx.lineTo(rect.x+rect.width-60, rect.y);
+            ctx.lineTo(rect.x+rect.width, rect.y+28);
+            ctx.lineTo(rect.x+rect.width, rect.y+rect.height-roundRadius);
+            ctx.quadraticCurveTo(rect.x+rect.width, rect.y+rect.height, rect.x+rect.width-roundRadius, rect.y+rect.height);
+            ctx.lineTo(rect.x+roundRadius, rect.y+rect.height);
+            ctx.quadraticCurveTo(rect.x, rect.y+rect.height, rect.x, rect.y+rect.height-roundRadius);
+            ctx.lineTo(rect.x, rect.y+roundRadius);
+            ctx.quadraticCurveTo(rect.x, rect.y, rect.x+roundRadius, rect.y);
+
+            ctx.save();
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
+            ctx.shadowBlur = 4;
+            ctx.shadowColor ="#555555";
+            ctx.fill();
+            ctx.restore();
+            
+            ctx.lineWidth=node.getStyle('group.outline.width');
+            ctx.strokeStyle=node.getStyle('group.outline.color');
+            ctx.stroke();   
+
+            ctx.restore();        
+
+            //draw cornor.
+            ctx.fillStyle=node.getStyle('group.outline.color');       
+            ctx.lineWidth=node.getStyle('group.outline.width');
+            ctx.lineJoin='bevel';
+            ctx.beginPath();
+            ctx.moveTo(rect.x+rect.width-60, rect.y);
+            ctx.lineTo(rect.x+rect.width-23-10, rect.y+47-10);
+            ctx.quadraticCurveTo(rect.x+rect.width-23, rect.y+46, rect.x+rect.width-23+10, rect.y+47-10);
+            ctx.lineTo(rect.x+rect.width, rect.y+28);
+            ctx.closePath();
+            ctx.save();
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
+            ctx.shadowBlur = 4;
+            ctx.shadowColor ="#777777";
+            ctx.fill();             
+            ctx.restore();
+            ctx.strokeStyle=node.getStyle('group.outline.color');
+            ctx.stroke();   
+
+            //draw pin.
+            ctx.save();
+            ctx.strokeStyle='#27A3DA';
+            ctx.lineWidth=2;
+            ctx.beginPath();
+            ctx.moveTo(rect.x+31, rect.y+5);
+            ctx.lineTo(rect.x+25, rect.y+20);
+            ctx.bezierCurveTo(rect.x+25, rect.y+26, rect.x+28, rect.y+28, rect.x+32, rect.y+23);
+            ctx.lineTo(rect.x+42, rect.y-2);
+            ctx.bezierCurveTo(rect.x+42, rect.y-12, rect.x+32, rect.y-10, rect.x+32, rect.y-5);
+            ctx.lineTo(rect.x+29, rect.y-1);
+
+            ctx.shadowOffsetX = 1;
+            ctx.shadowOffsetY = 1;
+            ctx.shadowBlur = 1;
+            ctx.shadowColor ="#aaaaaa";
+            ctx.stroke();
+            ctx.restore();
+
+            if (node.getAngle() != 0) {
+              ctx.restore();
+            }
+          }else{
+            DemoGroupUI.superClass.drawPath.apply(this,arguments);
+          }
+          
+        },
+      });
+
+      DemoGroup = function (id) {
+        twaver.Group.superClass.constructor.call(this, id);
+      };
+
+      twaver.Util.ext('DemoGroup', twaver.Group, {
+        getVectorUIClass : function(){
+          return DemoGroupUI;          
+        },
+      });
+
+      var box = new twaver.ElementBox();
+      var network = new twaver.vector.Network(box);
+      
+      document.getElementById('main').appendChild(network.getView());
+      network.adjustBounds({ x: 0, y: 0, width: document.documentElement.clientWidth, height: document.documentElement.clientHeight });
+
+      twaver.Util.registerImage('vector_rect', {
+        w : 32,
+        h : 32,
+        v : [ {
+        shape : 'rect',
+        x : -16,
+        y : -16,
+        w : 32,
+        h : 32,
+        lineColor : config.node_color,
+        fill : config.node_color,
+        lineWidth : 1,
+        } ]
+      });
+
+      var group1 = new DemoGroup();
+      group1.setExpanded(true);
+
+      group1.setName("交易系统");
+      group1.setExpanded(true);
+      group1.setStyle('group.fill.color', '#eaf6fd');
+      group1.setStyle('group.deep', 0);
+      group1.setStyle('group.outline.width', 6);
+      group1.setStyle('group.outline.color', '#99caea');
+      group1.setStyle('group.shape', 'roundrect');      
+      group1.setStyle('select.style', 'none');
+      group1.setStyle('vector.outline.pattern', [1,0]);
+      group1.setStyle('label.font', '12px "Microsoft Yahei"');
+      group1.setStyle('group.padding.top', 30);
+      group1.setStyle('group.padding.left', 30);
+      group1.setStyle('group.padding.right', 30);
+      group1.setStyle('group.padding.bottom', 30);
+      box.add(group1);
+
+      var i,j;
+      for(i=0;i<3;i++){
+        for(j=0;j<2;j++){
+          var node1 = new twaver.Node("node"+(2*i+j));
+          node1.setName('子系统_'+(2*i+j));
+          node1.setLocation(100+200*j, 100+100*i);
+          box.add(node1);
+          group1.addChild(node1);
+        }
+      }
+      
+      var group2 = new DemoGroup();
+      group2.setExpanded(true);
+      group2.setName("CRM系统");
+      group2.setStyle("group.shape","rectangle");
+      group2.setStyle('group.padding.top', 30);
+      group2.setStyle('group.padding.left', 30);
+      group2.setStyle('group.padding.right', 30);
+      group2.setStyle('group.padding.bottom', 30);
+      group2.setStyle('group.fill.color', 'rgba(160,110,120,1)');
+
+      group2.setName("CRM系统");
+      group2.setExpanded(true);
+      group2.setStyle('group.fill.color', '#eaf6fd');
+      group2.setStyle('group.deep', 0);
+      group2.setStyle('group.outline.width', 6);
+      group2.setStyle('group.outline.color', '#99caea');
+      group2.setStyle('group.shape', 'roundrect');      
+      group2.setStyle('select.style', 'none');
+      group2.setStyle('vector.outline.pattern', [1,0]);
+      group2.setStyle('label.font', '12px "Microsoft Yahei"');
+      group2.setStyle('group.padding.top', 30);
+      group2.setStyle('group.padding.left', 30);
+      group2.setStyle('group.padding.right', 30);
+      group2.setStyle('group.padding.bottom', 30);
+      box.add(group2);
+
+      for(i=0;i<3;i++){
+        for(j=0;j<2;j++){
+          var node2 = new twaver.Node("node"+(6+2*i+j));
+          node2.setName('子系统'+(2*i+j));
+          node2.setLocation(100+200*j+groupXoffset, 100+100*i);
+          box.add(node2);
+          group2.addChild(node2);
+        }
+      }
+
+      var group3 = new DemoGroup();
+      group3.setName("管理系统");
+      group3.setExpanded(true);
+      group3.setStyle('group.fill.color', '#eaf6fd');
+      group3.setStyle('group.deep', 0);
+      group3.setStyle('group.outline.width', 6);
+      group3.setStyle('group.outline.color', '#99caea');
+      group3.setStyle('group.shape', 'roundrect');      
+      group3.setStyle('select.style', 'none');
+      group3.setStyle('vector.outline.pattern', [1,0]);
+      group3.setStyle('label.font', '12px "Microsoft Yahei"');
+      group3.setStyle('group.padding.top', 30);
+      group3.setStyle('group.padding.left', 30);
+      group3.setStyle('group.padding.right', 30);
+      group3.setStyle('group.padding.bottom', 30);
+
+      box.add(group3);
+
+      for(i=0;i<3;i++){
+        for(j=0;j<2;j++){
+          var node3 = new twaver.Node("node"+(12+2*i+j));
+          node3.setName('子系统'+(2*i+j));
+          node3.setLocation(100+200*j + groupXoffset * 2, 100+100*i);
+          box.add(node3);
+          group3.addChild(node3);
+        } 
+      }
+
+      var group4 = new DemoGroup();
+      group4.setName("管理系统");
+      group4.setExpanded(true);
+      group4.setStyle('group.fill.color', '#eaf6fd');
+      group4.setStyle('group.deep', 0);
+      group4.setStyle('group.outline.width', 6);
+      group4.setStyle('group.outline.color', '#99caea');
+      group4.setStyle('group.shape', 'roundrect');      
+      group4.setStyle('select.style', 'none');
+      group4.setStyle('vector.outline.pattern', [1,0]);
+      group4.setStyle('label.font', '12px "Microsoft Yahei"');
+      group4.setStyle('group.padding.top', 30);
+      group4.setStyle('group.padding.left', 30);
+      group4.setStyle('group.padding.right', 30);
+      group4.setStyle('group.padding.bottom', 30);
+
+      box.add(group4);
+
+      for(i=0;i<3;i++){
+        for(j=0;j<2;j++){
+          var node4 = new twaver.Node("node"+(18+2*i+j));
+          node4.setName('子系统'+(2*i+j));
+          node4.setLocation(100+200*j, 100+100*i + groupYoffset);
+          box.add(node4);
+          group4.addChild(node4);
+        } 
+      }
+
+      var group5 = new DemoGroup();
+      group5.setName("管理系统");
+      group5.setExpanded(true);
+      group5.setStyle('group.fill.color', '#eaf6fd');
+      group5.setStyle('group.deep', 0);
+      group5.setStyle('group.outline.width', 6);
+      group5.setStyle('group.outline.color', '#99caea');
+      group5.setStyle('group.shape', 'roundrect');      
+      group5.setStyle('select.style', 'none');
+      group5.setStyle('vector.outline.pattern', [1,0]);
+      group5.setStyle('label.font', '12px "Microsoft Yahei"');
+      group5.setStyle('group.padding.top', 30);
+      group5.setStyle('group.padding.left', 30);
+      group5.setStyle('group.padding.right', 30);
+      group5.setStyle('group.padding.bottom', 30);
+
+      box.add(group5);
+
+      for(i=0;i<3;i++){
+        for(j=0;j<2;j++){
+          var node5 = new twaver.Node("node"+(24+2*i+j));
+          node5.setName('子系统'+(2*i+j));
+          node5.setLocation(100+200*j + groupXoffset, 100+100*i + groupYoffset);
+          box.add(node5);
+          group5.addChild(node5);
+        } 
+      }
+
+      document.getElementById("show_btn").addEventListener("click",function(){
+
+        if(this.value === "original style"){
+          this.value = "new style";
+
+          useConfig = true;
+          group1.setStyle('group.fill.color', config.group1_color);
+          group1.setStyle("group.shape","rectangle");
+          group1.s('group.outline.width', 0);
+          group2.setStyle('group.fill.color', config.group2_color);
+          group2.setStyle("group.shape","rectangle");
+          group2.s('group.outline.width', 0);
+          group3.setStyle('group.fill.color', config.group3_color);
+          group3.setStyle("group.shape","rectangle");
+          group3.s('group.outline.width', 0);
+
+          var i;
+          var dataList = box.getDatas();
+          for(i=0;i<dataList.size();i++){
+            var data = dataList.get(i);
+            if(data instanceof twaver.Node && !(data instanceof twaver.Group)){
+              data.setImage("vector_rect");
+              data.setStyle("label.color","#ffffff");
+            }
+          }
+
+        }else{
+          this.value = "original style";
+
+          useConfig = false;
+          group1.setStyle('group.fill.color', '#eaf6fd');
+          group1.setStyle('group.shape', 'roundrect'); 
+          group1.setStyle('group.outline.width', 6);
+          group2.setStyle('group.fill.color', '#eaf6fd');
+          group2.setStyle('group.shape', 'roundrect'); 
+          group2.setStyle('group.outline.width', 6);
+          group3.setStyle('group.fill.color', '#eaf6fd');
+          group3.setStyle('group.shape', 'roundrect'); 
+          group3.setStyle('group.outline.width', 6);
+
+          var i;
+          var dataList = box.getDatas();
+          for(i=0;i<dataList.size();i++){
+            var data = dataList.get(i);
+            if(data instanceof twaver.Node && !(data instanceof twaver.Group)){
+              data.setImage("node_image");
+              data.setStyle("label.color","#000000");
+            }
+          }
+        }
+      });
+
+
+    }
+  </script>
+</head>
+<body onload="init()">
+  <!-- <div>
+    <input style="margin-left:10%;" type="button" value="original style" id="show_btn"/>
+  </div> -->
+  <div id="main" style="position:absolute;"></div>
+</body>
+</html>

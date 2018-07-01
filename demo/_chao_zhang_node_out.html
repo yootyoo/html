@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="../lib/twaver.js"></script>
+  <script>
+
+    function init() {
+      var box = new twaver.ElementBox();
+      var network = new twaver.canvas.Network(box);
+      
+      document.body.appendChild(network.getView());
+      network.adjustBounds({ x: 100, y:100, width: 500, height: 500 });
+      
+      var node1 = new twaver.Node();
+      node1.setName('TWaver');
+      node1.setLocation(100, 100);
+      box.add(node1);
+      
+      var node2 = new twaver.Node();
+      node2.setName('HTML5');
+      node2.setLocation(300, 200);
+      box.add(node2);
+      var bo = document.body;
+      
+      var link = new twaver.Link(node1, node2);
+      link.setName('Hello!');
+      link.setToolTip('<b>Hello!</b>');
+      box.add(link);
+
+
+      var CMoveInteraction = function(network, lazyMode){
+        CMoveInteraction.superClass.constructor.apply(this, arguments);
+      };
+
+      twaver.Util.ext(CMoveInteraction, twaver.canvas.interaction.MoveInteraction, {
+        handle_mousemove: function(mouseEvent) {
+          var elements = network.getMovableSelectedElements();
+          var xmin,ymin,xmax,ymax;
+          var rightElement, bottomElement;
+          if(elements && elements.size()>0){
+            var element0 = elements.get(0);
+            xmin = element0.getLocation().x - element0.getWidth()/2;
+            xmax = element0.getLocation().x + element0.getWidth()/2;
+            ymin = element0.getLocation().y - element0.getHeight()/2;
+            ymax = element0.getLocation().y + element0.getHeight()/2;
+            rightElement = element0;
+            bottomElement = element0;
+          }
+          for(var i=1;i<elements.size();i++){
+            var element = elements.get(i);
+            if(element.getLocation().x-element.getWidth()/2 < xmin) xmin = element.getLocation().x-element.getWidth()/2;
+            if(element.getLocation().x+element.getWidth()/2 > xmax){
+              xmax = element.getLocation().x+element.getWidth()/2;
+              rightElement = element;
+            }
+            if(element.getLocation().y-element.getHeight()/2 < ymin) ymin = element.getLocation().y-element.getHeight()/2;
+            if(element.getLocation().y+element.getHeight()/2 > ymax){
+              ymax = element.getLocation().y+element.getHeight()/2;
+              bottomElement = element;
+            }
+          }
+          var mousePoint = network.getLogicalPoint(mouseEvent);
+          if(mousePoint && this.lastPoint){
+            var xoffset = mousePoint.x - this.lastPoint.x;
+            var yoffset = mousePoint.y - this.lastPoint.y;
+            if(xmin+xoffset > 0 && xmax+xoffset < network.getViewRect().width-rightElement.getWidth()/2 && ymin+yoffset > 0 && ymax+yoffset < (bottomElement.getName() ? network.getViewRect().height-bottomElement.getHeight()/2- 12 : network.getViewRect().height-bottomElement.getHeight()/2)){
+              CMoveInteraction.superClass.handle_mousemove.apply(this, arguments);
+            }
+          }
+        }
+      });
+      network.setInteractions([new twaver.canvas.interaction.DefaultInteraction(network), new twaver.canvas.interaction.SelectInteraction(network), new twaver.canvas.interaction.ScrollInteraction(network), new CMoveInteraction(network, 0)])
+
+    }
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

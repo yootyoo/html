@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body onload="init()" style="margin: 0px">
+<script type="text/javascript" src="./js/jquery-2.1.3.min.js"></script>
+<script type="text/javascript" src="./js/twaver.js"></script>
+<script type="text/javascript">
+/*
+* 子网接口,表示大型网络中的一小部分网络，TWaver HTML5中拓扑图可以切换子网,呈现的即是当前子网中的网元。子网接口的默认实现类是
+twaver.SubNetwork,拓扑图中默认双击进入子网,双击背景返回上层子网,当前子网为Null时表示是最顶层子网。*/
+/*设置当前子网
+  get/setCurrentSubnetwork:  function(subnetwork,animate)
+  //返回上级子网
+  upSubNetwork:  function(animate)*/
+var mainSplitPane;
+    var box=new twaver.ElementBox();
+    var network=new twaver.canvas.Network(box);
+/*它是和DataBox绑定的，以树的形式展示DataBox中的数据以及数据之间的层次关系。*/
+    var tree=new twaver.controls.Tree(box);
+/*表格是TWaver HTML5中提供的视图组件的一种，它是和DataBox绑定的，以表格的形式呈现出DataBox中的数据。*/
+    var table=new twaver.controls.Table(box);
+    function init(){
+        /*表格面板，它是用于保存表格的一种面板，表格面板中包含了表格体和表头，即使在创建表格面板时不传入表头，TWaver也会自动为表格体创建一个默认的表头*/
+        var tablePane=new twaver.controls.TablePane(table);
+/*劈分面板是用于将一块面板劈分成两块的面板，两块面板所占的比例大小是由劈分条的位置来决定的，并且可以通过移动劈分条来动态改变这两块面板的大小。 劈分面板通过设置orientation来进行水平和垂直劈分*/
+        var rightSpilt=new twaver.controls.SplitPane(network,tablePane,'vertical',0.8);//垂直分割画布和tablePane
+        mainSplitPane=new twaver.controls.SplitPane(tree, rightSpilt,'horizontal',0.2);//水平分割
+        network.setScrollBarVisible(false);//设置滚动条不可见
+        var networkDom=mainSplitPane.getView();
+        networkDom.style.width='100%';
+        networkDom.style.height='100%';
+        document.body.appendChild(networkDom);
+
+        network.getView().style.backgroundColor='#FF99FF';//设置画布的背景颜色
+
+        network.getView().style.cursor='hand';
+        window.onresize =  function () {
+            mainSplitPane.invalidate();
+        }
+        initDataBox();
+    }
+    function initDataBox(){
+        var subNetworkA=new twaver.SubNetwork();
+        subNetworkA.setName('subNetworkA');
+        subNetworkA.setLocation(20,20);
+        box.add(subNetworkA);
+
+        var groupA =  new twaver.Group({
+            name: 'groupA',
+            location: {x: 100, y: 100}
+        });
+        box.add(groupA);
+        var nodeA =  new twaver.Node({
+            name: 'nodeA',
+            location: {x: 200, y: 200}
+        });
+        box.add(nodeA);
+        var link =  new twaver.Link(groupA,nodeA);
+        link.setName('1');
+        box.add(link);
+
+        subNetworkA.addChild(groupA);
+        subNetworkA.addChild(nodeA);
+        subNetworkA.addChild(link);
+
+        var subNetworkB=new twaver.SubNetwork();
+        subNetworkB.setName('SubNetworkB');
+        subNetworkB.setLocation(120,20);
+        box.add(subNetworkB);
+    }
+//network.addInteractionListener(function(e){
+//    if(e.kind=='clickElement'){
+//        var element=network.getElementAt(e);
+//        alert(e.element.getName());
+//    }
+//});
+tree.addInteractionListener(function(e){//树监听单击节点
+    if(e.kind === "click"){
+        setTimeout(function(){
+            network.setCurrentSubNetwork(tree.getSelectionModel().getLastData());
+        },200);
+	}
+});
+</script>
+</body>
+</html>

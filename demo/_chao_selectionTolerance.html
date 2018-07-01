@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script type="text/javascript" src="../lib/twaver.js"></script>
+  <script>
+
+    var CNetwork = function (box) {
+      CNetwork.superClass.constructor.apply(this, arguments);
+    }
+    twaver.Util.ext('CNetwork', twaver.vector.Network, {
+      getLabel:function(){
+        var label = CNetwork.superClass.getLabel.apply(this, arguments);
+        if(label.length > 10){
+          return label.substring(0,3)+"...";
+        }else{
+          return label;
+        }
+      }
+    });
+    function init() {
+      var box = new twaver.ElementBox();
+      var network = new twaver.network.Network(box);
+      network.setSelectionTolerance(40);
+      
+      document.body.appendChild(network.getView());
+      network.adjustBounds({ x: 0, y: 0, width: 500, height: 500 });
+      
+      var node1 = new twaver.Node();
+      var nameString = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+      node1.setStyle("label.color","rgba(255,0,0,0.1)");
+      node1.setName(nameString);
+      node1.setToolTip(nameString);
+
+      node1.setLocation(100, 100);
+      box.add(node1);
+      
+      var node2 = new twaver.Node();
+      node2.setName('HTML5');
+      node2.setLocation(300, 200);
+      box.add(node2);
+      
+      var link = new twaver.Link(node1, node2);
+      link.setName('Hello!');
+      link.setToolTip('<b>Hello!</b>');
+      box.add(link);
+    }
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<head>
+    <title>TWaver HTML5 - PSTN Demo</title>
+    <link rel="stylesheet" href="../css/base.css" type="text/css">
+    <script type="text/javascript" src="../../lib/twaver.js"></script>
+    
+ 
+    <script>
+  var network = new twaver.network.Network();
+    var box = network.getElementBox();
+      
+  function init(){
+    registImages();
+     var xmlSerializer = localStorage.xmlData;
+     
+     /*禁用拖动的*/
+     network.setInteractions([]);
+         /*network2.setMovableFunction(function (element) { 
+      return false;
+    });*/
+    
+    
+         document.body.appendChild(network.getView());
+         network.adjustBounds({ x: 0, y: 0, width: 1024, height: 768 });
+
+         var serializer = new twaver.XmlSerializer(box);
+         serializer.deserialize(xmlSerializer);
+  }
+  
+  var registImages= function () {   
+    /*pml add*/
+    registerImage("../images/toolbar/contor_icon.png");
+        registerImage("../images/toolbar/pc_icon.png");
+        registerImage("../images/toolbar/chassis_icon.png");
+    registerImage("../images/toolbar/bus_icon.png");
+    registerImage("../images/toolbar/switch_icon.png");
+    registerImage("../images/toolbar/controller_icon.png");
+    registerImage("../images/toolbar/system_icon.png");
+    registerImage("../images/toolbar/bus_icon2.png");
+          };
+          var registerImage= function (url) {
+              registerTheImage(url, this.network);
+          };
+          var registerTheImage= function (url, svg) {
+              var image = new Image();
+              image.src = url;
+              var views = arguments;
+              var that = this;
+              image.onload = function () {
+                  twaver.Util.registerImage(getImageName(url), image, image.width, image.height, svg);
+                  image.onload = null;
+                  for (var i = 1; i < views.length; i++) {
+                      var view = views[i];
+                      if (view.invalidateElementUIs) {
+                          view.invalidateElementUIs();
+                      }
+                      if (view.invalidateDisplay) {
+                          view.invalidateDisplay();
+                      }
+                  }
+              };
+          };
+          var getImageName= function (url) {
+              var index = url.lastIndexOf('/');
+              var name = url;
+              if (index >= 0) {
+                  name = url.substring(index + 1);
+              }
+              index = name.lastIndexOf('.');
+              if (index >= 0) {
+                  name = name.substring(0, index);
+              }
+              return name;
+          };
+      
+  </script>
+</head>
+<body onload="init()">
+    
+</body>
+</html>

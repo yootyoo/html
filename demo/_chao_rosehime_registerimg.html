@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="pragma" content="no-cache">
+  <title>Test</title>
+  <script type="text/javascript" src="../lib/twaver.js"></script>
+  <script type="text/javascript">
+
+    var box = new twaver.ElementBox();
+    var network = new twaver.vector.Network(box);
+
+    function init () {
+        var view = network.getView();
+        var containDiv = document.getElementById("contain");
+        containDiv.appendChild(view);
+        initRoom();
+        network.adjustBounds({ x: 0, y: 0, width:document.documentElement.clientWidth,height:document.documentElement.clientHeight});
+        registerImage("images/delllogo.svg");
+    }
+
+    function initRoom() {
+      var line = new twaver.Node();
+      line.setImage('delllogo');
+      line.setName("dell");
+      line.setLocation(200, 80);
+      box.add(line);
+    }
+
+
+    // twaver.Util.registerImage('line', {
+    //   w: 100,
+    //   h: 100,
+    //   line: {
+    //     width: 1,
+    //     color: '#EC6C00'
+    //   },
+    //   v: [
+    //     {
+    //       shape: 'line',
+    //       x1: -50,
+    //       y1: -50,
+    //       x2: 50,
+    //       y2: 50
+    //     },
+    //     {
+    //       shape: 'line',
+    //       p1: { x: 50, y: -50 },
+    //       p2: { x: -50, y: 50 }
+    //     }
+    //   ]
+    // });
+
+    var registerImage = function (url) {
+        var image = new Image();
+        image.src = url;
+        var views = arguments;
+        var that = this;
+        image.onload = function () {
+            twaver.Util.registerImage(that.getImageName(url), image, image.width, image.height, network);
+            image.onload = null;
+            // for (var i = 1; i < views.length; i++) {
+            //     var view = views[i];
+                if (network.invalidateElementUIs) {
+                    network.invalidateElementUIs();
+                }
+                if (network.invalidateDisplay) {
+                    network.invalidateDisplay();
+                }
+            // }
+        };
+    };
+
+    var getImageName= function (url) {
+        var index = url.lastIndexOf('/');
+        var name = url;
+        if (index >= 0) {
+            name = url.substring(index + 1);
+        }
+        index = name.lastIndexOf('.');
+        if (index >= 0) {
+            name = name.substring(0, index);
+        }
+        return name;
+    };
+
+    // function registerImage(url) {
+    //     var img = new Image();
+    //     img.src = url;
+    //     img.onload = function () {
+    //         img.onload = null;
+    //         twaver.Util.registerImage(getImageName(url), img, img.width, img.height);
+    //         network.invalidateElementUIs();
+    //     };
+    // }
+    // function getImageName(url) {
+    //     var index = url.lastIndexOf('/');
+    //     var name = url;
+    //     if (index >= 0) {
+    //         name = url.substring(index + 1);
+    //     }
+    //     index = name.lastIndexOf('.');
+    //     if (index >= 0) {
+    //         name = name.substring(0, index);
+    //     }
+    //     return name;
+    // }
+
+  </script>
+</head>
+<body onload="init()">
+  <div id="contain"></div>
+</body>
+</html>
+
+

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="../../lib/twaver.js"></script>
+
+  <script>
+    //  所有节点的连线关系如图
+
+    //  00——03——06
+    //  | \ | /   \
+    //  09——12——15——18
+    //    \ | /   \ |
+    //      21——————23
+    //
+    //  01——04
+    //  |   |
+    //  07——10——13
+    //      |   |
+    //      16——19——22
+    //
+    //  02——05——08
+    //  | / |  /
+    //  11——14
+    //  | / |
+    //  17——20
+
+    var box = new twaver.ElementBox();
+    var network = new twaver.vector.Network(box);
+    var autoLayouter = new twaver.layout.AutoLayouter(box);
+
+    function init() {
+        initNetwork();
+        initDataBox();
+    };
+
+    function initNetwork() {
+        var view = network.getView();
+        document.body.appendChild(view);
+        network.adjustBounds({x: 0, y: 0, width: 1300, height: 800});
+    };
+
+    function initDataBox() {
+
+        for(var i=0;i<24;i++){
+            var newNode = new twaver.Node("node"+i);
+            newNode.setName("Node"+i);
+            box.add(newNode);
+        }
+
+        var quickfinder = new twaver.QuickFinder(box, "id");
+        var node00 = quickfinder.findFirst("node0");
+        var node01 = quickfinder.findFirst("node1");
+        var node02 = quickfinder.findFirst("node2");
+        var node03 = quickfinder.findFirst("node3");
+        var node04 = quickfinder.findFirst("node4");
+        var node05 = quickfinder.findFirst("node5");
+        var node06 = quickfinder.findFirst("node6");
+        var node07 = quickfinder.findFirst("node7");
+        var node08 = quickfinder.findFirst("node8");
+        var node09 = quickfinder.findFirst("node9");
+        var node10 = quickfinder.findFirst("node10");
+        var node11 = quickfinder.findFirst("node11");
+        var node12 = quickfinder.findFirst("node12");
+        var node13 = quickfinder.findFirst("node13");
+        var node14 = quickfinder.findFirst("node14");
+        var node15 = quickfinder.findFirst("node15");
+        var node16 = quickfinder.findFirst("node16");
+        var node17 = quickfinder.findFirst("node17");
+        var node18 = quickfinder.findFirst("node18");
+        var node19 = quickfinder.findFirst("node19");
+        var node20 = quickfinder.findFirst("node20");
+        var node21 = quickfinder.findFirst("node21");
+        var node22 = quickfinder.findFirst("node22");
+        var node23 = quickfinder.findFirst("node23");
+
+        node00.setLocation(100,200);
+        node03.setLocation(150,200);
+        node06.setLocation(200,200);
+        node09.setLocation(100,240);
+        node12.setLocation(150,240);
+        node15.setLocation(200,240);
+        node18.setLocation(250,240);
+        node21.setLocation(150,280);
+        node23.setLocation(250,280);
+        node01.setLocation(100,420);
+        node04.setLocation(150,420);
+        node07.setLocation(100,460);
+        node10.setLocation(150,460);
+        node13.setLocation(200,460);
+        node16.setLocation(150,500);
+        node19.setLocation(200,500);
+        node22.setLocation(250,500);
+        node02.setLocation(100,640);
+        node05.setLocation(150,640);
+        node08.setLocation(200,640);
+        node11.setLocation(100,680);
+        node14.setLocation(150,680);
+        node17.setLocation(100,720);
+        node20.setLocation(150,720);
+
+        var link00_03 = new twaver.Link("link00_03", node00, node03);
+        var link00_09 = new twaver.Link("link00_09", node00, node09);
+        var link00_12 = new twaver.Link("link00_12", node00, node12);
+        var link03_06 = new twaver.Link("link03_06", node03, node06);
+        var link03_12 = new twaver.Link("link03_12", node03, node12);
+        var link06_12 = new twaver.Link("link06_12", node06, node12);
+        var link06_18 = new twaver.Link("link06_18", node06, node18);
+        var link09_12 = new twaver.Link("link09_12", node09, node12);
+        var link09_21 = new twaver.Link("link09_21", node09, node21);
+        var link12_15 = new twaver.Link("link12_15", node12, node15);
+        var link12_21 = new twaver.Link("link12_21", node12, node21);
+        var link15_18 = new twaver.Link("link15_18", node15, node18);
+        var link15_21 = new twaver.Link("link15_21", node15, node21);
+        var link15_23 = new twaver.Link("link15_23", node15, node23);
+        var link18_23 = new twaver.Link("link18_23", node18, node23);
+        var link21_23 = new twaver.Link("link21_23", node21, node23);
+
+        var link01_04 = new twaver.Link("link01_04", node01, node04);
+        var link01_07 = new twaver.Link("link01_07", node01, node07);
+        var link04_10 = new twaver.Link("link04_10", node04, node10);
+        var link07_10 = new twaver.Link("link07_10", node07, node10);
+        var link10_13 = new twaver.Link("link10_13", node10, node13);
+        var link10_16 = new twaver.Link("link10_16", node10, node16);
+        var link13_19 = new twaver.Link("link13_19", node13, node19);
+        var link16_19 = new twaver.Link("link16_19", node16, node19);
+        var link19_22 = new twaver.Link("link19_22", node19, node22);
+
+        var link02_05 = new twaver.Link("link02_05", node02, node05);
+        var link02_11 = new twaver.Link("link02_11", node02, node11);
+        var link05_08 = new twaver.Link("link05_08", node05, node08);
+        var link05_11 = new twaver.Link("link05_11", node05, node11);
+        var link05_14 = new twaver.Link("link05_14", node05, node14);
+        var link08_14 = new twaver.Link("link08_14", node08, node14);
+        var link11_14 = new twaver.Link("link11_14", node11, node14);
+        var link11_17 = new twaver.Link("link11_17", node11, node17);
+        var link14_17 = new twaver.Link("link14_17", node14, node17);
+        var link14_20 = new twaver.Link("link14_20", node14, node20);
+        var link17_20 = new twaver.Link("link17_20", node17, node20);
+
+        box.add(link00_03);
+        box.add(link00_09);
+        box.add(link00_12);
+        box.add(link03_06);
+        box.add(link03_12);
+        box.add(link06_12);
+        box.add(link06_18);
+        box.add(link09_12);
+        box.add(link09_21);
+        box.add(link12_15);
+        box.add(link12_21);
+        box.add(link15_18);
+        box.add(link15_21);
+        box.add(link15_23);
+        box.add(link18_23);
+        box.add(link21_23);
+        box.add(link01_04);
+        box.add(link01_07);
+        box.add(link04_10);
+        box.add(link07_10);
+        box.add(link10_13);
+        box.add(link10_16);
+        box.add(link13_19);
+        box.add(link16_19);
+        box.add(link19_22);
+        box.add(link02_05);
+        box.add(link02_11);
+        box.add(link05_08);
+        box.add(link05_11);
+        box.add(link05_14);
+        box.add(link08_14);
+        box.add(link11_14);
+        box.add(link11_17);
+        box.add(link14_17);
+        box.add(link14_20);
+        box.add(link17_20);
+
+        // var arr= [];
+        // arr.push("1");
+        // arr.push("2");
+        // var el = arr.pop();
+        // arr.unshift("3");
+        // arr.unshift("4");
+        // var el2  = arr.shift();
+
+        var topologicalOrder = calculateTopologicalOrder(box._rootList._as);
+
+        for(var i=0;i<topologicalOrder.length;i++){
+          console.log(topologicalOrder[i]);
+        }
+    };
+
+    // var createOutDegreeAdjacencyListForNodes = function(dataBox){
+    //   var adjList = []; 
+    //   for(var i=0;i<dataBox._rootList._as.length;i++){
+    //     var twaverData = dataBox._rootList._as[i];
+    //     if(twaverData instanceof twaver.Node){
+    //       var adjNodes = [];
+    //       adjList.push(adjNodes);
+    //       adjNodes.push(i);
+    //       if(twaverData._fromLinks){
+    //         for(var j=0;j<twaverData._fromLinks._as.length;j++){
+    //           var fromLink = twaverData._fromLinks._as[j];
+    //           var index = findNodeIndexInNodeBox(fromLink._toNode,dataBox);
+    //           adjNodes.push(index);
+    //         }
+    //       }
+    //     }
+    //   }
+    //   return adjList;
+    // };
+
+    // var createInDegreeAdjacencyListForNodes = function(dataBox){
+    //   var adjList = []; 
+    //   for(var i=0;i<dataBox._rootList._as.length;i++){
+    //     var twaverData = dataBox._rootList._as[i];
+    //     if(twaverData instanceof twaver.Node){
+    //       var adjNodes = [];
+    //       adjList.push(adjNodes);
+    //       adjNodes.push(i);
+    //       if(twaverData._toLinks){
+    //         for(var j=0;j<twaverData._toLinks._as.length;j++){
+    //           var toLink = twaverData._toLinks._as[j];
+    //           var index = findNodeIndexInNodeBox(toLink._fromNode,dataBox);
+    //           adjNodes.push(index);
+    //         }
+    //       }
+    //     }
+    //   }
+    //   return adjList;
+    // };
+
+    var calculateTopologicalOrder = function(dataList){
+      var createNodeBox = function(dataList){
+        var nodeBox = [];
+        for(var i=0;i<dataList.length;i++){
+          var twaverData = dataList[i];
+          if(twaverData instanceof twaver.Node){
+            var nodeElement = {};
+            nodeElement.index = i;
+            nodeElement.data = twaverData;
+            nodeBox.push(nodeElement);
+          }
+        }
+        return nodeBox;
+      };
+
+      var createOutDegreeAdjacencyListForNodes = function(nodeBox){
+        var adjList = []; 
+        for(var i=0;i<nodeBox.length;i++){
+          var twaverData = nodeBox[i].data;
+          var adjNodes = [];
+          adjList.push(adjNodes);
+          adjNodes.push(i);
+          if(twaverData._fromLinks){
+            for(var j=0;j<twaverData._fromLinks._as.length;j++){
+              var fromLink = twaverData._fromLinks._as[j];
+              var index = findNodeIndexInNodeBox(fromLink._toNode,nodeBox);
+              if(index !== -1){
+                adjNodes.push(index);
+              }
+            }
+          }
+        }
+        return adjList;
+      };
+
+      var createInDegreeAdjacencyListForNodes = function(nodeBox){
+        var adjList = []; 
+        for(var i=0;i<nodeBox.length;i++){
+          var twaverData = nodeBox[i].data;
+          var adjNodes = [];
+          adjList.push(adjNodes);
+          adjNodes.push(i);
+          if(twaverData._toLinks){
+            for(var j=0;j<twaverData._toLinks._as.length;j++){
+              var toLink = twaverData._toLinks._as[j];
+              var index = findNodeIndexInNodeBox(toLink._fromNode,nodeBox);
+              if(index !== -1){
+                adjNodes.push(index);
+              }
+            }
+          }
+        }
+        return adjList;
+      };
+
+      var findNodeIndexInNodeBox = function(node,nodeBox){
+        for(var i=0;i<nodeBox.length;i++){
+          var twaverData = nodeBox[i].data;
+          if(node._id === twaverData._id){
+            return i;
+          }
+        }
+        return -1;
+      };
+
+      var nodeBox = createNodeBox(dataList);
+      var outDegreeAdjList = createOutDegreeAdjacencyListForNodes(nodeBox);
+      var inDegreeAdjList = createInDegreeAdjacencyListForNodes(nodeBox);
+      var inDegree = [];
+      var inDegreeEmptyQueue = [];
+      var i;
+      var topologicalOrder = [];
+      var outTopologicalOrder = [];
+      var inTopologicalOrder = [];
+      for(i=0;i<inDegreeAdjList.length;i++){
+        inDegree.push(inDegreeAdjList[i].length-1);
+        if(inDegreeAdjList[i].length === 1){
+          inDegreeEmptyQueue.push(i);
+        }
+      }
+      while(inDegreeEmptyQueue.length >0){
+        var inDegreeEmptyIndex = inDegreeEmptyQueue[0];
+        inTopologicalOrder.push(nodeBox[inDegreeEmptyIndex].index);
+        inDegreeEmptyQueue.splice(0,1);
+        var outIndexes_inDegreeEmptyIndex = outDegreeAdjList[inDegreeEmptyIndex];
+        for(i=1;i<outIndexes_inDegreeEmptyIndex.length;i++){
+          var outIndex_inDegreeEmptyIndex = outIndexes_inDegreeEmptyIndex[i];
+          inDegree[outIndex_inDegreeEmptyIndex] = inDegree[outIndex_inDegreeEmptyIndex] - 1;
+          if(inDegree[outIndex_inDegreeEmptyIndex] === 0){
+            inDegreeEmptyQueue.push(outIndex_inDegreeEmptyIndex);
+          }
+        }
+      }
+      // var topologicalOrder = [];
+      // while(hasInDegreeEmptyNodes(inDegree)){
+      //   for(var i=0; i<inDegreeAdjList.length;i++){
+      //     // var inIndex = inDegreeAdjList[i][0];
+      //     // var twaverData = dataBox._rootList._as[inIndex];
+      //     if(inDegreeAdjList[i].length === 1){
+      //       var in_i_0 = inDegreeAdjList[i][0];
+      //       var out_i = outDegreeAdjList[in_i_0];
+      //       for(var j=1;j<out_i.length;j++){
+      //         var out_i_j = out_i[j];
+      //         var in_out_i_j = inDegreeAdjList[out_i_j];
+      //         for(var k=1;k<in_out_i_j.length;k++){
+      //           if(in_out_i_j[k] === in_i_0){
+      //             in_out_i_j.splice(k,1);
+      //           }
+      //         }
+      //       }
+      //       topologicalOrder.push(i);
+      //       inDegreeAdjList.splice(i);
+      //       // topologicalOrder.push(inDegreeAdjList[i][0]);
+      //       // var outAdjNodes = twaverData.getClient("outAdjNodes");
+      //       // for(var j=0;j<outAdjNodes.length;j++){
+
+      //       // }
+      //     }
+      //   }
+      // if(topologicalOrder.length === inDegreeAdjList.length){
+        return inTopologicalOrder;
+      // }else{
+      //   var outDegree = [];
+      //   var outDegreeEmptyQueue =[];
+
+      //   for(i=0;i<outDegreeAdjList.length;i++){
+      //     outDegree.push(outDegreeAdjList[i].length-1);
+      //     if(outDegreeAdjList[i].length === 1){
+      //       outDegreeEmptyQueue.push(i);
+      //     }
+      //   }
+      //   while(outDegreeEmptyQueue.length >0){
+      //     var outDegreeEmptyIndex = outDegreeEmptyQueue[0];
+      //     outTopologicalOrder.unshift(nodeBox[outDegreeEmptyIndex].index);
+      //     outDegreeEmptyQueue.splice(0,1);
+      //     var inIndexes_outDegreeEmptyIndex = inDegreeAdjList[outDegreeEmptyIndex];
+      //     for(i=1;i<inIndexes_outDegreeEmptyIndex.length;i++){
+      //       var inIndex_outDegreeEmptyIndex = inIndexes_outDegreeEmptyIndex[i];
+      //       outDegree[inIndex_outDegreeEmptyIndex] = outDegree[inIndex_outDegreeEmptyIndex] - 1;
+      //       if(outDegree[inIndex_outDegreeEmptyIndex] === 0){
+      //         outDegreeEmptyQueue.push(inIndex_outDegreeEmptyIndex);
+      //       }
+      //     }
+      //   }
+      //   var concatOrder = inTopologicalOrder.concat(outTopologicalOrder);
+      //   // for(var i=0;i<)
+      // }
+      
+    };
+
+
+    // var createAdjacencyListForNodes = function(dataBox){
+    //   var adjList = []; 
+    //   for(var i=0;i<dataBox._rootList._as.length;i++){
+    //     var twaverData = dataBox._rootList._as[i];
+    //     if(twaverData instanceof twaver.Node){
+    //       adjList.push(twaverData);
+    //       var adjNodes = [];
+    //       twaverData.setClient("adjNodes",adjNodes);
+    //       if(twaverData._fromLinks){
+    //         for(var j=0;j<twaverData._fromLinks._as.length;j++){
+    //           var fromLink = twaverData._fromLinks._as[j];
+    //           adjNodes.push(fromLink._toNode);
+    //         }
+    //       }
+    //       if(twaverData._toLinks){
+    //         for(var j=0;j<twaverData._toLinks._as.length;j++){
+    //           var toLink = twaverData._toLinks._as[j];
+    //           adjNodes.push(toLink._fromNode);
+    //         }
+    //       }
+    //     }
+    //   }
+    //   return adjList;
+    // };
+
+    // var clearIsVisited = function(adjList){
+    //   for(var i=0;i<adjList.length;i++){
+    //     adjList[i].setClient("isVisited",false);
+    //   }
+    // };
+
+
+    // var DFSNodeInUndirectedGraph = function(adjList){
+
+    //   var depthFirstSearchNode = function(currentData){
+    //     if(currentData.getClient("isVisited")) return;
+    //     else{
+    //       console.log(currentData.getName());
+    //       currentData.setClient("isVisited",true);
+    //       var adjNodes = currentData.getClient("adjNodes");
+    //       for(var i=0;i<adjNodes.length;i++){
+    //         depthFirstSearchNode(adjNodes[i])
+    //       }
+    //     }
+    //   };
+
+    //   for(var i=0;i<adjList.length;i++){
+    //     var twaverData = adjList[i];
+    //     if(!twaverData.getClient("isVisited")){
+    //       depthFirstSearchNode(twaverData);
+    //       console.log("--------------以上为一个连通子图");
+    //     }
+    //   }
+    // };
+
+
+    // var BFSNodeInUndirectedGraph = function(adjList){
+
+    //   var breadthFirstSearchNode = function(startData){
+    //     if(!startData.getClient("isVisited")){
+    //       var queue = [];
+    //       queue.push(startData);
+    //       startData.setClient("isVisited",true);
+    //       while(queue.length>0){
+    //         var dequeueData = queue[0];
+    //         queue.splice(0,1);
+    //         console.log(dequeueData.getName());
+    //         var adjNodes = dequeueData.getClient("adjNodes");
+    //         for(var i=0;i<adjNodes.length;i++){
+    //           var adjNode = adjNodes[i];
+    //           if(!adjNode.getClient("isVisited")){
+    //             queue.push(adjNode);
+    //             adjNode.setClient("isVisited",true);
+    //           }
+    //         }
+    //       }
+    //     }
+    //   };
+
+    //   for(var i=0;i<adjList.length;i++){
+    //     var twaverData = adjList[i];
+    //     if(!twaverData.getClient("isVisited")){
+    //       breadthFirstSearchNode(twaverData);
+    //       console.log("--------------以上为一个连通子图");
+    //     }
+    //   }
+    // };
+
+
+  </script>
+</head>
+<body onload="init()">
+ <!-- <h3> 请看控制台打印结果</h3> -->
+</body>
+</html>

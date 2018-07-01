@@ -1,0 +1,53 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="pragma" content="no-cache">
+    <title>Blinking Demo</title>
+    <script type="text/javascript" src="../lib/twaver.js"></script>
+    <script type="text/javascript">
+
+        var box = new twaver.ElementBox();
+        var network = new twaver.network.Network(box);
+        var showColor = true;
+
+        function init() {
+
+            document.body.appendChild(network.getView());
+            network.adjustBounds({ x: 0, y: 0, width: 1024, height: 768 });
+
+            var node1 = new twaver.Node();
+            node1.setLocation(200, 100);
+            node1.setName("node1");
+            node1.getAlarmState().increaseNewAlarm(twaver.AlarmSeverity.CRITICAL, 1);
+            box.add(node1);
+
+            var node2 = new twaver.Node();
+            node2.setLocation(200, 300);
+            node2.setName("node2");
+            node2.getAlarmState().setAcknowledgedAlarmCount(twaver.AlarmSeverity.CRITICAL, 2);
+            // node2.getAlarmState().setAcknowledgedAlarmCount(twaver.AlarmSeverity.MAJOR, 1);
+            box.add(node2);
+
+            var node3 = new twaver.Node();
+            node3.setLocation(200, 500);
+            node3.setName("node3");
+            node3.getAlarmState().setNewAlarmCount(twaver.AlarmSeverity.CRITICAL, 10);
+            box.add(node3);
+
+            var originalGetInnerColor = network.getInnerColor;
+            network.getInnerColor =function(element){
+                if(element.getName() ==="node3"){
+                    return null;
+                }else {
+                    // return twaver.network.Network.superClass.getInnerColor.apply(this, arguments);
+                    return originalGetInnerColor(element);
+                }
+            };
+        }
+
+    </script>
+</head>
+<body onload="init()">
+</body>
+</html>

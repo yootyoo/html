@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<meta charset="UTF-8">
+<title>TWaverHTML5</title>
+<script src= "../lib/twaver.js" ></script>
+<script>
+function init(){
+var box = new twaver.ElementBox();
+var network = new twaver.vector.Network(box);
+//document.body.appendChild(network.getView());
+document.getElementById('a').appendChild(network.getView());
+network.adjustBounds({x: 50,y: 50,width:300,height: 300});
+var node1 = new twaver.Node();
+node1.setName("A");
+node1.setLocation(100,100);
+box.add(node1);
+var node2 = new twaver.Node();
+node2.setName("B");
+node1.setLocation(200,200);
+box.add(node2);
+var link = new twaver.Link(node1,node2);
+link.setName("link");
+link.setToolTip("<b>hello!</b>");
+box.add(link);
+
+var box1 = new twaver.ElementBox();
+var network1 = new twaver.vector.Network(box1);
+document.getElementById('b').appendChild(network1.getView());
+//document.body.appendChild(network1.getView());
+network1.adjustBounds({x: 50,y: 400,width:300,height: 300});
+var node3 = new twaver.Node();
+node3.setName("C");
+node3.setLocation(100,100);
+box1.add(node3);
+}
+</script>
+</head>
+<body onload = init()>
+<div id="a" >network1</div>
+<div id="b">network2</div>
+
+</body>
+</html>

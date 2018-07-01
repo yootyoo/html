@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Test Zoom</title>
+    <script src="../lib/twaver.js"></script>
+    <script>
+        var box = new twaver.ElementBox();
+        var network = new twaver.vector.Network(box);
+        var autoLayouter = new twaver.layout.AutoLayouter(box);
+
+        function init() {
+            initNetwork();
+            initDataBox();
+        }
+
+        function initNetwork() {
+            var view = network.getView();
+            document.body.appendChild(view);
+            network.adjustBounds({x: 0, y: 0, width: 1300, height: 600});
+//            twaver.Styles.setStyle('link.color',"#57ab9a");
+        }
+
+        function initDataBox() {
+            // autoLayouter.getElements = function(){
+            //     var elements = new twaver.List();
+            //     box.forEach(function(e){
+            //         if(e instanceof twaver.Node && !e.getClient('follower')){
+            //             elements.add(e);
+            //         }
+            //     });
+            //     return elements;
+            // }
+            
+            // autoLayouter.isMovable = function (element) { return !(element instanceof twaver.Host && element.getHost()); };
+            autoLayouter.isMovable = function (element) { return !(element instanceof twaver.Follower); };
+            var Host = new twaver.Node({
+                name:'host',
+                location:{
+                    x:100,
+                    y:200
+                }
+            });
+            box.add(Host);
+
+            var node = new twaver.Node();
+            node.setLocation(400,200);
+            box.add(node);
+
+            var link = new twaver.Link(node,Host);
+            box.add(link);
+
+            var Follower = new twaver.Follower({
+                name:'Follower',
+                location:{
+                    x:140,
+                    y:240
+                }
+            });
+            Follower.setClient('follower',true);
+            box.add(Follower);
+
+            Follower.setHost(Host);
+            autoLayouter.doLayout('round');
+
+        }
+    </script>
+</head>
+<body onload="init()">
+</body>
+</html>

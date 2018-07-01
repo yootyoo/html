@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="../../lib/twaver.js"></script>
+  <script>
+  
+
+    var box = new twaver.ElementBox();
+    var network = new twaver.vector.Network(box);
+
+    var nodeJson = [{"name":"衢州市","child":[{"name":"柯城区"},{"name":"衢江区"},{"name":"江山市"},{"name":"龙游县"},{"name":"常山县"},{"name":"开化县"},{"name":"衢州市"}]},{"name":"杭州市","child":[{"name":"上城区"},{"name":"下城区"},{"name":"西湖区"},{"name":"江干区"},{"name":"拱墅区"},{"name":"滨江区"},{"name":"萧山区"},{"name":"余杭区"},{"name":"杭州市"},{"name":"下沙"},{"name":"临安市"},{"name":"桐庐区"},{"name":"淳安县"},{"name":"建德市"},{"name":"富阳市"}]},{"name":"湖州市","child":[{"name":"南浔区"},{"name":"湖州市"},{"name":"长兴县"},{"name":"安吉县"},{"name":"德清县"}]},{"name":"嘉兴市","child":[{"name":"南湖区"},{"name":"秀洲区"},{"name":"海宁市"},{"name":"嘉兴市"},{"name":"平湖市"},{"name":"桐乡市"},{"name":"嘉善县"},{"name":"海盐县"}]},{"name":"宁波市","child":[{"name":"余姚市"},{"name":"慈溪市"},{"name":"奉化市"},{"name":"宁海县"},{"name":"象山县"},{"name":"鄞州区"},{"name":"海曙区"},{"name":"江东区"},{"name":"江北区"},{"name":"北仑区"},{"name":"宁波市"},{"name":"鄞县"},{"name":"镇海区"}]},{"name":"绍兴市","child":[{"name":"越城区"},{"name":"绍兴市"},{"name":"上虞区"},{"name":"诸暨市"},{"name":"嵊州市"},{"name":"新昌县"},{"name":"绍兴县"}]},{"name":"台州市","child":[{"name":"椒江区"},{"name":"黄岩区"},{"name":"路桥区"},{"name":"临海市"},{"name":"温岭市"},{"name":"玉环县"},{"name":"天台县"},{"name":"仙居县"},{"name":"三门县"},{"name":"台州市"}]},{"name":"温州市","child":[{"name":"鹿城区"},{"name":"龙湾区"},{"name":"瓯海区"},{"name":"洞头县"},{"name":"永嘉县"},{"name":"平阳县"},{"name":"泰顺县"},{"name":"文成县"},{"name":"苍南县"},{"name":"瑞安市"},{"name":"乐清市"},{"name":"温州市"}]},{"name":"丽水市","child":[{"name":"青田县"},{"name":"缙云县"},{"name":"遂昌县"},{"name":"松阳县"},{"name":"云和县"},{"name":"庆元县"},{"name":"龙泉市"},{"name":"丽水市"},{"name":"景宁畲族自治县"},{"name":"莲都区"}]},{"name":"金华市","child":[{"name":"婺城区"},{"name":"金东区"},{"name":"兰溪市"},{"name":"义乌市"},{"name":"东阳市"},{"name":"永康市"},{"name":"武义县"},{"name":"浦江县"},{"name":"磐安县"},{"name":"金华市"}]},{"name":"舟山市","child":[{"name":"定海区"},{"name":"普陀区"},{"name":"岱山县"},{"name":"嵊泗县"},{"name":"舟山市"}]}];
+
+    // "衢州市、杭州市、湖州市、嘉兴市、宁波市、绍兴市、台州市、温州市、丽水市、金华市、舟山市"
+    // "柯城区、衢江区、江山市、龙游县、常山县、开化县、衢州市"
+    // "上城区、下城区、西湖区、江干区、拱墅区、滨江区、萧山区、余杭区、杭州市、下沙、临安市、桐庐区、淳安县、建德市、富阳市"
+    // "湖州市、南浔区、长兴县、安吉县、德清县"
+    // "南湖区、秀洲区、海宁市、嘉兴市、平湖市、桐乡市、嘉善县、海盐县"
+    // "余姚市、慈溪市、奉化市、宁海县、象山县、鄞州区、海曙区、江东区、江北区、北仑区、宁波市、鄞县、镇海区"
+    // "越城区、绍兴市、上虞区、诸暨市、嵊州市、新昌县、绍兴县"
+    // "椒江区、黄岩区、路桥区、临海市、温岭市、玉环县、天台县、仙居县、三门县、台州市"
+    // "鹿城区、龙湾区、瓯海区、洞头县、永嘉县、平阳县、泰顺县、文成县、苍南县、瑞安市、乐清市、温州市"
+    // "莲都区、青田县、缙云县、遂昌县、松阳县、云和县、庆元县、龙泉市、丽水市、景宁畲族自治县"
+    // "婺城区、金东区、兰溪市、义乌市、东阳市、永康市、武义县、浦江县、磐安县、金华市"、
+    // "定海区、普陀区、岱山县、嵊泗县、舟山市"
+    // 
+    
+    // var nodeJson = [{"name":"Network","child":[{"name":"Office Network"},{"name":"Custom Link"},{"name":"Cross Link"},{"name":"Edit Text"},{"name":"Performance"},{"name":"RoadMap"},{"name":"Floor Plan"},{"name":"Wiring Diagram"},{"name":"Group"},{"name":"HTMLNode"}]},{"name":"Layout","child":[{"name":"Auto Layout"},{"name":"Spring Layout"},{"name":"Ring Layout"},{"name":"Circle Layout"},{"name":"Tilford Tree"},{"name":"Organization"}]},{"name":"Work Flow","child":[{"name":"ERP Workflow"},{"name":"Shopping Flow"}]},{"name":"Chart","child":[{"name":"Pie Chart"},{"name":"Cover Chart"},{"name":"Rainbow Chart"},{"name":"Map Chart"}]},{"name":"Editor","child":[{"name":"Icon Editor"},{"name":"Cloud Editor"}]},{"name":"Animation","child":[{"name":"Basic"},{"name":"Cartoon"},{"name":"Clock"},{"name":"Face"},{"name":"Gauge"},{"name":"GIF"},{"name":"SubNetwork"},{"name":"Tank"},{"name":"Radar"},{"name":"Electric Meter"}]},{"name":"Alarm","child":[{"name":"Propagator"},{"name":"Threat-Monitor"}]}];
+    
+    var nodeWidth =120;
+    var nodeHeight = 30;
+    var xStart= 40;
+    var nodeIdMap = {};
+    var isExpanded = [];
+
+
+    var init = function() {
+      registImages(network);
+
+      document.getElementById("chart").appendChild(network.getView());
+
+      network.adjustBounds({ x: 0, y: 0, width: document.documentElement.clientWidth, height: document.documentElement.clientHeight });
+      window.onresize = function () {
+        network.adjustBounds({ x: 0, y: 0, width: document.documentElement.clientWidth, height: document.documentElement.clientHeight });
+        layout();
+      };
+
+      network.onClickElement = function(element,e){
+        if(element instanceof twaver.Node && element.getClient("type") === "expandNode"){
+          var nodeId = element.getClient("nodeId");
+          var columnrow = nodeId.split("+");
+          var row = parseInt(columnrow[0]);
+          var column = parseInt(columnrow[1]);
+          isExpanded[row] = !isExpanded[row];
+          setExpandNodeImage(nodeId,isExpanded[row]);
+          layout();
+        }
+      };
+      buildData();
+      layout();
+
+      document.getElementById("show_btn").addEventListener("click",function(){
+        var i;
+        if(this.value === "全部展开"){
+          for(i=0;i<isExpanded.length;i++){
+            isExpanded[i]=true;
+            var nodeObj = nodeJson[i];
+            var nodeId = i+"+"+nodeObj.child.length;
+            setExpandNodeImage(nodeId,true);
+          }
+          this.value = "全部收起";
+        }else{
+          for(i=0;i<isExpanded.length;i++){
+            isExpanded[i]=false;
+            var nodeObj = nodeJson[i];
+            var nodeId = i+"+"+nodeObj.child.length;
+            setExpandNodeImage(nodeId,false);
+          }
+          this.value = "全部展开";
+        }
+        layout();
+      });
+    };
+
+
+    var buildData = function(){
+
+      for(i=0;i<nodeJson.length;i++){
+        var nodeObj = nodeJson[i];
+
+        if(nodeObj.child && nodeObj.child.length !== 0){
+          for(j=0;j<nodeObj.child.length;j++){           
+            var childNodeObj = nodeObj.child[j];
+            var childNode =createNode(childNodeObj.name,i,j,false);
+            box.add(childNode); 
+          }
+          var expandNode = createExpandNode(i,nodeObj.child.length);
+          box.add(expandNode);
+        }
+        var node = createNode(nodeObj.name,i,-1,true);
+        box.add(node);
+        isExpanded[i] = true;
+      }
+    };
+
+    var layout = function(){
+      var i,j,x,y;
+      var nodesParas = [];
+      for(i=0;i<nodeJson.length;i++){
+        var nodeObj = nodeJson[i];
+        var nodeParas = {};
+        if(nodeObj.child && nodeObj.child.length !== 0){
+          if(!isExpanded[i]){
+            nodeParas.row = 1;
+          }else{
+            var column = Math.floor((network.viewRect.width-(nodeWidth+2)-xStart)/(nodeWidth+2));
+            if(Math.ceil((nodeObj.child.length+1)/column) === 2 && Math.ceil((nodeObj.child.length)/column) === 1){
+              nodeParas.row = 1;
+            }else{
+              var row = Math.ceil((nodeObj.child.length+1)/column);
+              nodeParas.row = row;
+            }
+          }
+        }else{
+          nodeParas.row = 1;
+        }
+        if(nodesParas.length !==0){
+          nodeParas.yStartRow = nodesParas[nodesParas.length-1].yStartRow + nodesParas[nodesParas.length-1].row;
+        }else{
+          nodeParas.yStartRow = 0;
+        }
+        nodesParas.push(nodeParas);
+      }
+
+      // for(i=0;i<nodesParas.length;i++){
+      //   console.log(nodesParas[i].yStartRow + "~~~~~~~~~~~~~~~~~~~"+ nodesParas[i].row);
+      // }
+
+      var nodeId;
+      for(i=0;i<nodeJson.length;i++){
+        var nodeObj = nodeJson[i];
+
+        if(isExpanded[i]){
+          if(nodeObj.child && nodeObj.child.length !== 0){
+            for(j=0;j<nodeObj.child.length;j++){
+              nodeId = i+"+"+j;
+              var column = Math.floor((network.viewRect.width-(nodeWidth+2)-xStart)/(nodeWidth+2));
+              var row = parseInt(j/column);
+              x = xStart + (nodeWidth + 2) * (j%column+1);
+              y = (nodesParas[i].yStartRow +1 + row) * (nodeHeight+2);
+              setNodeSizeAndPosition(nodeId,x,y,1);
+              setNodeVisible(nodeId,true);
+            }
+            nodeId = i+"+"+ nodeObj.child.length;
+            if(nodesParas[i].row !== 1){
+              x = xStart + (nodeWidth + 2) * (nodeObj.child.length%column+1);
+              y = (nodesParas[i].yStartRow + nodesParas[i].row) * (nodeHeight+2);
+              setNodeSizeAndPosition(nodeId,x,y,1);
+              setExpandNodeImage(nodeId,isExpanded[i]);
+              setNodeVisible(nodeId,true);
+            }else{
+              setExpandNodeImage(nodeId,isExpanded[i]);
+              setNodeVisible(nodeId,false);
+            }
+          }
+          nodeId = i+"+"+"-1";
+          setNodeSizeAndPosition(nodeId,xStart,(nodeHeight+2)*(nodesParas[i].yStartRow+1),nodesParas[i].row);
+
+        }else{
+          y = (nodesParas[i].yStartRow +1) * (nodeHeight+2);
+          if(nodeObj.child && nodeObj.child.length !== 0){
+            for(j=0;j<nodeObj.child.length;j++){
+              nodeId = i+"+"+j;
+              x = xStart+(nodeWidth+2)*(j+1);
+              if(xStart+(nodeWidth+2)*(nodeObj.child.length+1) <= network.viewRect.width){
+                setNodeVisible(nodeId,true);
+                setNodeSizeAndPosition(nodeId,x,y,1);
+              }else{
+                if(x>network.viewRect.width -(nodeWidth+2)*2 && x <= network.viewRect.width-(nodeWidth+2)){
+                  setNodeVisible(nodeId,false);
+                  nodeId = i+"+"+ nodeObj.child.length;
+                  setNodeSizeAndPosition(nodeId,x,y,1);
+                  setExpandNodeImage(nodeId,isExpanded[i]);
+                  setNodeVisible(nodeId,true);
+                }else if(x<=network.viewRect.width-(nodeWidth+2)*2){
+                  setNodeVisible(nodeId,true);
+                  setNodeSizeAndPosition(nodeId,x,y,1);
+                }else{
+                  setNodeVisible(nodeId,false);
+                }
+              }
+            }
+            if(xStart+(nodeWidth+2)*(nodeObj.child.length+1) <= network.viewRect.width){
+              nodeId = i+"+"+ nodeObj.child.length;
+              setExpandNodeImage(nodeId,isExpanded[i]);
+              setNodeVisible(nodeId,false);
+            }
+          }
+          nodeId = i+"+"+"-1";
+          setNodeSizeAndPosition(nodeId,xStart,y,1);
+        }   
+      }
+    }
+
+    // var collapse = function(){
+    //   var i,j,x,y;
+    //   var nodeId,node;
+    //   for(i=0;i<nodeJson.length;i++){
+    //     var nodeObj = nodeJson[i];
+    //     y = (nodeHeight+2)*(i+1);
+    //     if(nodeObj.child && nodeObj.child.length !== 0){
+    //       for(j=0;j<nodeObj.child.length;j++){
+    //         nodeId = i+"+"+j;
+    //         x = xStart+(nodeWidth+2)*(j+1);
+    //         if(x>network.viewRect.width -(nodeWidth+2)*2 && x <= network.viewRect.width-(nodeWidth+2)){
+    //           node = nodeIdMap[nodeId];
+    //           node.setVisible(false);
+    //           nodeId = i+"+"+ nodeObj.child.length;
+    //           setNodeSizeAndPosition(nodeId,x,y,1);
+    //         }else if(x<=network.viewRect.width-(nodeWidth+2)*2){
+    //           node = nodeIdMap[nodeId];
+    //           node.setVisible(true);
+    //           setNodeSizeAndPosition(nodeId,x,y,1);
+    //         }else{
+    //           node = nodeIdMap[nodeId];
+    //           node.setVisible(false);
+    //         }
+    //       }
+    //       nodeId = i+"+"+ nodeObj.child.length;
+    //       node = nodeIdMap[nodeId];
+    //       var nodeLoc = node.getLocation();
+    //       if(nodeLoc.x === 0 && nodeLoc.y === 0){
+    //         x = xStart+(nodeWidth+2)*(nodeObj.child.length+1);
+    //         setNodeSizeAndPosition(nodeId,x,y,1);
+    //       }
+    //     }
+    //     nodeId = i+"+"+"-1";
+    //     setNodeSizeAndPosition(nodeId,xStart,y,1); 
+    //   }
+    // }
+
+    var createNode = function(name,i,j,isBigCity){
+      var node = new twaver.Node();
+      node.setName(name);
+      if(name === "滨江区" || name === "景宁畲族自治县" || name === "杭州市" && !isBigCity){
+        node.getAlarmState().setAcknowledgedAlarmCount(twaver.AlarmSeverity.CRITICAL, 1);
+      }
+      node.setMovable(false);
+      node.setStyle('body.type', 'vector');
+      node.setStyle('vector.shape', 'roundrect');
+      if(isBigCity){
+        node.setStyle('vector.fill.color', '#00EFEF');
+      }else{
+        node.setStyle('vector.fill.color', '#00CF00');
+      }
+      node.setStyle('label.font','bold 15px/30px arial,sans-serif');
+      node.setStyle('label.color','#1E1E1E');
+      var nodeId = i+"+"+j;
+      nodeIdMap[nodeId] = node;
+      node.setClient("nodeId",nodeId);
+      return node;
+    }
+
+    var createExpandNode = function(i,j){
+      var node = new twaver.Node();
+      node.setMovable(false);
+      var nodeId = i+"+"+j;
+      nodeIdMap[nodeId] = node;
+      node.setClient("type","expandNode");
+      node.setClient("nodeId",nodeId);
+      return node;
+    }
+
+    var setNodeSizeAndPosition = function(nodeId,x,y,row){
+      var node = nodeIdMap[nodeId];
+      node.setLocation(x,y);
+      if(node.getName()){
+        node.setStyle('label.yoffset',-nodeHeight/2*row-10);
+      }
+      node.setSize(nodeWidth,nodeHeight*row);
+    }
+
+    var setNodeVisible = function(nodeId,isVisible){
+      var node = nodeIdMap[nodeId];
+      node.setVisible(isVisible);
+    }
+
+    var setExpandNodeImage = function(nodeId,isExpanded){
+      var node = nodeIdMap[nodeId];
+      if(isExpanded){
+        node.setImage("up");
+      }else{
+        node.setImage("down");
+      }
+    }
+
+    var registImages= function (network) {
+        registerImage("images/up.png",network);
+        registerImage("images/down.png",network);
+    };
+
+    var registerImage = function (url, network) {
+        var image = new Image();
+        image.src = url;
+        var views = arguments;
+        var that = this;
+        image.onload = function () {
+            twaver.Util.registerImage(that.getImageName(url), image, image.width, image.height, network);
+            image.onload = null;
+            for (var i = 1; i < views.length; i++) {
+                var view = views[i];
+                if (view.invalidateElementUIs) {
+                    view.invalidateElementUIs();
+                }
+                if (view.invalidateDisplay) {
+                    view.invalidateDisplay();
+                }
+            }
+        };
+    };
+    var getImageName = function (url) {
+        var index = url.lastIndexOf('/');
+        var name = url;
+        if (index >= 0) {
+            name = url.substring(index + 1);
+        }
+        index = name.lastIndexOf('.');
+        if (index >= 0) {
+            name = name.substring(0, index);
+        }
+        return name;
+    };
+
+
+  </script>
+</head>
+<body onload="init()">
+  <div>
+    <input style="margin-left:50%;" type="button" value="全部收起" id="show_btn"/>
+  </div>
+  <div id="chart" style="position:absolute;"></div>
+</body>
+</html>

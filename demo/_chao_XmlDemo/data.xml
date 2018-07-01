@@ -1,0 +1,13 @@
+<twaver version='1.5.9' platform='html5'>
+    <dataBox class='twaver.ElementBox'>
+        <layerBox>
+            <layer name='Default' visible='true' editable='true' movable='true'/>
+        </layerBox>
+    </dataBox>
+    <data class='twaver.Node' ref='0'>
+        <p n='location' x='392.5' y='388'/>
+    </data>
+    <data class='twaver.Node' ref='1'>
+        <p n='location' x='434.5' y='351'/>
+    </data>
+</twaver>

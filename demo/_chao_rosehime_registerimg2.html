@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<head>
+<meta http-equiv="pragma" content="no-cache">
+<title>Test</title>
+<script type="text/javascript" src="../lib/twaver.js"></script>
+<script type="text/javascript">
+var box = new twaver.ElementBox();
+var network = new twaver.network.Network(box);
+
+function init() {
+  var view = network.getView();
+  document.body.appendChild(view);
+  initRoom();
+  network.adjustBounds({
+    x : 0,
+    y : 0,
+
+    width : document.documentElement.clientWidth,
+    height : document.documentElement.clientHeight
+  });
+}
+
+function initRoom() {
+  twaver.Util.registerImage('test_vector', {
+    w : 60,
+    h : 40,
+    v : [ {
+    shape : 'rect',
+    x : -30,
+    y : -20,
+    w : 60,
+    h : 40,
+    lineColor : 'black',
+    fill : '#309FC9',
+    lineWidth : 1,
+    } ]
+  });
+  var node1 = new twaver.Node();
+  node1.setName("Hello");
+  node1.setLocation(100, 100);
+  node1.setImage('test_vector');
+  box.add(node1);
+}
+</script>
+</head>
+<body onload="init()">
+
+</body>
+</html>
+
+

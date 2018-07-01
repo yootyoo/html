@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Test Zoom</title>
+    <script src="../lib/twaver.js"></script>
+    <script>
+        var box = new twaver.ElementBox();
+        var network = new twaver.vector.Network(box);
+        var autoLayouter = new twaver.layout.AutoLayouter(box);
+
+        function init() {
+            initNetwork();
+            initDataBox();
+        }
+
+        function initNetwork() {
+            var view = network.getView();
+            document.body.appendChild(view);
+            network.adjustBounds({x: 0, y: 0, width: 1300, height: 600});
+        }
+
+        function initDataBox() {
+
+            for(var i=0;i<8;i++){
+                var newNode = new twaver.Node("node"+i);
+                newNode.setName("name"+"node"+i);
+                newNode.setLocation(100+i*20,200+i*40);
+                box.add(newNode);
+            }
+
+            var quickfinder = new twaver.QuickFinder(box, "id");
+            var node0 = quickfinder.findFirst("node0");
+            var node1 = quickfinder.findFirst("node1");
+            var node2 = quickfinder.findFirst("node2");
+            var node3 = quickfinder.findFirst("node3");
+            var node4 = quickfinder.findFirst("node4");
+            var node5 = quickfinder.findFirst("node5");
+            var node6 = quickfinder.findFirst("node6");
+            var node7 = quickfinder.findFirst("node7");
+
+            var newLink2 = new twaver.Link("link2", node1, node4);
+            var newLink3 = new twaver.Link("link3", node2, node4);
+            var newLink0 = new twaver.Link("link0", node0, node1);
+            var newLink1 = new twaver.Link("link1", node0, node2);
+            var newLink4 = new twaver.Link("link4", node4, node5);
+            var newLink5 = new twaver.Link("link5", node4, node6);
+            var newLink6 = new twaver.Link("link6", node5, node7);
+            var newLink7 = new twaver.Link("link7", node6, node7);
+            var newLink8 = new twaver.Link("link8", node0, node3);
+
+            box.add(newLink0);
+            box.add(newLink1);
+            box.add(newLink2);
+            box.add(newLink3);
+            box.add(newLink4);
+            box.add(newLink5);
+            box.add(newLink6);
+            box.add(newLink7);
+            box.add(newLink8);
+
+            autoLayouter.doLayout('round');
+
+        }
+    </script>
+</head>
+<body onload="init()">
+</body>
+</html>

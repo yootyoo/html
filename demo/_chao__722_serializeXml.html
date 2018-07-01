@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="GB2312">
+    <title>Hello TWaver Full</title>
+    <script type="text/javascript" src="../lib/twaver.js"></script>
+    <script type="text/javascript">
+        var box = new twaver.ElementBox();
+        var network = new twaver.vector.Network(box);
+
+        var box2 = new twaver.ElementBox();
+        var network2 = new twaver.vector.Network(box2);
+
+        function init() {
+      
+            document.getElementById("chart").appendChild(network.getView());
+            network.adjustBounds({x:0,y:0,width:800,height:600});
+            document.getElementById("chart").appendChild(network2.getView());
+            network2.adjustBounds({x:800,y:0,width:800,height:600});
+            
+
+
+              var node1 = new twaver.Node();
+              node1.setName('TWaver');
+              node1.setLocation(100, 100);
+              box.add(node1);
+              
+              var node2 = new twaver.Node();
+              node2.setName('HTML5');
+              node2.setLocation(300, 200);
+              box.add(node2);
+              
+              var link = new twaver.Link(node1, node2);
+              link.setName('Hello!');
+              link.setToolTip('<b>Hello!</b>');
+              box.add(link);
+
+
+            document.getElementById("show_btn").addEventListener("click",function(){
+                var serializeXml= new twaver.XmlSerializer(box).serialize();
+                console.log(serializeXml);
+
+                var xmlSerializer2= new twaver.XmlSerializer(box2);
+                xmlSerializer2.deserialize(serializeXml);
+            });
+            
+
+        }
+
+    </script>
+</head>
+<body  onload="init()">
+    <div>
+    <input style="margin-left:10%;" type="button" value="recreate" id="show_btn"/>
+  </div>
+  <div id="chart" style="position:absolute;"></div>
+</body>
+</html>

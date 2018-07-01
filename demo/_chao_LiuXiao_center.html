@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta http-equiv="pragma" content="no-cache">
+   <title></title>
+   <script type="text/javascript" src="../lib/twaver.js"></script>
+   <script type="text/javascript">
+      
+      var box = new twaver.ElementBox();
+      var network = new twaver.vector.Network(box);
+      
+      // function init () {
+      //    var pane = new twaver.controls.BorderPane(network);
+      //    var view = pane.getView();
+      //    view.style.left = '0px';
+      //    view.style.top = '0px';
+      //    view.style.right = '0px';
+      //    view.style.bottom = '0px';
+      //    document.body.appendChild(view);
+      //    window.onresize = function () {
+      //       pane.invalidate();
+      //    };
+      
+      //    initBox();
+      //    setTimeout(function () {
+      //        var layout = new twaver.layout.AutoLayouter(box);
+      //        layout.setAnimate(false);
+      //        layout.doLayout('round', centerNodes);
+      //    }, 200);
+      // }
+      
+      // function initBox () {
+      //       var root = new twaver.Node({name: "Root"});
+      //       box.add(root);
+      //       for(var i=0; i<10; i++){
+      //          var node = new twaver.Node({name: "Node" +i});
+      //          box.add(node);
+      //          var link = new twaver.Link({name: "Link" + i}, root, node);
+      //          box.add(link);
+      //       }
+      // }
+      
+      // function centerNodes() {
+      //    var bounds = null;
+      //    var nodes = new twaver.List();
+      //    network.forEachElementUI(function (ui) {
+      //       if(network.isVisible(ui.getElement())){
+      //          bounds = twaver.Util.unionRect(bounds, ui.getViewRect());
+      //          nodes.add(ui.getElement());
+      //       }
+      //    });
+      //    if(bounds != null){
+      //       var xoffset = 0, yoffset = 0;
+      //       if(bounds.width < network.getView().offsetWidth){
+      //          xoffset = (network.getView().offsetWidth - bounds.width)/2 - bounds.x;
+      //       }
+      //       if(bounds.height < network.getView().offsetHeight){
+      //          yoffset = (network.getView().offsetHeight - bounds.height)/2 - bounds.y;
+      //       }
+      //       twaver.Util.moveElements(nodes, xoffset, yoffset, true);
+      //    }
+      // }
+
+      function init () {
+         document.body.appendChild(network.getView());
+         network.adjustBounds({ x: 0, y: 0, width: document.documentElement.clientWidth, height: document.documentElement.clientHeight});
+      
+         initBox();
+         setTimeout(function () {
+             var layout = new twaver.layout.AutoLayouter(box);
+             layout.setAnimate(false);
+             layout.doLayout('round', centerNodes);
+         }, 200);
+      }
+      
+      function initBox () {
+            var root = new twaver.Node({name: "Root"});
+            box.add(root);
+            for(var i=0; i<10; i++){
+               var node = new twaver.Node({name: "Node" +i});
+               box.add(node);
+               var link = new twaver.Link({name: "Link" + i}, root, node);
+               box.add(link);
+            }
+      }
+      
+      function centerNodes() {
+         var bounds = null;
+         var nodes = new twaver.List();
+
+         box.forEach(function(element){
+            var ui = network.getElementUI(element);
+            if(network.isVisible(element)){
+               bounds = twaver.Util.unionRect(bounds, ui.getViewRect());
+               nodes.add(ui.getElement());
+            }
+         });
+         if(bounds != null){
+            var xoffset = 0, yoffset = 0;
+            if(bounds.width < network.getView().offsetWidth){
+               xoffset = (network.getView().offsetWidth - bounds.width)/2 - bounds.x;
+            }
+            if(bounds.height < network.getView().offsetHeight){
+               yoffset = (network.getView().offsetHeight - bounds.height)/2 - bounds.y;
+            }
+            twaver.Util.moveElements(nodes, xoffset, yoffset, true);
+         }
+      }
+      
+   </script>
+</head>
+<body onload="init()">
+</body>
+</html>

@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="../../lib/twaver.js"></script>
+  <script src="js/CElement.js"></script>
+  <script>
+  
+
+    var box = new twaver.ElementBox();
+    var network = new twaver.vector.Network(box);
+    var lastEnlargedGroup = null;
+    var xScale =2;
+    var yScale =3;
+
+
+    var init = function() {
+      registImages(network);
+
+
+      document.body.appendChild(network.getView());
+      network.adjustBounds({ x: 0, y: 0, width: document.documentElement.clientWidth, height: document.documentElement.clientHeight });
+      network.setDoubleClickToGroupExpand(false);
+
+      network.setLinkPathFunction(function (linkUI, defaultPoints) {
+        var link = linkUI._element;
+        if(link instanceof twaver.Link && !(link instanceof CLinkX)){
+          var f = linkUI.getFromPoint();
+          var t = linkUI.getToPoint();
+
+          var points = new twaver.List();
+          points.add(f);
+          points.add(t);
+
+          var lineLength = _twaver.math.getDistance(f, t);
+          var offset = lineLength/10;
+          var m = {
+              x: (f.x+t.x)/2 + offset,
+              y: (f.y+t.y)/2 + offset
+          }
+          var cps = new twaver.List();
+          cps.add(m);
+          cps.add(t);
+
+          points.removeAt(1);
+          points.add(cps);
+
+          return points;
+        }
+      });
+
+      network.onDoubleClickElement = function(element,e){
+        if(element instanceof CGroupX){
+          box.getSelectionModel().clearSelection();
+          var layerId = element.getId();
+          if (!element.isEnlarged()) {
+              enlargeGroup(layerId);
+          } else {
+              resetGroup(layerId);
+          }
+        }
+      };
+      buildData();
+      
+      var self = this;
+      setInterval(function () { tick(); }, 1500);
+    };
+
+    var tick = function () {
+
+      if (randomInt(5) === 1) {
+        //clear all alarm and propagation.
+        var datas = box.getDatas();
+        var i;
+        for(i=0;i<datas.size();i++){
+          datas.get(i).getAlarmState().clear();
+        }
+      }
+      var element = box.getDataById("4." + randomInt(7));
+      if(element != null){
+        var severity = randomSeverity()
+        element.getAlarmState().increaseNewAlarm(severity);
+        if(severity.name !== twaver.AlarmSeverity.CLEARED.name){
+          propagate(element);
+        }
+      }
+    };
+
+    var propagate = function(node){
+      var severity = node.getAlarmState().getHighestNativeAlarmSeverity();
+      if (node instanceof twaver.Node) {
+
+        var links = node.getLinks();
+        if (links != null && !links.isEmpty()) {
+          var i;
+          for(i=0;i<links.size();i++){
+            var link = links.get(i);
+            if (link instanceof CLinkX) {
+              if (link.getAlarmState().isEmpty()) {
+                link.getAlarmState().increaseAcknowledgedAlarm(severity);
+
+                var anotherNode = link.getFromNode();
+
+                if (anotherNode.getAlarmState().isEmpty()) {
+                  anotherNode.getAlarmState().increaseAcknowledgedAlarm(severity);
+                  if (anotherNode !== node) {
+                      propagate(anotherNode);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }     
+    };
+
+    var enlargeGroup = function(layerId){
+      if (lastEnlargedGroup != null) {
+        resetGroup(lastEnlargedGroup.getLayerId());
+      }
+      var group = box.getDataById(layerId);
+      if (group != null && !group.isEnlarged()) {
+        lastEnlargedGroup = group;
+        group.setEnlarged(true);
+
+        var layer = box.getLayerBox().getDataById(layerId);
+        var layerBox = box.getLayerBox();
+        layer.setClient("oldIndex", box.getLayerBox().getSiblingIndex(layer));
+        box.getLayerBox().moveToBottom(layer);
+
+        var i;
+        var datas = box.getDatas();
+        for(i=0;i<datas.size();i++){
+          var element = datas.get(i);
+          if(element instanceof CLinkX){
+            if (element.getFromNode().getLayerId() === layerId || element.getToNode().getLayerId() === layerId) {
+              element.setVisible(false);
+            }
+          }
+        }
+
+        var children = group.getChildren();
+        var child;
+        var currentLocation;
+
+        var viewRect = network.getViewRect();
+        var xCenter = (viewRect.x + viewRect.width/2)/network.getZoom();
+        var yCenter = (viewRect.y + viewRect.height/2)/network.getZoom();
+
+        var oldLoc = group.getCenterLocation();
+        group.setClient("oldLocation",oldLoc);
+
+        var centerNode = box.getDataById(layerId + ".c");
+        var centerNodeLocation = centerNode.getCenterLocation();
+        var childOffsetMap = {};
+
+        for(i=0;i<children.size();i++){
+          child = children.get(i);
+          if(child instanceof twaver.Node && child !== centerNode && child.getClient("type") !== "connectPoint"){
+            currentLocation = child.getCenterLocation();
+            var xOffset = currentLocation.x - centerNodeLocation.x;
+            var yOffset = currentLocation.y - centerNodeLocation.y;
+            var offset = {x:xOffset,y:yOffset};
+            childOffsetMap[child.getId()] = offset;
+          }
+        }
+
+        new twaver.Animate({
+          from: { x: oldLoc.x, y: oldLoc.y },
+          to: { x: xCenter, y: yCenter },
+          type: 'point',
+          delay: 0,
+          dur: 1000,
+          easing: 'easeNone',
+          onUpdate: function (value) {
+            group.setCenterLocation(value.x, value.y);
+          }
+        }).chain(new twaver.Animate({
+          from: { x: 1, y: 1 },
+          to: { x: xScale, y: yScale },
+          type: 'point',
+          delay: 0,
+          dur: 1000,
+          easing: 'elasticOut',
+          onUpdate: function (value) {
+            var centerNode = box.getDataById(layerId + ".c");
+            var centerNodeLocation = centerNode.getCenterLocation();
+            for(i=0;i<children.size();i++){
+              child = children.get(i);
+              if(child instanceof twaver.Node && child !== centerNode && child.getClient("type") !== "connectPoint"){
+                
+                var originalOffset = childOffsetMap[child.getId()];
+                var newLocationX = centerNodeLocation.x + originalOffset.x * value.x;
+                var newLocationY = centerNodeLocation.y + originalOffset.y * value.y;
+                child.setCenterLocation(newLocationX,newLocationY);
+              }
+            }
+          }
+        })).play();
+      }
+    };
+
+    var resetGroup = function(layerId){
+      var group = box.getDataById(layerId);
+      if (group != null && group.isEnlarged()) {
+        lastEnlargedGroup = null;
+        group.setEnlarged(false);
+
+        //reset group layer.
+        var layer = box.getLayerBox().getDataById(layerId);
+        var layerOldIndex = layer.getClient("oldIndex");
+        box.getLayerBox().moveTo(layer,layerOldIndex);
+
+        var i;
+        var children = group.getChildren();
+        var child;
+        var currentLocation;
+
+        var centerNode = box.getDataById(layerId + ".c");
+        var centerNodeLocation = centerNode.getCenterLocation();
+        var childOffsetMap = {};
+        for(i=0;i<children.size();i++){
+          child = children.get(i);
+          if(child instanceof twaver.Node && child !== centerNode && child.getClient("type") !== "connectPoint"){
+            currentLocation = child.getCenterLocation();
+            var xOffset = currentLocation.x - centerNodeLocation.x;
+            var yOffset = currentLocation.y - centerNodeLocation.y;
+            var offset = {x:xOffset,y:yOffset};
+            childOffsetMap[child.getId()] = offset;
+          }
+        }
+
+        var newLoc = group.getCenterLocation();
+        var oldLoc = group.getClient("oldLocation");
+
+        new twaver.Animate({
+          from: { x: xScale, y: yScale },
+          to: { x: 1, y: 1 },
+          type: 'point',
+          delay: 0,
+          dur: 1000,
+          easing: 'easeNone',
+          onUpdate: function (value) {
+            var centerNode = box.getDataById(layerId + ".c");
+            var centerNodeLocation = centerNode.getCenterLocation();
+            for(i=0;i<children.size();i++){
+              child = children.get(i);
+              if(child instanceof twaver.Node && child !== centerNode && child.getClient("type") !== "connectPoint"){
+                
+                var originalOffset = childOffsetMap[child.getId()];
+                var newLocationX = centerNodeLocation.x + originalOffset.x / xScale * value.x;
+                var newLocationY = centerNodeLocation.y + originalOffset.y / yScale * value.y;
+                child.setCenterLocation(newLocationX,newLocationY);
+              }
+            }
+          }
+        }).chain(new twaver.Animate({
+          from: { x: newLoc.x, y: newLoc.y },
+          to: { x: oldLoc.x, y: oldLoc.y },
+          type: 'point',
+          delay: 0,
+          dur: 1000,
+          easing: 'easeNone',
+          onUpdate: function (value) {
+            group.setCenterLocation(value.x, value.y);
+            if(value.x === oldLoc.x){
+              var datas = box.getDatas();
+              for(i=0;i<datas.size();i++){
+                var element = datas.get(i);
+                if(element instanceof CLinkX){
+                  if (element.getFromNode().getLayerId() === layerId || element.getToNode().getLayerId() === layerId) {
+                    element.setVisible(true);
+                  }
+                }
+              }
+            }
+          }
+        })).play();
+      }
+    };
+
+
+    var buildData = function(){
+      createLayer("rgba(255,255,0,0.5)","1","7",50,0,10,"软件\n业务层");
+      createLayer("rgba(0,255,0,0.5)","2","8",180,200,15,"技术\n应用层");
+      createLayer("rgba(255,0,255,0.5)","3","5",280,350,5,"技术\n软件层");
+      createLayer("rgba(0,255,255,0.5)","4","1",400,570,7,"基础\n设施层");
+
+      
+      createCrossLayerLink("1.2", "2.4", false);
+      createCrossLayerLink("1.3", "2.3", true);
+      createCrossLayerLink("1.9", "2.14", true);
+
+      createCrossLayerLink("2.3", "3.2", true);
+      createCrossLayerLink("2.14", "3.0", true);
+
+      createCrossLayerLink("3.2", "4.2", false);
+      createCrossLayerLink("3.0", "4.4", true);
+      createCrossLayerLink("3.4", "4.5", true);
+
+      createCrossLayerLink("1.4", "4.1", false);
+      
+    };
+
+    var createCrossLayerLink = function(fromId, toId,left){
+      var from = box.getDataById(fromId);
+      var to = box.getDataById(toId);
+      var link = new CLinkX(from,to);
+
+
+      var point = new twaver.Node();
+      point.setSize(2,2);
+      point.setClient("type","connectPoint");
+      point.setStyle("body.type","vector");
+      point.setStyle("vector.shape","circle");
+      point.setStyle('vector.fill', true);
+      point.setStyle('vector.fill.color', '#C0C0C0');
+      point.setLayerId(from.getLayerId());
+      var xOffset = -from.getWidth() / 2 - 15;
+      if (left) {
+          xOffset = from.getWidth() / 2 + 5;
+      }
+      var yOffset = from.getHeight() / 2 + 20;
+      var x = from.getCenterLocation().x + xOffset;
+      var y = from.getCenterLocation().y + yOffset;
+      point.setCenterLocation(x, y);
+      point.setParent(from.getParent());
+      box.add(point);
+
+
+      var upLink = new CLinkX(null,from, point, true);
+      upLink.setLayerId(from.getLayerId());
+      upLink.setParent(from.getParent());
+      box.add(upLink);
+
+      var downLink = new CLinkX(null,point, to, false);
+      downLink.setLayerId(to.getLayerId());
+      downLink.setParent(to.getParent());
+      box.add(downLink);
+    };
+
+    var createLayer = function(groupColor,layerId,nodeImage,xOffset,yOffset,count,name){
+      var layer = new twaver.Layer(layerId);
+      box.getLayerBox().add(layer);
+      box.getLayerBox().moveToTop(layer);
+
+      var group = new CGroupX(layerId);
+      group.setName(name);
+      group.setExpanded(true);
+      group.setStyle("group.fill.color",groupColor);
+      group.setEnlarged(false);
+
+      group.setLayerId(layerId);
+      box.add(group);
+
+      var centerX = 400;
+      var centerY = 200;
+      var centerNode = new twaver.Node(layerId+".c");
+      centerNode.setCenterLocation(centerX + xOffset, centerY + yOffset);
+      centerNode.setImage("4");
+      centerNode.setLayerId(layerId);
+      group.addChild(centerNode);
+      box.add(centerNode);
+      var i;
+      for (i = 0; i < count; i++) {
+        var circleWidth = 250;
+        var circleHeight = 80;
+        var node = new twaver.Node(layerId + "." + i);
+        var angle = Math.PI * 2 / count * i + 1;
+        var x = centerX + parseInt(circleWidth * Math.cos(angle));
+        var y = centerY + parseInt(circleHeight * Math.sin(angle));
+        node.setCenterLocation(x + xOffset, y + yOffset);
+        node.setImage(nodeImage);
+        node.setLayerId(layerId);
+        group.addChild(node);
+        box.add(node);
+
+        var link = new twaver.Link(centerNode,node);
+        link.setStyle("link.width",1);
+        link.setStyle("link.color","#000000");
+        link.setStyle("arrow.to",true);
+        link.setStyle("arrow.to.shape","arrow.short");
+        link.setLayerId(layerId);
+        group.addChild(link);
+        box.add(link);
+      }
+    };
+
+    var registImages= function (network) {
+        registerImage("images/1.png",network);
+        registerImage("images/4.png",network);
+        registerImage("images/5.png",network);
+        registerImage("images/7.png",network);
+        registerImage("images/8.png",network);
+    };
+
+    var registerImage = function (url, network) {
+        var image = new Image();
+        image.src = url;
+        var views = arguments;
+        var that = this;
+        image.onload = function () {
+            twaver.Util.registerImage(that.getImageName(url), image, image.width, image.height, network);
+            image.onload = null;
+            for (var i = 1; i < views.length; i++) {
+                var view = views[i];
+                if (view.invalidateElementUIs) {
+                    view.invalidateElementUIs();
+                }
+                if (view.invalidateDisplay) {
+                    view.invalidateDisplay();
+                }
+            }
+        };
+    };
+    var getImageName = function (url) {
+        var index = url.lastIndexOf('/');
+        var name = url;
+        if (index >= 0) {
+            name = url.substring(index + 1);
+        }
+        index = name.lastIndexOf('.');
+        if (index >= 0) {
+            name = name.substring(0, index);
+        }
+        return name;
+    };
+
+    var randomInt = function (n) {
+        return Math.floor(Math.random() * n);
+    };
+
+    var randomSeverity= function () {
+        var severities = twaver.AlarmSeverity.severities;
+        return severities.get(randomInt(severities.size()));
+    };
+
+
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

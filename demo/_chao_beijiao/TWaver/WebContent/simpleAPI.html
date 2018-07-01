@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>API Demo</title>
+    <script type="text/javascript" src = "Twaver/libs/t.js"></script>
+    <script type="text/javascript">
+        function load(){
+
+            var box = new mono.DataBox();
+            var camera = new mono.PerspectiveCamera(30, 1.5, 0.1, 10000);
+            camera.setPosition(50,200,500);
+			
+            //var mycanvas=document.getElementById('myCanvas');
+            
+            var network= new mono.Network3D(box, camera, myCanvas);
+            var interaction = new mono.DefaultInteraction(network);
+            network.setInteractions([new mono.SelectionInteraction(network), interaction]);
+            mono.Utils.autoAdjustNetworkBounds(network,document.documentElement,'clientWidth','clientHeight');
+
+            var pointLight = new mono.PointLight(0xFFFFFF,1);
+            pointLight.setPosition(10000,10000,10000);
+            box.add(pointLight);
+            box.add(new mono.AmbientLight(0x888888));
+
+            var node=new mono.Cylinder(25,25,50);
+            node.setPosition(55, 50, 55);
+            node.setStyle('m.texture.image','Twaver/images/default_texture.png').setStyle('m.type','phong').setStyle('m.color', 'green').setStyle('m.ambient', 'green');
+            box.add(node);
+        }
+    </script>
+</head>
+<body style = "margin:0px; padding:0px" onload = 'load()'>
+    <div id = "mainDiv">
+       <canvas id="myCanvas"/>
+    </div>
+</body>
+</html>

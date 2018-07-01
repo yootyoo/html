@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='UTF-8'>
+    <title>国家电网</title>
+    <script type="text/javascript" src="./twaver.js"></script>
+    <script type="text/javascript" src="./dianwang.js"></script>
+    <!-- <script type="text/javascript" src="./jsondata.js"></script> -->
+    <script>
+    var box = new twaver.ElementBox();
+    var network = new twaver.vector.Network(box);
+    var tree = new twaver.controls.Tree(box);
+    var toolbar = document.createElement('div');
+    // var autoLayouter = new twaver.layout.AutoLayouter(box);
+    var bounds = null;
+    var overview = new twaver.vector.Overview(network);
+
+    function init() {
+        var networkPane = new twaver.controls.BorderPane(network, toolbar);
+        networkPane.setTopHeight(25);
+        var leftPane = new twaver.controls.SplitPane(tree, overview, 'vertical', 0.7);
+        // var split = new twaver.controls.SplitPane(tree, pane, null, 0.3);
+        var pane = new twaver.controls.SplitPane(leftPane, networkPane, 'horizontal', 0.3);
+        var view = pane.getView();
+        view.style.left = '0px';
+        view.style.top = '0px';
+        view.style.right = '0px';
+        view.style.bottom = '0px';
+        document.body.appendChild(view);
+        window.onresize = function() {
+            pane.invalidate();
+        };
+        json = document.getElementById('data').innerHTML;
+        json = JSON.parse(json);
+        json = decode(json);
+        loadData(json)
+        tree.expandAll();
+    }
+    </script>
+</head>
+
+<body onload="init()">
+</body>
+<noscript id="data">
+    { "type": "FeatureCollection", "features": [ { "id": "130000", "geometry": { "type": "MultiPolygon", "coordinates": [
+                [ "@@FOhđ©OiÃ`ww^ÌkÑH«ƇǤŗĺtFu{Z}Ö@U´ʚLg®¯Oı°Ãw ^VbÉsmAê]]w§RRl£ŭuwNÁ`ÇFēÝčȻuT¡Ĺ¯Õ¯sŗő£YªhVƍ£ƅnëYNgq¼ś¿µı²UºÝUąąŖóxV@tƯJ]eR¾fe|rHA|h~Ėƍl§ÏjVë` ØoÅbbx³^zÃĶ¶Sj®AyÂhðk`«PËµEFÛ¬Y¨Ļrõqi¼Wi°§Ð±²°`[À|ĠO@ÆxO\\ta\\p_Zõ^û{ġȧXýĪÓjùÎRb^Î»j{íděYfíÙTymńŵōHim½éŅ­aVcř§ax¹XŻácWU£ôãºQ¨÷Ñws¥qEHÙ|šYQoŕÇyáĂ£MÃ°oťÊP¡mWO¡v{ôvîēÜISpÌhp¨ jdeŔQÖjX³àĈ[n`Yp@UcM`RKhEbpŞlNut®EtqnsÁgAiúoHqCXhfgu~ÏWP½¢G^}¯ÅīGCÑ^ãziMáļMTÃƘrMc|O_¯Ŏ´|morDkO\\mĆJfl@cĢ¬¢aĦtRıÒXòë¬WP{ŵǫƝīÛ÷ąV×qƥV¿aȉd³BqPBmaËđŻģmÅ®V¹d^KKonYg¯XhqaLdu¥Ípǅ¡KąÅkĝęěhq}HyÃ]¹ǧ£Í÷¿qágPmoei¤o^á¾ZEY^Ný{nOl±Í@Mċèk§daNaÇį¿]øRiiñEūiǱàUtėGyl}ÓM}jpEC~¡FtoQiHkk{ILgĽxqÈƋÄdeVDJj£J|ÅdzÂFt~KŨ¸IÆv|¢r}èonb}`RÎÄn°ÒdÞ²^®lnÐèĄlðÓ×]ªÆ}LiĂ±Ö`^°Ç¶p®đDcŋ`ZÔ¶êqvFÆN®ĆTH®¦O¾IbÐã´BĐɢŴÆíȦpĐÞXR·nndO¤OÀĈƒ­QgµFo|gȒęSWb©osx|hYhgŃfmÖĩnºTÌSp¢dYĤ¶UĈjlǐpäðëx³kÛfw²Xjz~ÂqbTÑěŨ@|oMzv¢ZrÃVw¬ŧĖ¸f°ÐTªqs{S¯r æÝl¼ÖĞ ǆiGĘJ¼lr}~K¨ŸƐÌWö¼Þ°nÞoĦL|C~D©|q]SvKÑcwpÏÏĿćènĪWlĄkT}¬Tp~®Hgd˒ĺBVtEÀ¢ôPĎƗè@~kü\\rÊĔÖæW_§¼F´©òDòjYÈrbĞāøŀG{ƀ|¦ðrb|ÀH`pʞkvGpuARhÞÆǶgĘTǼƹS£¨¡ù³ŘÍ]¿ÂyôEP xX¶¹ÜO¡gÚ¡IwÃé¦ÅBÏ|Ç°N«úmH¯âbęU~xĈbȒ{^xÖlD¸dɂ~"]
+            ], "encodeOffsets": [
+                [
+                    [122102, 42307]
+                ]
+            ] }, "properties": { "cp": [114.502461, 38.045474], "name": "河北", "childNum": 3 } }], "UTF8Encoding": true }
+</noscript>
+
+</html>

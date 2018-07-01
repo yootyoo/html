@@ -1,0 +1,43 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="pragma" content="no-cache">
+    <title>Blinking Demo</title>
+    <script type="text/javascript" src="../../lib/twaver.js"></script>
+    <script type="text/javascript">
+
+        var box = new twaver.ElementBox();
+        var network = new twaver.vector.Network(box);
+        var showColor = true;
+
+        function init() {
+
+            document.body.appendChild(network.getView());
+            network.adjustBounds({ x: 0, y: 0, width: 1024, height: 768 });
+
+            var node3 = new twaver.Node();
+            node3.setLocation(200, 500);
+            node3.setName("node3");
+            node3.getAlarmState().setNewAlarmCount(twaver.AlarmSeverity.CRITICAL, 10);
+            box.add(node3);
+
+            node3.setStyle("alarm.corner.radius",9); 
+            node3.setStyle("alarm.pointer.length",0);
+            node3.setStyle("alarm.position","topright");
+
+            var originalGetInnerColor = network.getInnerColor;
+            network.getInnerColor =function(element){
+                if(element.getName() ==="node3"){
+                    return null;
+                }else {
+                    return originalGetInnerColor(element);
+                }
+            };
+        }
+
+    </script>
+</head>
+<body onload="init()">
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>TWaver HTML5</title>
+<script src="twaver.js"></script>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="RegisterImage.js"></script>
+<script type="text/javascript" src="CElement.js"></script>
+<script type="text/javascript" src="DataFiller.js"></script>
+<script>
+	var highlightedNodeColor='#FFFED5';
+	var highlightedLinkColor='#FF7D02';
+	var nodeMovable=true;
+	var xStart=215;
+  var yStart=60;
+	var	box,network;
+
+	var nodeStr = '{"groups":[{"id":"DM10","name":"ERP系统","parentId":"DM0","x":"1","y":"1"},{"id":"DM20","name":"BW系统","parentId":"DM0","x":"2","y":"1",  "groups":[    {"id":"DM201","name":"数据处理","parentId":"DM20","x":"1","y":"1"},    {"id":"DM202","name":"数据模型","parentId":"DM20","x":"2","y":"1"},    {"id":"DM203","name":"数据处理","parentId":"DM20","x":"3","y":"1"},    {"id":"DM204","name":"应用功能","parentId":"DM20","x":"3","y":"2"},    {"id":"DM205","name":"数据接口","parentId":"DM20","x":"3","y":"3"},    {"id":"DM206","name":"数据接口","parentId":"DM20","x":"4","y":"1"},    {"id":"DM207","name":"数据模型","parentId":"DM20","x":"4","y":"2"},    {"id":"DM208","name":"数据处理","parentId":"DM20","x":"5","y":"1"},    {"id":"DM209","name":"应用功能","parentId":"DM20","x":"5","y":"2"},    {"id":"DM210","name":"数据接口","parentId":"DM20","x":"5","y":"3",      "groups":[        {"id":"DM2101","name":"接口BIC/AM","parentId":"DM210","x":"1","y":"1"}      ]    },    {"id":"DM211","name":"数据处理","parentId":"DM20","x":"6","y":"1",      "groups":[        {"id":"DM2111","name":"处理ZMM_1","parentId":"DM211","x":"1","y":"1"},        {"id":"DM2112","name":"处理ZMM_2","parentId":"DM211","x":"1","y":"2"},        {"id":"DM2113","name":"处理ZMM_3","parentId":"DM211","x":"1","y":"3"}      ]    },    {"id":"DM212","name":"数据接口","parentId":"DM20","x":"6","y":"2",      "groups":[        {"id":"DM2121","name":"接口BIC/OC1","parentId":"DM212","x":"1","y":"1"},        {"id":"DM2122","name":"接口BIC/OC2","parentId":"DM212","x":"1","y":"2"},        {"id":"DM2123","name":"接口BIC/OC3","parentId":"DM212","x":"1","y":"3"},        {"id":"DM2124","name":"接口BIC/OC4","parentId":"DM212","x":"1","y":"4"},        {"id":"DM2125","name":"接口BIC/OC5","parentId":"DM212","x":"1","y":"5"},        {"id":"DM2126","name":"接口BIC/OC6","parentId":"DM212","x":"1","y":"6"}      ]    },    {"id":"DM213","name":"数据模型","parentId":"DM20","x":"7","y":"1",      "groups":[        {"id":"DM2131","name":"模型ZMM_1","parentId":"DM213","x":"1","y":"1"},        {"id":"DM2132","name":"模型ZMM_2","parentId":"DM213","x":"1","y":"2"},        {"id":"DM2133","name":"模型ZMM_3","parentId":"DM213","x":"1","y":"3"}      ]    },    {"id":"DM214","name":"应用功能","parentId":"DM20","x":"7","y":"2",      "groups":[        {"id":"DM2141","name":"功能BIC/OC1","parentId":"DM214","x":"1","y":"1"},        {"id":"DM2142","name":"功能BIC/OC2","parentId":"DM214","x":"1","y":"2"},        {"id":"DM2143","name":"功能BIC/OC3","parentId":"DM214","x":"1","y":"3"},        {"id":"DM2144","name":"功能BIC/OC4","parentId":"DM214","x":"1","y":"4"},        {"id":"DM2145","name":"功能BIC/OC5","parentId":"DM214","x":"1","y":"5"},        {"id":"DM2146","name":"功能BIC/OC6","parentId":"DM214","x":"1","y":"6"}      ]    },    {"id":"DM215","name":"数据处理","parentId":"DM20","x":"8","y":"1"},    {"id":"DM216","name":"应用功能","parentId":"DM20","x":"8","y":"2"},    {"id":"DM217","name":"数据接口","parentId":"DM20","x":"8","y":"3"},    {"id":"DM218","name":"数据模型","parentId":"DM20","x":"9","y":"1"}  ]},{"id":"DM30","name":"数据存储中心","parentId":"DM0","x":"3","y":"1"},{"id":"DM40","name":"指标管理平台","parentId":"DM0","x":"3","y":"2"}]}';
+
+	var linkStr = '[["DM10","DM201"],["DM10","DM30"],["DM10","DM40"],["DM201","DM202"],["DM201","DM203"],["DM201","DM207"],["DM201","DM2101"],["DM202","DM203"],["DM202","DM204"],["DM202","DM205"],["DM204","DM206"],["DM203","DM207"],["DM206","DM30"],["DM207","DM208"],["DM207","DM209"],["DM207","DM2101"],["DM207","DM30"],["DM208","DM207"],["DM208","DM207"],["DM208","DM207"],["DM208","DM207"],["DM209","DM2111"],["DM209","DM2112"],["DM209","DM2113"],["DM209","DM2121"],["DM209","DM2122"],["DM209","DM2123"],["DM209","DM2124"],["DM209","DM2125"],["DM209","DM2126"],["DM2101","DM40"],["DM2121","DM40"],["DM2122","DM40"],["DM2123","DM40"],["DM2124","DM40"],["DM2125","DM40"],["DM2111","DM30"],["DM2112","DM30"],["DM2112","DM2131"],["DM2112","DM2132"],["DM2112","DM2133"],["DM2113","DM2141"],["DM2113","DM2142"],["DM2113","DM2143"],["DM2113","DM2144"],["DM2113","DM2145"],["DM2113","DM2146"],["DM2131","DM215"],["DM2132","DM215"],["DM2133","DM215"],["DM2141","DM216"],["DM2142","DM216"],["DM2143","DM216"],["DM2144","DM217"],["DM2145","DM217"],["DM2146","DM217"],["DM215","DM30"],["DM216","DM218"],["DM217","DM218"],["DM218","DM30"],["DM218","DM40"]]';
+
+  function init() {
+		box = new twaver.ElementBox();
+		network = new twaver.vector.Network(box);
+
+		document.body.appendChild(network.getView());
+		network.adjustBounds({x:0,y:0,width:document.documentElement.clientWidth,height:document.documentElement.clientHeight});
+		network.setLinkPathFunction(createLinkPath);
+		network.setMovableFunction(function (element) { return nodeMovable; });
+		network.setToolTipEnabled(false);
+		network.getView().addEventListener('mousemove',function(e){		
+			var element = network.getElementAt(e);
+			highlightNode(network.getElementBox(), element);
+		})
+
+		box.addDataPropertyChangeListener(function(e){
+			if(e.property==='expanded'){
+				var node=e.source;
+				fixLocation(node);
+			}
+		});
+		network.addInteractionListener(function(e){
+			if(e.kind == "doubleClickElement") {
+				var node = e.element;
+			}
+		});
+				
+		box.getLayerBox().add(new twaver.Layer('node'));
+		box.getLayerBox().add(new twaver.Layer('link'));			
+		
+		var nodeObj = $.parseJSON(nodeStr);		
+		var linkArr = $.parseJSON(linkStr);
+
+		DataFiller.fillData(nodeObj,linkArr,box);
+
+		window.onresize = function (e) { 
+			network.adjustBounds({x:0,y:0,width:document.documentElement.clientWidth,height:document.documentElement.clientHeight});
+		};
+  }
+
+	function fixLocation(node){
+		if(node.isExpanded()){
+			node.getChildren().forEach(function(child){
+				child.setLocation(child.getClient('x'), child.getClient('y'));
+				fixLocation(child);
+			});
+		}else{
+			node.setLocation(node.getClient('x'), node.getClient('y'));
+		}
+	}
+
+
+	function createLinkPath(linkUI, defaultPoints){
+		var f = linkUI.getFromPoint();
+		var t = linkUI.getToPoint();		
+		var fromNode=linkUI.getElement().getFromAgent();
+		var toNode=linkUI.getElement().getToAgent();
+
+		var points = new twaver.List();
+		var pFrom={x: f.x+fromNode.getWidth()/2+1, y: f.y};
+		var pFromNext={x: f.x+fromNode.getWidth()/2+1+20, y: f.y};
+		var pToNext2={x: t.x-toNode.getWidth()/2-2-20, y: t.y};
+		var pToNext1={x: t.x-toNode.getWidth()/2-2-10, y: t.y};
+		var pTo={x: t.x-toNode.getWidth()/2-2, y: t.y};
+
+		points.add(pFrom);
+		if(linkUI._element.getClient('offset')){
+			var direction=t.x<f.x ? -1: 1;
+			var controlY=linkUI._element.getClient('offset');
+			var seg = new twaver.List();
+			seg.add({x: f.x+fromNode.getWidth()/2+1+10, y: f.y});
+			seg.add({x: f.x+fromNode.getWidth()/2+1+10, y: controlY});						
+			seg.add({x: f.x+fromNode.getWidth()/2+1+50*direction, y: controlY});
+			points.add(seg);
+			points.add({x: t.x-toNode.getWidth()/2-2-50*direction, y: controlY});
+			var seg = new twaver.List();
+			seg.add({x: t.x-toNode.getWidth()/2-2-20, y: controlY});
+			seg.add({x: t.x-toNode.getWidth()/2-2-20, y: t.y});
+			seg.add({x: t.x-toNode.getWidth()/2-2-5, y: t.y});
+			points.add(seg);
+		}else{
+			var seg = new twaver.List();	
+			seg.add(pFromNext);
+			seg.add(pToNext2);
+			seg.add(pToNext1);			
+			points.add(seg);
+		}
+		points.add(pTo);
+
+		return points;
+	}
+
+	function highlightNode(box, element){		
+		box.forEach(function(data){
+			if(data instanceof twaver.Node){
+				data.setClient('highlighted', false);		
+				data.setStyle('group.fill.color', '#FFFCFA');
+			}
+			if(data instanceof twaver.Link){
+				DataFiller.highlightLink(data, false);
+			}
+		});
+		if(element){
+			if(element instanceof twaver.Node){
+				element.setClient('highlighted', true);
+				element.setStyle('group.fill.color', highlightedNodeColor);
+			}
+			if(element instanceof twaver.Link){
+				DataFiller.highlightLink(element, true);
+			}
+		}
+		//highlight related links.
+		if(element instanceof twaver.Node){
+			var nodes=[];
+			nodes.push(element);
+			if(element.getChildrenSize()>0){
+				nodes=nodes.concat(element.getChildren().toArray());
+			}
+			
+			box.forEach(function(data){
+				if(data instanceof twaver.Link){
+					var link=data;
+					var from=link.getFromAgent();
+					var to=link.getToAgent();
+					if(arrayContains(nodes, from, to)){
+						DataFiller.highlightLink(link, true);
+					}
+				}
+			});
+		}		
+	}
+
+	function arrayContains(array, object1, object2) {
+		var i = array.length;
+		while (i--) {
+			if (array[i] === object1 || array[i] === object2) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+
+
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

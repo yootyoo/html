@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Test Zoom</title>
+    <script src="js/twaver.js"></script>
+    <script>
+        var box = new twaver.ElementBox();
+        var network = new twaver.vector.Network(box);
+
+        function init() {
+            registImages();
+            initNetwork();
+            initDataBox();
+        };
+
+        function initNetwork() {
+            var view = network.getView();
+            document.body.appendChild(view);
+            network.adjustBounds({x: 0, y: 0, width: 1300, height: 1000});
+        };
+
+        function initDataBox() {
+
+            var cabinet = new twaver.Node();
+            cabinet.setName("机柜(1行1列)");
+            cabinet.setImage("001");
+            cabinet.setCenterLocation(400, 0);
+            box.add(cabinet);
+
+            var server1 = new twaver.Follower();
+            server1.setName("账务数据库主机(10.199.23.24)");
+            server1.setStyle("label.color","#FFFFFF");
+            server1.setImage("003");
+            server1.setCenterLocation(423, 70);
+            server1.setHost(cabinet);
+            box.add(server1);
+
+            var server2 = new twaver.Follower();
+            server2.setName("一级BOSS主机(10.199.3.38)");
+            server2.setStyle("label.color","#FFFFFF");
+            server2.setImage("003");
+            server2.setCenterLocation(423, 180);
+            server2.setHost(cabinet);
+            box.add(server2);
+
+            var server3 = new twaver.Follower();
+            server3.setName("网管监控主机(10.199.3.137)");
+            server3.setStyle("label.color","#FFFFFF");
+            server3.setImage("002");
+            server3.setCenterLocation(423, 450);
+            server3.setHost(cabinet);
+            box.add(server3);
+
+            var server4 = new twaver.Follower();
+            server4.setName("计费应用主机(10.199.23.9)");
+            server4.setStyle("label.color","#FFFFFF");
+            server4.setImage("002");
+            server4.setCenterLocation(423, 670);
+            server4.setHost(cabinet);
+            box.add(server4);
+
+            addAlarm("alarm 01",server1.getId(),twaver.AlarmSeverity.MINOR,box.getAlarmBox());
+            addAlarm("alarm 04",server4.getId(),twaver.AlarmSeverity.MINOR,box.getAlarmBox());
+
+            server1.getAlarmState().setNewAlarmCount(twaver.AlarmSeverity.MINOR, 3);
+            server4.getAlarmState().setNewAlarmCount(twaver.AlarmSeverity.MINOR, 3);
+        };
+
+        var registImages = function () {
+            registerImage("images/cabinet/001.svg");
+            registerImage("images/cabinet/002.svg");
+            registerImage("images/cabinet/003.svg");
+
+        };
+        var registerImage = function (url) {
+            var image = new Image();
+            image.src = url;
+            var views = arguments;
+            var that = this;
+            image.onload = function () {
+                twaver.Util.registerImage(getImageName(url), image, image.width, image.height, network);
+                image.onload = null;
+                if (network.invalidateElementUIs) {
+                    network.invalidateElementUIs();
+                }
+                if (network.invalidateDisplay) {
+                    network.invalidateDisplay();
+                }
+            };
+        };
+        var getImageName = function (url) {
+            var index = url.lastIndexOf('/');
+            var name = url;
+            if (index >= 0) {
+                name = url.substring(index + 1);
+            }
+            index = name.lastIndexOf('.');
+            if (index >= 0) {
+                name = name.substring(0, index);
+            }
+            return name;
+        };
+        var addAlarm = function(alarmID, elementID, alarmSeverity, alarmBox) {
+            var alarm = new twaver.Alarm(alarmID, elementID, alarmSeverity);
+            alarmBox.add(alarm);
+        };
+    </script>
+</head>
+<body onload="init()">
+</body>
+</html>

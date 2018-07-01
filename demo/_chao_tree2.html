@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script type="text/javascript" src="../lib/twaver.js"></script>
+        <script type="text/javascript">
+            function init() {
+                var tree = new twaver.controls.Tree();
+                tree.setCheckMode('descendantAncestor');
+                tree.isCheckable = function(element) {
+                    if(element.getChildrenSize() == 0) {
+                        return true;
+                    }
+                    return false;
+                };
+                var box = tree.getDataBox();
+                var rootA = new twaver.Data();
+                rootA.setIcon("group_icon");
+                rootA.setName('RootA');
+                box.add(rootA);
+                var node = new twaver.Node();
+                node.setParent(rootA);
+                node.setName("Hello");
+                box.add(node);
+                node = new twaver.Node();
+                node.setName("TWaver");
+                node.setParent(rootA);
+                box.add(node);
+                var rootB = new twaver.Data();
+                rootB.setName("RootB");
+                node = new twaver.Node();
+                node.setName("Jack");
+                node.setParent(rootB);
+                box.add(rootB);
+                box.add(node);
+                
+                var treeDom = tree.getView();
+                treeDom.style.width = "100%";
+                treeDom.style.height = "100%";
+                document.getElementById("main").appendChild(treeDom);
+                tree.expandAll();
+        }
+           
+           
+        </script>
+    </head>
+    <body onload="init()">
+        <div id="main"></div>
+    </body>
+</html>

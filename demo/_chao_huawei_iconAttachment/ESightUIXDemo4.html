@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="../../lib/twaver.js"></script>
+  <script src="js/CElement.js"></script>
+  <script>
+    var box = new twaver.ElementBox();
+    var network = new twaver.vector.Network(box);
+    twaver.Styles.setStyle("select.style","none");
+    // twaver.Styles.setStyle("body.type","default");
+    twaver.Styles.setStyle("vector.shape","circle");
+    twaver.Styles.setStyle("vector.fill.color","rgba(10,193,71,0.1)");
+    twaver.Styles.setStyle("vector.outline.color","#A3F2C2");
+    twaver.Styles.setStyle("vector.outline.width",2);
+    twaver.Styles.setStyle("link.bundle.expanded",false);
+    var init = function() {
+      buildData();
+      registImages(network);      
+      document.body.appendChild(network.getView());
+      network.adjustBounds({ x: 0, y: 0, width: 1024, height: 768 });
+      
+      network.getView().addEventListener("click", function(event) {
+        // _toolTip.setVisible(false);
+        // if(network.hitsTestByMouseEvent(event) is CIconsAttachmentX) {
+        //   var iconAttachment:CIconsAttachmentX = CIconsAttachmentX(network.hitsTestByMouseEvent(event));
+        //   var iconsRects:Array = iconAttachment.iconsRects;
+        //   var iconsNames:Array = iconAttachment.iconsNames;
+        //   var point:Point = network.getLogicalPoint(event);
+        //   if(iconsNames) {
+        //     for(var i:int = 0; i < iconsRects.length; i++) {
+        //       var rect:Rectangle = iconsRects[i];
+        //       if(rect.contains(point.x, point.y)) {
+        //         var iconName:String = iconsNames[i];
+        //         Alert.show(iconName);
+        //       }
+        //     }
+        //   }
+        // }
+        var loc = network.hitTest(event);
+        
+      });
+    };
+
+    var buildData = function(){
+      var node1 = new CNodeX();
+      node1.setLocation(200, 300);
+      node1.setImage("node");
+
+      node1.setClient("vector.radius",30);
+      node1.setClient("icons.offset",5);
+      node1.setClient("icons.angle",[0,-40,40]);
+      node1.setClient("icons.radius",10);
+      node1.setClient("icons.outline.width",2);
+      node1.setClient("icons.outline.color","#E7E7E7");
+      node1.setClient("icons.fill.color","#FFFFFF");
+      node1.setStyle("icons.names",["att1","att2","att3"]);
+
+      box.add(node1);
+
+    };
+
+    var registImages= function (network) {
+        registerImage("images/node.png",network);
+        registerImage("images/att1.png",network);
+        registerImage("images/att2.png",network);
+        registerImage("images/att3.png",network);
+    };
+
+    var registerImage = function (url, network) {
+        var image = new Image();
+        image.src = url;
+        var views = arguments;
+        var that = this;
+        image.onload = function () {
+            twaver.Util.registerImage(that.getImageName(url), image, image.width, image.height, network);
+            image.onload = null;
+            for (var i = 1; i < views.length; i++) {
+                var view = views[i];
+                if (view.invalidateElementUIs) {
+                    view.invalidateElementUIs();
+                }
+                if (view.invalidateDisplay) {
+                    view.invalidateDisplay();
+                }
+            }
+        };
+    };
+    var getImageName = function (url) {
+        var index = url.lastIndexOf('/');
+        var name = url;
+        if (index >= 0) {
+            name = url.substring(index + 1);
+        }
+        index = name.lastIndexOf('.');
+        if (index >= 0) {
+            name = name.substring(0, index);
+        }
+        return name;
+    };
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

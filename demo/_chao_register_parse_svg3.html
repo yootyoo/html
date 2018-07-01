@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<head>
+<meta http-equiv="pragma" content="no-cache">
+<title>Test</title>
+<script type="text/javascript" src="../lib/twaver.js"></script>
+<script type="text/javascript">
+var box = new twaver.ElementBox();
+var network = new twaver.vector.Network(box);
+
+function init() {
+  var view = network.getView();
+  document.body.appendChild(view);
+  initRoom();
+  network.adjustBounds({
+    x : 0,
+    y : 0,
+
+    width : document.documentElement.clientWidth,
+    height : document.documentElement.clientHeight
+  });
+}
+
+function initRoom() {
+  twaver.Util.registerImage('test_vector', {
+      "w": 23.004,
+      "h": 23.014,
+      "origin": {
+        "x": 0,
+        "y": 0
+      },
+      "v": [
+        {
+          "shape": "g",
+          "v": [
+            {
+              "shape": "g",
+              "v": [
+                {
+                  "shape": "path",
+                  "data": "M21.003,15.888v-1.842c1.262-1.439,2-3.182,2-5.061c0-4.962-5.147-8.984-11.5-8.984    c-6.352,0-11.5,4.022-11.5,8.984c0,2.303,1.117,4.395,2.938,5.981v1.672c-1.339-0.928-2.298-2.064-2.709-3.318    c-0.146,0.527-0.231,1.09-0.231,1.688c0,4.973,5.14,8.006,11.479,8.006c6.342,0,11.48-3.033,11.48-8.006    c0-0.57-0.082-1.104-0.215-1.605C22.431,14.306,21.823,15.144,21.003,15.888z M11.493,0.996l2.496,2.981h-1.988v2.988h-0.982    V3.977H9.034L11.493,0.996z M3.009,8.005h3.988v-1.99l2.98,2.496l-2.98,2.463V8.99H3.009V8.005z M8.941,18.833    c-1.428-0.205-2.767-0.559-3.938-1.059v-1.379c1.172,0.629,2.51,1.068,3.938,1.324V18.833z M13.941,18.865    c-0.786,0.105-1.6,0.17-2.438,0.17c-0.17,0-0.331-0.021-0.5-0.025v-1.064c0.169,0.006,0.33,0.027,0.5,0.027    c0.838,0,1.652-0.074,2.438-0.207V18.865z M11.493,15.978l-2.461-2.98h1.984v-2.99h0.982v2.99h1.988L11.493,15.978z     M15.979,10.973L12.997,8.51l2.982-2.496v1.99h3.988v0.982h-3.988V10.973z M16.003,17.255c1.074-0.355,2.062-0.84,2.938-1.422    v1.473c-0.879,0.465-1.858,0.861-2.938,1.148V17.255z",
+                  "fill": "#aaaaaa"//"#31BD16"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+  var node1 = new twaver.Node();
+  node1.setName("Hello");
+  node1.setLocation(100, 100);
+  node1.setImage('test_vector');
+  box.add(node1);
+}
+</script>
+</head>
+<body onload="init()">
+
+</body>
+</html>
+
+

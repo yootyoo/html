@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="pragma" content="no-cache">
+	<title>Scale Link Demo</title>
+	<script type="text/javascript" src="../../lib/twaver.js"></script>
+	<script type="text/javascript" src="CElement.js"></script>
+	<script type="text/javascript">
+		
+		
+		var SCALE_LINK_SHADOW_COLOR = "#000000";
+		
+		var box = new twaver.ElementBox();
+		var network = new twaver.canvas.Network(box);
+		
+		function init() {
+			// 设置选中样式
+			twaver.Styles.setStyle('select.style', 'border');
+			
+			// 添加工具条和拓扑
+			var toolbar = document.createElement('div');
+			var pane = new twaver.controls.BorderPane(network, toolbar);
+			pane.setTopHeight(25);
+			var view = pane.getView();
+			view.style.left = '0px';
+			view.style.top = '0px';
+			view.style.right = '0px';
+			view.style.bottom = '0px';
+			document.body.appendChild(view);
+			window.onresize = function () {
+				pane.invalidate();
+			};
+
+			network.getView().addEventListener("click", function(event){
+        var hitUI  = network.hitTest(event);
+        if(hitUI instanceof demo.ScaleLinkUI){
+          var point;
+          if (event.target) {
+              point = network.getLogicalPoint(event);
+          } else if(event.event) {
+              point = network.getLogicalPoint(event.event);
+          } else {
+              point = event;
+          }
+          var position = hitUI.hitCanvasRectAtScaleLine(point.x, point.y);
+          if(position === "from"){
+          	hitUI._element.setClient("position","from");
+          }else if(position === "to"){
+          	hitUI._element.setClient("position","to");
+          }else if(position === "center"){
+          	hitUI._element.setClient("position","center");
+          }else{
+          	hitUI._element.setClient("position",null);
+          }
+
+        }
+
+      });
+		
+			
+			initBox();
+		}
+		
+		function initBox () {
+			var node1 = createNode("1", 400, 200);
+			var node2 = createNode("2", 800, 500);
+			
+			createLink(node1, node2, [1,1], ["#00ffff","#ffff00","#646464"]);
+
+			var node3 = createNode("3", 500, 200);
+			var node4 = createNode("4", 900, 500);
+
+			createLink(node3, node4, [1,1], ["#0000ff","#00ff00","#646464"]);
+		}
+	
+		function createNode(name, x, y) {
+			var node = new demo.ScaleNode();
+			node.setName(name);
+			node.setLocation({x: x, y: y});
+			box.add(node);
+			return node;
+		}
+		
+		function createLink(from, to, percents ,colors){
+			var link = new demo.ScaleLink(from, to);
+			link.setName(from.getName() + ' - ' + to.getName());
+			// link.setClient('arrow.to', true);
+			link.setClient('fromFillPercent', percents[0]);
+			link.setClient('toFillPercent', percents[1]);
+			link.setStyle('link.width', 10);
+			link.setStyle('link.color', colors[2]);
+
+			link.setClient('fromFillColor',colors[0]);
+			link.setClient('toFillColor',colors[1]);
+			
+			box.add(link);
+			return link;
+		}
+		
+		function addCheckBox (div, checked, name, callback) {
+			var checkBox = document.createElement('input');
+			checkBox.id = name;
+			checkBox.type = 'checkbox';
+			checkBox.style.padding = '4px 4px 4px 4px';
+			checkBox.checked = checked;
+			if (callback) checkBox.addEventListener('click', callback, false);
+			div.appendChild(checkBox);
+			var label = document.createElement('label');
+			label.htmlFor = name;
+			label.innerHTML = name;
+			div.appendChild(label);
+			return checkBox;
+		}
+		
+		function randomInt (n) {
+			return Math.floor(Math.random() * n);
+		}
+		
+		function getAngle (p1, p2) {
+			if (p1.x === p2.x) {
+				if (p2.y === p1.y) {
+					return 0;
+				} else if (p2.y > p1.y) {
+					return Math.PI/2;
+				} else {
+					return -Math.PI/2;
+				}
+			}
+			return Math.atan((p2.y - p1.y) / (p2.x - p1.x));
+		}
+		
+		
+	</script>
+</head>
+<body onload="init()">
+</body>
+</html>

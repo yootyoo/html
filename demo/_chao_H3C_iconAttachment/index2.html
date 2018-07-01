@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="../../lib/twaver.js"></script>
+  <script src="js/CElement.js"></script>
+  <script>
+  
+
+    var box = new twaver.ElementBox();
+    var network = new twaver.vector.Network(box);
+    twaver.Styles.setStyle("link.bundle.gap",20);
+
+    var originalGetToolTip = network.getToolTip;
+    network.getToolTip = function(element) {
+      if(element && element instanceof twaver.Node){
+        return null;
+      }else{
+        originalGetToolTip(element);
+      }
+    };
+
+    var init = function() {
+      registImages(network);
+
+      twaver.Util.registerImage('ip_vector', {    
+        w: 100,
+        h: 25,
+        origin: { x: 0, y: 0 },
+        v: [
+        {
+          shape: 'rect',
+          w: '100%',
+          h: '100%',  
+          lineColor:'black',
+          lineWidth:2.5,    
+          fill: '#CECECE',
+        },{
+          shape: 'text',
+          text: '<%=getClient("text")%>',
+          font: '12px "Microsoft Yahei"',
+          translate: {x:50,y:12},
+        }
+
+        ],
+      });
+
+
+      document.body.appendChild(network.getView());
+      network.adjustBounds({ x: 0, y: 0, width: 1024, height: 768 });
+      buildData();
+      
+    };
+
+
+    // var convertPositionToRect = function(angle,node){
+    //   var center = {};
+    //   center.x = node.getClient("node.width")/2 + Math.sin((angle/180) * Math.PI) * (node.getClient("node.width")/2 - node.getClient("icons.radius")) ;
+    //   center.y = node.getClient("node.height")/2  - Math.cos((angle/180) * Math.PI) * (node.getClient("node.height")/2 - node.getClient("icons.radius")) ;
+    //   return center;
+    // };
+
+    var buildData = function(){
+      var node1 = new twaver.Node();
+      node1.setLocation(200, 300);
+      node1.setClient("text","10.153.58.10");
+      node1.setImage("ip_vector");
+      node1.setToolTip("tooltip of node1!")
+      node1.setName("node1");
+
+
+      // node1.setClient('node.width', 98);
+      // node1.setClient('node.height',98);
+      // node1.setClient('node.icon', "center_vector");
+      // node1.setClient('node.atts',["att1","att2","att2","att3","att3"]);
+      // node1.setClient("icons.position",[0,-40, -80 ,40,80]);
+      // node1.setClient("icons.offset",5);
+      // node1.setClient("icons.radius",7);
+      // node1.setClient("icons.outline.width",2);
+      // node1.setClient("icons.outline.color","#E7E7E7");
+      // node1.setClient("icons.fill.color","#FFFFFF");
+      // node1.getAlarmState().setAcknowledgedAlarmCount(twaver.AlarmSeverity.CRITICAL, 2);
+      // node1.getAlarmState().setAcknowledgedAlarmCount(twaver.AlarmSeverity.MAJOR, 1);
+
+      // node1.setImage(createUI(node1));
+
+      box.add(node1);
+
+      var node2 = new twaver.Node();
+      node2.setLocation(200, 500);
+      node2.setClient("text","10.153.58.11");
+      node2.setImage("ip_vector");
+      // node2.setClient('node.width', 98);
+      // node2.setClient('node.height',98);
+      // node2.setClient('node.icon', "center_vector");
+      // node2.setClient("icons.offset",5);
+      // node2.setClient("icons.radius",7);
+      // node2.setImage("node_vector");
+      box.add(node2);
+
+      createLinks(node1,node2,8);
+      
+      
+      // var link1 = new CLinkX(node1, node2);
+
+      // link1.setStyle("link.color","#AEAEAE");
+      // // link1.setStyle("icons.names",["ellipse_vector"]);
+      // link1.setStyle("arrow.to",true);
+      // link1.setStyle("arrow.to.color","#AEAEAE");
+      // link1.setClient("icons.rx",4);
+      // link1.setClient("icons.ry",7);
+      // link1.setClient("icons.offset.percent",1/3);
+      // box.add(link1);
+
+      // var link2 = new CLinkX(node1, node2);
+      // link2.setStyle("link.color","#AEAEAE");
+      // // link2.setStyle("icons.names",["ellipse_vector"]);
+      // link2.setStyle("arrow.to",true);
+      // link2.setStyle("arrow.to.color","#AEAEAE");
+      // link2.setClient("icons.rx",4);
+      // link2.setClient("icons.ry",7);
+      // link2.setClient("icons.offset.percent",1/3);
+      // box.add(link2);
+
+      // var link3 = new CLinkX(node1, node2);
+
+      // link3.setStyle("link.color","#AEAEAE");
+      // // link3.setStyle("icons.names",["ellipse_vector"]);
+      // link3.setStyle("arrow.to",true);
+      // link3.setStyle("arrow.to.color","#AEAEAE");
+      // link3.setClient("icons.rx",4);
+      // link3.setClient("icons.ry",7);
+      // link3.setClient("icons.offset.percent",1/3);
+      // box.add(link3);
+
+      // var link4 = new CLinkX(node1, node2);
+
+      // link4.setStyle("link.color","#AEAEAE");
+      // // link4.setStyle("icons.names",["ellipse_vector"]);
+      // // link4.setStyle("link.from.xoffset",10);
+      // // link4.setStyle("link.to.xoffset",10);
+      // link4.setStyle("arrow.to",true);
+      // link4.setStyle("arrow.to.color","#AEAEAE");
+      // link4.setClient("icons.rx",4);
+      // link4.setClient("icons.ry",7);
+      // link4.setClient("icons.offset.percent",1/3);
+      // box.add(link4);
+      // 
+      network.getView().addEventListener("mousemove", function(event){
+        var hitUI  = network.hitTest(event);
+        if(hitUI instanceof CLinkUIX){
+          var point;
+          if (event.target) {
+              point = network.getLogicalPoint2(event);
+          } else if(event.event) {
+              point = network.getLogicalPoint2(event.event);
+          } else {
+              point = event;
+          }
+          var size = hitUI._attachments.size();
+          var att;
+          for (var i = 0; i < size; i++) {
+            if (hitUI._attachments.get(i).hit(point.x, point.y)) {
+              att = hitUI._attachments.get(i);
+              break;
+            }
+          }
+          var index;
+          if(hitUI._element.getStyle("link.bundle.expanded")){
+            if(att instanceof CLinkFromIconsAttachmentX){
+              // alert("from")
+              index = hitUI._element.getClient("link.bundle.index");
+              _twaver.popup.showToolTip({ x: point.x, y: point.y}, "link: "+ index+ " position: from");
+            }else if(att instanceof CLinkToIconsAttachmentX){
+              // alert("to");
+              index = hitUI._element.getClient("link.bundle.index");
+              _twaver.popup.showToolTip({ x: point.x, y: point.y}, "link: "+ index+ " position: to");
+            }
+          }else{
+            if(att instanceof CLinkFromIconsAttachmentX){
+              _twaver.popup.showToolTip({ x: point.x, y: point.y}, hitUI._element.getClient("link.bundle.from.tooltip"));
+            }else if(att instanceof CLinkToIconsAttachmentX){
+              _twaver.popup.showToolTip({ x: point.x, y: point.y}, hitUI._element.getClient("link.bundle.to.tooltip"));
+            }
+          }
+        }
+//          _toolTip.setVisible(false);
+//           var hite= network.hitsTestByMouseEvent(event);
+//           if(network.hitsTestByMouseEvent(event) is CFromIconsAttachmentX) {
+//             Alert.show("fromNode");
+//             //picture attachment don't need to customize
+// //            var iconAttachment:CFromIconsAttachmentX = CFromIconsAttachmentX(network.hitsTestByMouseEvent(event));
+// //            var iconsRects:Array = iconAttachment.iconsRects;
+// //            var iconsNames:Array = iconAttachment.iconsNames;
+// //            var point:Point = network.getLogicalPoint(event);
+// //            if(iconsNames) {
+// //              for(var i:int = 0; i < iconsRects.length; i++) {
+// //                var rect:Rectangle = iconsRects[i];
+// //                if(rect.contains(point.x, point.y)) {
+// //                  var iconName:String = iconsNames[i];
+// //                  Alert.show(iconName);
+// //                }
+// //              }
+// //            }
+//           }else if(network.hitsTestByMouseEvent(event) is CToIconsAttachmentX){
+//             Alert.show("toNode");
+//           }
+        }); 
+      
+    };
+
+    var registImages= function (network) {
+        registerImage("images/node.png",network);
+        registerImage("images/att1.png",network);
+        registerImage("images/att2.png",network);
+        registerImage("images/att3.png",network);
+    };
+
+    var registerImage = function (url, network) {
+        var image = new Image();
+        image.src = url;
+        var views = arguments;
+        var that = this;
+        image.onload = function () {
+            twaver.Util.registerImage(that.getImageName(url), image, image.width, image.height, network);
+            image.onload = null;
+            for (var i = 1; i < views.length; i++) {
+                var view = views[i];
+                if (view.invalidateElementUIs) {
+                    view.invalidateElementUIs();
+                }
+                if (view.invalidateDisplay) {
+                    view.invalidateDisplay();
+                }
+            }
+        };
+    };
+    var getImageName = function (url) {
+        var index = url.lastIndexOf('/');
+        var name = url;
+        if (index >= 0) {
+            name = url.substring(index + 1);
+        }
+        index = name.lastIndexOf('.');
+        if (index >= 0) {
+            name = name.substring(0, index);
+        }
+        return name;
+    };
+
+    var createLinks = function(from,to,bundleAmount){
+      var bundleLinks = [];
+      var i;
+      for(i=0;i<bundleAmount;i++){
+        // var link1 = new CLinkX(node1, node2);
+
+        // link1.setStyle("link.color","#AEAEAE");
+        // // link1.setStyle("icons.names",["ellipse_vector"]);
+        // link1.setStyle("arrow.to",true);
+        // link1.setStyle("arrow.to.color","#AEAEAE");
+        // link1.setClient("icons.rx",4);
+        // link1.setClient("icons.ry",7);
+        // link1.setClient("icons.offset.percent",1/3);
+        // box.add(link1);
+        link = new CLinkX(from, to);
+        bundleLinks.push(link);
+        link.setStyle("link.color","#AEAEAE");
+        // link.setStyle("icons.yoffset",[30,-30]);
+        // link.setStyle("icons.xoffset",[23,23]);
+        // link1.setStyle("link.from.xoffset",0);
+        // link1.setStyle("link.to.xoffset",0);
+        link.setStyle("arrow.to",true);
+        link.setStyle("arrow.to.color","#AEAEAE");
+        link.setClient("icons.rx",4);
+        link.setClient("icons.ry",7);
+        link.setClient("icons.offset.percent",1/3);
+        link.setClient("link.bundle.index",i);
+        link.setClient("link.bundle.length",bundleAmount);
+        link.setClient("link.bundle.from.tooltip","<p><b>link:</b> bundle <br/> <b>position:</b> from</p>");
+        link.setClient("link.bundle.to.tooltip","link: bundle position: to");
+        box.add(link);
+      }
+    };
+
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="GB2312">
+    <title>Hello TWaver Full</title>
+    <script type="text/javascript" src="../lib/twaver.js"></script>
+    <script type="text/javascript">
+        var network = new twaver.network.Network();
+        var box = network.getElementBox();
+        var alarmBox = box.getAlarmBox();
+
+        function init() {
+//            var txt = '[{"id":"19308","p":"5","x":785,"y":776},{"id":"19314","p":"5","x":869,"y":702}]';
+//            var obj = eval ("(" + txt + ")");
+////var node ;
+//            for(var m =0;m<obj.length;m++ ){
+//                var node = new twaver.Node("Node"+obj[m].id);
+//                node.setLocation((obj[m].x/2),(obj[m].y/2));
+//                node.setImage(obj[m].p);
+//                box.add(node);
+//            }
+
+            var node = new twaver.Node();
+            node.setName("from");
+            node.setLocation(100, 100);
+            box.add(node);
+
+            var xmlSerializer = new twaver.XmlSerializer(box).serialize();
+            console.log(xmlSerializer);
+
+            //alert(xmlSerializer.serialize());
+            var networkDom = network.getView();
+            networkDom.style.width = "100%";
+            networkDom.style.height = "100%";
+            document.body.appendChild(networkDom);
+
+        }
+
+        // var network = new twaver.network.Network();
+        // var box = network.getElementBox();
+        // var alarmBox = box.getAlarmBox();
+
+        // function loadJSON(path)
+        // {
+        //     var result;
+        //     var xhr = new XMLHttpRequest();
+        //     xhr.onreadystatechange = function()
+        //     {
+        //         if (xhr.readyState === 4) {
+        //             if (xhr.status === 200) {
+        //                 //console.log(xhr.responseText);
+        //                 new twaver.XmlSerializer(box).deserialize(xhr.responseText);
+        //             }
+        //         }
+        //     };
+        //     xhr.open("GET", path, true);
+        //     xhr.send();
+        // }
+
+        // function init() {
+
+        //     var networkDom = network.getView();
+        //     networkDom.style.width = "100%";
+        //     networkDom.style.height = "100%";
+        //     document.body.appendChild(networkDom);
+
+        //     loadJSON("data.xml");
+
+        // }
+    </script>
+</head>
+<body  onload="init()" style="margin:0;">
+</body>
+</html>

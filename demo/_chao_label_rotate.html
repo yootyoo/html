@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="../lib/twaver.js"></script>
+  <script>
+    var CLabelAttachment = function(elementUI,showOnTop){
+      CLabelAttachment.superClass.constructor.apply(this, arguments);
+    };
+
+    twaver.Util.ext(CLabelAttachment, twaver.vector.LabelAttachment, {
+      paint:function(ctx){
+        ctx.save();
+        var _viewRect = this.getZoomViewRect();
+        var x = _viewRect.x + _viewRect.width / 2,
+            y = _viewRect.y + _viewRect.height / 2;
+        ctx.translate(x, y);
+        ctx.rotate(90* Math.PI/180);
+        ctx.translate(-x, -y);
+        CLabelAttachment.superClass.paint.apply(this, arguments);
+        ctx.restore();
+      }
+    });
+
+    function init() {
+      var box = new twaver.ElementBox();
+      var network = new twaver.vector.Network(box);
+      
+      document.body.appendChild(network.getView());
+      network.adjustBounds({ x: 0, y: 0, width: document.documentElement.clientWidth, height: document.documentElement.clientHeight });
+      
+      var node1 = new twaver.Node();
+      node1.setName('TWaver');
+      node1.setLocation(100, 100);
+      box.add(node1);
+
+      var node1UI = network.getElementUI(node1);
+      node1UI._labelAttachment = new CLabelAttachment(node1UI,false);
+      node1UI.addAttachment(node1UI._labelAttachment);
+      
+      var node2 = new twaver.Node();
+      node2.setName('HTML5');
+      node2.setLocation(300, 200);
+      box.add(node2);
+      
+      var link = new twaver.Link(node1, node2);
+      link.setName('Hello!');
+      link.setToolTip('<b>Hello!</b>');
+      box.add(link);
+
+    }
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

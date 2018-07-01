@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Test Zoom</title>
+    <script src="../lib/twaver.js"></script>
+    <script>       
+        var box = new twaver.ElementBox();
+        var network = new twaver.vector.Network(box);
+
+        function init() {
+            initNetwork();
+            initDataBox();
+        }
+
+        function initNetwork() {
+            var view = network.getView();
+            document.body.appendChild(view);
+            network.adjustBounds({x: 0, y: 0, width: 1300, height: 600});
+        }
+
+        function initDataBox() {
+            
+
+            function CFollower(id) {
+                CFollower.superClass.constructor.call(this, id);
+            }
+            twaver.Util.ext(CFollower, twaver.Follower, {
+                setLocation: function(){
+                    if (2 === arguments.length){
+                        var hostNode = this.getHost();
+                        var locati = hostNode.getLocation();
+                        console.log(locati.x+"--"+locati.y);
+                        if(Math.abs(arguments[0] - locati.x) > 50 || Math.abs(arguments[1] - locati.y) > 50){
+                            console.log(arguments[0]+"---"+arguments[1]);
+                            return;
+                        }
+                    }
+                    CFollower.superClass.setLocation.apply(this, arguments);
+                }
+                
+            });
+
+            var node = new twaver.Node();
+            node.setLocation(400,200);
+            box.add(node);
+
+            var Host = new twaver.Node({
+                name:'host',
+                location:{
+                    x:100,
+                    y:200
+                }
+            });
+            box.add(Host);
+
+            var link = new twaver.Link(node,Host);
+            box.add(link);
+
+            var cfollower = new CFollower({
+                name:'Follower',
+                location:{
+                    x:140,
+                    y:240
+                }
+            });
+            cfollower.setClient('follower',true);
+            cfollower.setHost(Host);
+            box.add(cfollower);
+        }
+    </script>
+</head>
+<body onload="init()">
+</body>
+</html>

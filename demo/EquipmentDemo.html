@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>TWaver HTML5</title>
+<meta charset=GB2312/>
+<script type="text/javascript" src="../lib/twaver.js"></script>
+<script>
+var box = new twaver.ElementBox();
+var network = new twaver.vector.Network(box);
+var toolbar = document.createElement('div');
+var ports = new twaver.List();
+var cards = new twaver.List();
+var light1;
+var light2;
+
+function init() {
+    registerImages();
+    initNetwork();
+    initDataBox();
+    setInterval(function () {
+        tick();
+    }, 1500);
+}
+
+function initNetwork() {
+    var centerPane = new twaver.controls.BorderPane(network, toolbar);
+    centerPane.setTopHeight(0);
+    twaver.Defaults.CENTER_LOCATION = true;
+    var view = centerPane.getView();
+    view.style.left = '0px';
+    view.style.right = '0px';
+    view.style.top = '0px';
+    view.style.bottom = '0px';
+    view.style.background = twaver.Colors.green_light;
+    document.body.appendChild(view);
+    network.setMovableFunction(function (element) {
+        return false;
+    });
+}
+
+function registerImages() {
+    registerImage("./images/chassis/bolt.png");
+    for (var i = 1; i <= 10; i++) {
+        registerImage("./images/chassis/chassis" + i + ".png");
+    }
+}
+
+function initDataBox() {
+    box.clear();
+
+    var first = createNode(null, 0, 0, "chassis9");
+    first.setStyle('outer.padding', 1);
+
+    var cardContainer = createNode(first, 0, -4, null, 638, 269);
+    cardContainer.setStyle('vector.fill.color', '#AAAAAA');
+    cardContainer.setStyle('outer.padding', -1);
+    cardContainer.setStyle('vector.deep', -4);
+    cards.clear();
+    for (var i = 0; i <= 11; i++) {
+        cards.add(createCard(cardContainer, i));
+    }
+
+    card = createNode(cardContainer, 216, -4, null, 38, 268);
+    createNode(card, 214, 70, "chassis4");
+    createNode(card, 214, 100, "chassis4");
+    card = createNode(card, 214, -34, null, 24, 163);
+    card.setStyle('vector.fill.color', '#868686');
+    createNode(card, 214, -101, "chassis3").setStyle('alarm.direction', 'left');
+    createNode(card, 214, -82, "chassis3").setStyle('alarm.direction', 'left');
+    createNode(card, 214, -63, "chassis3").setStyle('alarm.direction', 'left');
+    createNode(card, 214, -44, "chassis3").setStyle('alarm.direction', 'left');
+    createNode(card, 214, -25, "chassis3").setStyle('alarm.direction', 'left');
+    createNode(card, 214, -6, "chassis3").setStyle('alarm.direction', 'left');
+    createNode(card, 214, 13, "chassis3").setStyle('alarm.direction', 'left');
+    createNode(card, 214, 32, "chassis3").setStyle('alarm.direction', 'left');
+
+    card = createNode(cardContainer, 255, -4, null, 43, 268);
+    light1 = createLight(card, 255, 70, '#00FF00');
+    light2 = createLight(card, 255, 100, '#0000FF');
+    card = createNode(card, 255, -34, null, 24, 163);
+    card.setStyle('vector.fill.color', '#868686');
+    createNode(card, 255, -101, "chassis3").setStyle('alarm.direction', 'right');
+    createNode(card, 255, -82, "chassis3").setStyle('alarm.direction', 'right');
+    createNode(card, 255, -63, "chassis3").setStyle('alarm.direction', 'right');
+    createNode(card, 255, -44, "chassis3").setStyle('alarm.direction', 'right');
+    createNode(card, 255, -25, "chassis3").setStyle('alarm.direction', 'right');
+    createNode(card, 255, -6, "chassis3").setStyle('alarm.direction', 'right');
+    createNode(card, 255, 13, "chassis3").setStyle('alarm.direction', 'right');
+    createNode(card, 255, 32, "chassis3").setStyle('alarm.direction', 'right');
+
+    var card = createNode(cardContainer, 297, -4, null, 43, 268);
+    createNode(card, 297, -86, "chassis1");
+    createNode(card, 297, -28, "chassis1");
+    createNode(card, 297, 30, "chassis1");
+    createNode(card, 297, 88, "chassis1");
+
+    var secondShelf = createNode(null, 0, 220, "chassis10");
+    var thirdShelf = createNode(null, 0, 348, "chassis2");
+    createNode(thirdShelf, 10, 345, "chassis5");
+    createNode(thirdShelf, 33, 345, "chassis5");
+    createNode(thirdShelf, 55, 345, "chassis5");
+    createNode(thirdShelf, 235, 345, "chassis5");
+    createNode(thirdShelf, 258, 345, "chassis5");
+    createNode(thirdShelf, 281, 345, "chassis5");
+    createNode(thirdShelf, 116, 365, "chassis6");
+    card = createNode(thirdShelf, 182, 345, null, 66, 120);
+    createNode(card, 190, 304, "chassis7");
+    createNode(card, 190, 343, "chassis7");
+    createNode(card, 190, 382, "chassis7");
+
+    var finder = new twaver.QuickFinder(box, "image");
+    ports = new twaver.List(finder.find("chassis3"));
+    finder.dispose();
+
+    twaver.Util.moveElements(box.getDatas(), 620, 190);
+}
+
+function createCard(parent, index) {
+    var node = createNode(parent, 43 * index - 299, -4, null, 43, 268);
+    createNode(node, node.getX(), node.getY() - 107, "bolt");
+    createNode(node, node.getX(), node.getY() + 107, "bolt");
+    return node;
+}
+
+function createLight(parent, x, y, color) {
+    var light = new twaver.Follower();
+    light.setHost(parent);
+    light.setStyle('body.type', 'vector');
+    light.setStyle('vector.shape', 'circle');
+    light.setStyle('vector.fill.color', color);
+    light.setStyle('vector.gradient', 'radial.northeast');
+    light.setSize(18, 18);
+    light.setLocation(x, y);
+    box.add(light);
+    return light;
+}
+
+function createNode(parent, x, y, image, w, h) {
+    var node = new twaver.Follower();
+    node.setStyle('outer.padding', 2);
+    node.setStyle('select.color', '#000000');
+    node.setStyle('alarm.position', 'center');
+    node.setParent(parent);
+    node.setHost(parent);
+    node.setLocation(x, y);
+    if (w) node.setWidth(w);
+    if (h) node.setHeight(h);
+    if (image != null) {
+        node.setImage(image);
+    } else {
+        node.setStyle('body.type', 'vector');
+        node.setStyle('vector.gradient', 'none');
+        node.setStyle('vector.shape', 'rectangle');
+        node.setStyle('vector.deep', 4);
+    }
+    box.add(node);
+    return node;
+}
+
+function addAlarm(alarmID, elementID, alarmSeverity, alarmBox) {
+    var alarm = new twaver.Alarm(alarmID, elementID, alarmSeverity);
+    alarmBox.add(alarm);
+}
+
+function addInput(name) {
+    var label = document.createElement('label');
+    label.htmlFor = name;
+    label.innerHTML = name;
+    label.style.padding = '4px 4px 4px 4px';
+    label.style.verticalAlign = 'top';
+    toolbar.appendChild(label);
+    return label;
+}
+
+function addButton(div, name, src, callback) {
+    var button = document.createElement('input');
+    button.setAttribute('type', src ? 'image' : 'button');
+    button.setAttribute('title', name);
+    button.style.verticalAlign = 'top';
+    if (src) {
+        button.style.padding = '4px 4px 4px 4px';
+        if (src.indexOf('/') < 0) {
+            src = './images/toolbar/' + src + '.png';
+        }
+        button.setAttribute('src', src);
+    } else {
+        button.value = name;
+    }
+    button.addEventListener('click', callback, false);
+    div.appendChild(button);
+    return button;
+}
+
+function addInteractionComboBox(div, items, callback) {
+    return addComboBox(div, items, callback);
+}
+
+function addComboBox(div, items, callback) {
+    var comboBox = document.createElement('select');
+    comboBox.style.verticalAlign = 'top';
+    comboBox.style.padding = '4px 4px 4px 4px';
+    items.forEach(function (item) {
+        var option = document.createElement('option');
+        option.appendChild(document.createTextNode(item));
+        option.setAttribute('value', item);
+        comboBox.appendChild(option);
+    });
+
+    if (callback) {
+        comboBox.addEventListener('change', callback, false);
+    }
+
+    div.appendChild(comboBox);
+    return comboBox;
+}
+
+function addCheckBox(div, checked, name, callback) {
+    var checkBox = document.createElement('input');
+    checkBox.id = name;
+    checkBox.type = 'checkbox';
+    checkBox.style.padding = '4px 4px 4px 4px';
+    checkBox.checked = checked;
+    if (callback) checkBox.addEventListener('click', callback, false);
+    div.appendChild(checkBox);
+    var label = document.createElement('label');
+    label.htmlFor = name;
+    label.innerHTML = name;
+    div.appendChild(label);
+    return checkBox;
+}
+
+function registerImage(url, svg) {
+    var image = new Image();
+    image.src = url;
+    var views = arguments;
+    image.onload = function () {
+        twaver.Util.registerImage(getImageName(url), image, image.width, image.height, svg);
+        network.invalidateElementUIs();
+        image.onload = null;
+        for (var i = 1; i < views.length; i++) {
+            var view = views[i];
+            if (view.invalidateElementUIs) {
+                view.invalidateElementUIs();
+            }
+            if (view.invalidateDisplay) {
+                view.invalidateDisplay();
+            }
+        }
+    };
+}
+
+function getImageName(url) {
+    var index = url.lastIndexOf('/');
+    var name = url;
+    if (index >= 0) {
+        name = url.substring(index + 1);
+    }
+    index = name.lastIndexOf('.');
+    if (index >= 0) {
+        name = name.substring(0, index);
+    }
+    return name;
+}
+
+function tick() {
+    for (var i = 0; i < ports.size(); i++) {
+        ports.get(i).getAlarmState().clear();
+    }
+    for (i = 0; i < cards.size(); i++) {
+        cards.get(i).setClient("hidden", false);
+    }
+    var node = ports.get(randomInt(ports.size()));
+    node.getAlarmState().increaseNewAlarm(randomNonClearedSeverity());
+    node = ports.get(randomInt(ports.size()));
+    node.getAlarmState().increaseNewAlarm(randomNonClearedSeverity());
+
+    node = cards.get(randomInt(cards.size()));
+    node.setClient("hidden", true);
+
+    if (light1.getStyle('vector.fill.color') == '#00FF00') {
+        light1.setStyle('vector.fill.color', '#FFFF00');
+    } else {
+        light1.setStyle('vector.fill.color', '#00FF00');
+    }
+
+    if (light2.getStyle('vector.fill.color') == '#0000FF') {
+        light2.setStyle('vector.fill.color', '#FF0000');
+    } else {
+        light2.setStyle('vector.fill.color', '#0000FF');
+    }
+}
+
+function randomInt(n) {
+    return Math.floor(Math.random() * n);
+}
+
+function randomNonClearedSeverity() {
+    while (true) {
+        var severity = randomSeverity();
+        if (!twaver.AlarmSeverity.isClearedAlarmSeverity(severity)) {
+            return severity;
+        }
+    }
+    return null;
+}
+
+function randomSeverity() {
+    var severities = twaver.AlarmSeverity.severities;
+    return severities.get(randomInt(severities.size()));
+}
+
+</script>
+</head>
+<body onload="init()">
+</body>
+</html>

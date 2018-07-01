@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="../../lib/twaver.js"></script>
+  <script src="images.js"></script>
+  <script>
+
+
+    // function deepCopy(oldObj){
+    //   deepCopyInRecursion
+    // }
+    function deepCopy(oldObj){
+      // var obj1 = []; 
+      // console.log(typeof obj1); // object
+      // var obj2 = {};
+      // console.log(typeof obj2); // object
+      // var obj3 = function(){};
+      // console.log(typeof obj3); //function
+      // var obj4 = null; 
+      // console.log(typeof obj4); // object
+      // var obj5 = false;
+      // console.log(typeof obj5); // boolean
+      // var obj6 = 3.4;
+      // console.log(typeof obj6); //number
+      // var obj7 = "";
+      // console.log(typeof obj7); //string
+      // var obj8 = "";
+      // console.log(obj8 instanceof Object); //false
+      // var obj9 = null;
+      // console.log(obj9 instanceof Object); //false
+      // var obj10 = function(){};
+      // console.log(obj10 instanceof Object); //true
+      // var obj11 = [];
+      // console.log(obj11 instanceof Object); //true
+      // var obj12 = {};
+      // console.log(obj12 instanceof Array); //false
+
+      var newObj;
+      if(typeof oldObj === "object" && oldObj instanceof Object){
+        if(oldObj instanceof Array){
+          newObj = [];
+        }else{
+          newObj = {};
+        }
+        for(var key in oldObj){
+          var value = oldObj[key];
+          var deepCopyedValue = deepCopy(value);
+          newObj[key] = deepCopyedValue;
+          // if(typeof value === "object" && value instanceof Object){
+            
+          // }else{
+          //   newObj[key] = value;
+          // }
+        }
+      }else{
+        newObj = oldObj;
+      }
+      return newObj;
+    }
+    function intergrateSVG(box){
+      var node0 = box.getDataById("node0");
+      // var node1 = box.getDataById("node1");
+      // var node2 = box.getDataById("node2");
+      var node0ImageName = node0.getImage();
+      var node0VectorImage = _twaver.images[node0ImageName]._image;
+      // var node1ImageName = node1.getImage();
+      // var node1VectorImage = _twaver.images[node1ImageName]._image;
+      // var node2ImageName = node2.getImage();
+      // var node2VectorImage = _twaver.images[node2ImageName]._image;
+      var returnVector = {};
+      returnVector.w = node0VectorImage.w;
+      returnVector.h = node0VectorImage.h;
+      returnVector.origin = deepCopy(node0VectorImage.origin);
+      var node0Pos = node0.getLocation();
+      var i;
+      if(node0VectorImage.v && node0VectorImage.v instanceof Array){
+        returnVector.v = [];
+        if(node0VectorImage.v.length === 1){
+          var copyNode0VectorImage = deepCopy(node0VectorImage.v[0]);
+          copyNode0VectorImage.client =  {
+            "id":""
+          };
+          returnVector.v.push(copyNode0VectorImage);
+        }else if(node0VectorImage.v.length === 0){
+        }else{
+          var node0Wrapper = {};
+          node0Wrapper.shape = "g";
+          node0Wrapper.v =[];
+          for(i=0;i<node0VectorImage.v.length;i++){
+            node0Wrapper.v.push(deepCopy(node0VectorImage.v[i]));
+          }
+          node0Wrapper.client = {
+            "id":""
+          };
+          returnVector.v.push(node0Wrapper);
+        }
+      }
+
+      var followers = node0._followers;
+      var followerCount = followers.size();
+      for(i=0;i<followerCount;i++){
+        var follower = followers.get(i);
+        var followerImageName = follower.getImage();
+        var followerVectorImage = _twaver.images[followerImageName]._image;
+        var followerAbs = follower.getLocation();
+        var followerRel = {
+          x:followerAbs.x - node0Pos.x,
+          y:followerAbs.y - node0Pos.y
+        };
+        if(followerVectorImage.v && followerVectorImage.v instanceof Array){
+          if(!returnVector.v){
+            returnVector.v = [];
+          }
+          if(followerVectorImage.v.length === 1){
+            var copyFollowerVectorImage = deepCopy(followerVectorImage.v[0]);
+            copyFollowerVectorImage.client = {
+              "id":""
+            }; 
+            copyFollowerVectorImage.transform = "translate("+ followerRel.x +","+ followerRel.y +")";
+            returnVector.v.push(copyFollowerVectorImage);
+          }else if(followerVectorImage.v.length === 0){
+          }else{
+            var followerWrapper = {};
+            followerWrapper.shape = "g";
+            followerWrapper.v =[];
+            for(i=0;i<followerVectorImage.v.length;i++){
+              followerWrapper.v.push(deepCopy(followerVectorImage.v[i]));
+            }
+            followerWrapper.client = {
+              "id":""
+            };
+            followerWrapper.transform = "translate("+ followerRel.x + "," + followerRel.y + ")";
+            returnVector.v.push(followerWrapper);
+          }
+        }
+      }
+
+
+      return returnVector;
+    }
+    function init() {
+      var box = new twaver.ElementBox();
+      var network = new twaver.vector.Network(box);
+      // registImages(network);
+      
+      document.getElementById("chart").appendChild(network.getView());
+      network.adjustBounds({ x: 0, y: 0, width: 1024, height: 768 });
+
+      var node0 = new twaver.Node("node0");
+      node0.setName('Panel');
+      node0.setImage("panel");
+      // node0.setImage("001test");
+      node0.setLocation(50, 50);
+      // node0.setSize(600, 300);
+      box.add(node0);
+      
+      var node1 = new twaver.Follower();
+      node1.setName('TWaver');
+      node1.setImage("_logo_dell");
+      node1.setLocation(100, 100);
+      node1.setHost(node0);
+      box.add(node1);
+      
+      // var node2 = new twaver.Follower();
+      // node2.setName('HTML5');
+      // node2.setImage("_pwr_btn");
+      // node2.setLocation(300, 200);
+      // node2.setHost(node0);
+      // box.add(node2);
+      
+
+      var node3 = new twaver.Node();
+      node3.setLocation(50,550);
+      box.add(node3);
+      // var link = new twaver.Link(node1, node2);
+      // link.setName('Hello!');
+      // link.setToolTip('<b>Hello!</b>');
+      // box.add(link);
+
+      document.getElementById("show_btn").addEventListener("click",function(){
+        var returnVector = intergrateSVG(box);
+        //deepCopy({});
+        twaver.Util.registerImage('returnVector',returnVector);
+
+        node3.setImage("returnVector");
+        // if(this.value === "hide line"){
+        //   this.value = "show line";
+        // }else{
+        //   this.value = "hide line";
+        // }
+        // if (network.invalidateElementUIs) {
+        //     network.invalidateElementUIs();
+        // }
+        // if (network.invalidateDisplay) {
+        //     network.invalidateDisplay();
+        // }
+      });
+
+    }
+
+    var registImages= function (network) {
+        registerImage("images/001test.svg",network);
+        // registerImage("images/att1.png",network);
+        // registerImage("images/att2.png",network);
+        // registerImage("images/att3.png",network);
+    };
+
+    var registerImage = function (url, network) {
+        var image = new Image();
+        image.src = url;
+        var views = arguments;
+        var that = this;
+        image.onload = function () {
+            twaver.Util.registerImage(that.getImageName(url), image, image.width, image.height, network);
+            image.onload = null;
+            for (var i = 1; i < views.length; i++) {
+                var view = views[i];
+                if (view.invalidateElementUIs) {
+                    view.invalidateElementUIs();
+                }
+                if (view.invalidateDisplay) {
+                    view.invalidateDisplay();
+                }
+            }
+        };
+    };
+    var getImageName = function (url) {
+        var index = url.lastIndexOf('/');
+        var name = url;
+        if (index >= 0) {
+            name = url.substring(index + 1);
+        }
+        index = name.lastIndexOf('.');
+        if (index >= 0) {
+            name = name.substring(0, index);
+        }
+        return name;
+    };
+
+
+  </script>
+</head>
+<body onload="init()">
+  <div>
+    <input style="margin-left:10%;" type="button" value="show line" id="show_btn"/>
+  </div>
+  <div id="chart" style="position:absolute;"></div>
+</body>
+</html>

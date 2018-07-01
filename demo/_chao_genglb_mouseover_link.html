@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="../lib/twaver.js"></script>
+  <script>
+
+    var leftPopupMenu = function(network){
+      leftPopupMenu.superClass.constructor.apply(this, arguments);
+    };
+
+    twaver.Util.ext('leftPopupMenu', twaver.controls.PopupMenu, {
+        setContextView: function (contextView) {
+            this._contextView = contextView;
+            var view = contextView.getView ? contextView.getView() : contextView;
+            _twaver.html.addEventListener('mousemove', '_handleMouseMove', view, this);
+        },
+        _handleMouseMove:function(e){
+            if (this.onMenuShowing(e) === true ) {
+                this.show(e);
+            }
+            e.preventDefault();
+        },
+        _handleBodyClicked:function(e){
+
+        }
+    });
+
+    var box = new twaver.ElementBox();
+    var network = new twaver.vector.Network(box);
+    var popupMenu = new leftPopupMenu(network);
+    function init() {
+      
+      network.setToolTipEnabled(false);
+      document.body.appendChild(network.getView());
+      network.adjustBounds({ x: 0, y: 0, width: document.documentElement.clientWidth, height: document.documentElement.clientHeight });
+
+      
+      var node1 = new twaver.Node();
+      node1.setName('TWaver');
+      node1.setLocation(100, 100);
+      box.add(node1);
+      
+      var node2 = new twaver.Node();
+      node2.setName('HTML5');
+      node2.setLocation(300, 200);
+      box.add(node2);
+      
+      var link = new twaver.Link(node1, node2);
+      link.setName('Hello!');
+      link.setToolTip('<b>Hello!</b>');
+      box.add(link);
+
+      initPopupMenu();
+
+    }
+
+
+    function initPopupMenu() {
+        var lastData, lastPoint, magnifyInteraction;
+        this.popupMenu.onMenuShowing = function (e) {
+            lastData = self.network.getElementAt(e);
+            if(lastData instanceof twaver.Link){
+              return true;
+            }else {
+              return false;
+            }
+        };
+        var self = this;
+        this.popupMenu.onAction = function (menuItem) {
+            if (menuItem.label === 'Remove') {
+                self.box.remove(lastData);
+            }
+        };
+        this.popupMenu.isVisible = function (menuItem) {
+
+          return true;
+        };
+        this.popupMenu.isEnabled = function (menuItem) {
+            return true;
+        };
+        this.popupMenu.setMenuItems([
+            { label: 'Remove', group: 'Element' }
+            
+        ]);
+    }
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

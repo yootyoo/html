@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="js/twaver.js"></script>
+  <script src="js/CElement.js"></script>
+  <script>
+  
+
+    var box = new twaver.ElementBox();
+    var network = new twaver.vector.Network(box);
+    twaver.Styles.setStyle("link.bundle.gap",5);
+
+    var originalGetToolTip = network.getToolTip;
+    network.getToolTip = function(element) {
+      if(element && element instanceof twaver.Node){
+        return null;
+      }else{
+        originalGetToolTip(element);
+      }
+    };
+
+    var init = function() {
+
+
+      document.body.appendChild(network.getView());
+      network.adjustBounds({ x: 0, y: 0, width: 1024, height: 768 });
+      buildData();
+      
+    };
+
+
+    var buildData = function(){
+      var node1 = new twaver.Node();
+      node1.setLocation(200, 300);
+
+      box.add(node1);
+
+      var node2 = new twaver.Node();
+      node2.setLocation(400, 300);
+      box.add(node2);
+
+      createLinks(node1,node2,2);
+      
+      
+      
+    };
+
+    var createLinks = function(from,to,bundleAmount){
+      var bundleLinks = [];
+      var i;
+      for(i=0;i<bundleAmount;i++){
+        link = new CLinkX(from, to);
+        bundleLinks.push(link);
+        link.setStyle("link.color","#AEAEAE");
+        link.setClient("icons.rx",20);
+        link.setClient("icons.ry",20);
+        link.setClient("icons.offset.percent",0);
+        link.setClient("link.bundle.index",i);
+        link.setClient("link.bundle.length",bundleAmount);
+        if((i+1) %2 ===0){
+          link.setStyle('link.pattern', [5,2]);
+        }
+        box.add(link);
+      }
+    };
+
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

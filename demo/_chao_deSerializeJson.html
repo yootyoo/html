@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- <meta charset="GB2312"> -->
+    <title>Hello TWaver Full</title>
+    <script type="text/javascript" src="../lib/twaver.js"></script>
+    <script type="text/javascript">
+        var network = new twaver.network.Network();
+        var box = network.getElementBox();
+
+        var init =function() {
+            registImages();
+
+            var seriJson ={'version':'5.1.8','platform':'html5','images':{},'dataBox':{'class':'twaver.ElementBox','layers':[{'name':'Default','visible':true,'editable':true,'movable':true}]},'datas':[{'class':'twaver.Node','ref':0,'p':{'name':'TWaver Router','image':'tw130','location':{'x':356,'y':139}},'s':{'label.yoffset':-75}},{'class':'twaver.Node','ref':1,'p':{'name':'DATA','image':'cloud','location':{'x':246,'y':145}},'s':{'label.yoffset':-30}},{'class':'twaver.Link','ref':2,'p':{'fromNode':1,'toNode':0},'s':{'link.color':'#C0C0C0','link.width':5}},{'class':'twaver.Node','ref':3,'p':{'name':'PSTN','image':'cloud','location':{'x':246,'y':209}},'s':{'label.yoffset':-30}},{'class':'twaver.Link','ref':4,'p':{'fromNode':3,'toNode':0},'s':{'link.type':'orthogonal.H.V','link.color':'#C0C0C0','link.width':5}},{'class':'twaver.Node','ref':5,'p':{'name':'Scrambler','image':'router','location':{'x':175,'y':157}}},{'class':'twaver.Link','ref':6,'p':{'fromNode':5,'toNode':1},'s':{'link.flow':true,'link.flow.converse':true,'link.pattern':[5,5],'link.color':'yellow','vector.outline.color':'#FFFFFF','link.width':5}},{'class':'twaver.Node','ref':7,'p':{'image':'router','location':{'x':106,'y':95}}},{'class':'twaver.Link','ref':8,'p':{'fromNode':7,'toNode':5},'s':{'link.type':'orthogonal.H.V','link.color':'#C0C0C0','link.width':5}},{'class':'twaver.Node','ref':9,'p':{'image':'router','location':{'x':106,'y':107}}},{'class':'twaver.Link','ref':10,'p':{'fromNode':9,'toNode':5},'s':{'link.type':'orthogonal.H.V','link.color':'#C0C0C0','link.width':5}},{'class':'twaver.Node','ref':11,'p':{'image':'router','location':{'x':106,'y':119}}},{'class':'twaver.Link','ref':12,'p':{'fromNode':11,'toNode':5},'s':{'link.type':'orthogonal.H.V','link.color':'#C0C0C0','link.width':5}},{'class':'twaver.Node','ref':13,'p':{'image':'router','location':{'x':106,'y':131}}},{'class':'twaver.Link','ref':14,'p':{'fromNode':13,'toNode':5},'s':{'link.type':'orthogonal.H.V','link.color':'#C0C0C0','link.width':5}},{'class':'twaver.Node','ref':15,'p':{'name':'Encoder','image':'router','location':{'x':106,'y':143}}},{'class':'twaver.Link','ref':16,'p':{'fromNode':15,'toNode':5},'s':{'link.type':'orthogonal.H.V','link.color':'#C0C0C0','link.width':5}},{'class':'twaver.Node','ref':17,'p':{'image':'router','location':{'x':106,'y':222}}},{'class':'twaver.Link','ref':18,'p':{'fromNode':17,'toNode':5},'s':{'link.type':'orthogonal.H.V','link.color':'#C0C0C0','link.width':5}},{'class':'twaver.Node','ref':19,'p':{'image':'router','location':{'x':106,'y':242}}},{'class':'twaver.Link','ref':20,'p':{'fromNode':19,'toNode':5},'s':{'link.type':'orthogonal.H.V','link.color':'#C0C0C0','link.width':5}},{'class':'twaver.Node','ref':21,'p':{'name':'Satellite Feed','image':'satellite_antenna','location':{'x':31,'y':90}}},{'class':'twaver.Node','ref':22,'p':{'name':'Off Air','image':'antenna','location':{'x':33,'y':183}}},{'class':'twaver.Node','ref':23,'p':{'name':'Programming','image':'msc','location':{'x':33,'y':291}}},{'class':'twaver.Node','ref':24,'p':{'name':'Pre-Amp','image':'cartridge_system','location':{'x':191,'y':292}},'s':{'icons.names':['att1','att2','att3'],'icons.colors':[null,'#00FF00','#0000FF']}},{'class':'twaver.Node','ref':25,'p':{'name':'V-OLT','alarmState':{'n':{'Critical':5}},'image':'router','location':{'x':105,'y':302}}},{'class':'twaver.Link','ref':26,'p':{'fromNode':25,'toNode':24},'s':{'icons.names':['att2'],'link.color':'#C0C0C0','link.width':5}},{'class':'twaver.Node','ref':27,'p':{'name':'WDM','image':'wdm','location':{'x':432,'y':146}}},{'class':'twaver.Link','ref':28,'p':{'fromNode':24,'toNode':27},'s':{'link.type':'orthogonal.H.V','vector.outline.color':'#FF00FF','link.color':'#C0C0C0','link.width':5}},{'class':'twaver.Link','ref':29,'p':{'fromNode':0,'toNode':27},'s':{'link.color':'#C0C0C0','link.width':5}},{'class':'twaver.Node','ref':30,'p':{'alarmState':{'n':{'Major':1}},'image':'testing','location':{'x':476,'y':161}}},{'class':'twaver.Link','ref':31,'p':{'fromNode':30,'toNode':27},'s':{'link.color':'#C0C0C0','link.width':5}},{'class':'twaver.Node','ref':32,'p':{'name':'WDM','image':'wdm','location':{'x':516,'y':146}}},{'class':'twaver.Link','ref':33,'p':{'fromNode':30,'toNode':32},'s':{'link.color':'#C0C0C0','link.width':5}},{'class':'twaver.Node','ref':34,'p':{'name':'ONT','image':'mainframe','location':{'x':555,'y':196}}},{'class':'twaver.Link','ref':35,'p':{'fromNode':34,'toNode':32},'s':{'link.type':'orthogonal.H.V','icons.names':['att2'],'link.color':'#C0C0C0','link.width':5}},{'class':'twaver.Node','ref':36,'p':{'name':'Modem','image':'modem','location':{'x':560,'y':98}}},{'class':'twaver.Group','ref':37,'p':{'name':'LAN','location':{'x':651,'y':24}}},{'class':'twaver.Node','ref':38,'p':{'name':'local router','parent':37,'image':'router','location':{'x':651,'y':64}}},{'class':'twaver.Node','ref':39,'p':{'name':'PC1','parent':37,'location':{'x':711,'y':64}}},{'class':'twaver.Node','ref':40,'p':{'name':'PC2','parent':37,'location':{'x':651,'y':24}}},{'class':'twaver.Link','ref':41,'p':{'fromNode':38,'toNode':36},'s':{'link.type':'orthogonal.H.V','link.color':'#C0C0C0','link.width':5}},{'class':'twaver.Link','ref':42,'p':{'fromNode':39,'toNode':38},'s':{'link.type':'orthogonal.H.V','link.color':'#C0C0C0','link.width':5}},{'class':'twaver.Link','ref':43,'p':{'fromNode':40,'toNode':38},'s':{'link.type':'orthogonal.H.V','link.color':'#C0C0C0','link.width':5}},{'class':'twaver.SubNetwork','ref':44,'p':{'name':'STB','image':'router2','location':{'x':614,'y':122}}},{'class':'twaver.Node','ref':45,'p':{'name':'Rack','parent':44,'image':'rackImage','location':{'x':150,'y':50}}},{'class':'twaver.Dummy','ref':46,'p':{'name':'module0','parent':45}},{'class':'twaver.Follower','ref':47,'p':{'icon':'portUpImage','parent':46,'image':'portUpImage','location':{'x':360,'y':66},'host':45}},{'class':'twaver.Follower','ref':48,'p':{'icon':'portUpImage','parent':46,'image':'portUpImage','location':{'x':384,'y':66},'host':45}},{'class':'twaver.Follower','ref':49,'p':{'icon':'portUpImage','parent':46,'image':'portUpImage','location':{'x':408,'y':66},'host':45}},{'class':'twaver.Follower','ref':50,'p':{'icon':'portUpImage','parent':46,'image':'portUpImage','location':{'x':432,'y':66},'host':45}},{'class':'twaver.Dummy','ref':51,'p':{'name':'module1','parent':45}},{'class':'twaver.Follower','ref':52,'p':{'icon':'portUpImage','parent':51,'image':'portUpImage','location':{'x':469,'y':66},'host':45}},{'class':'twaver.Follower','ref':53,'p':{'icon':'portUpImage','parent':51,'image':'portUpImage','location':{'x':493,'y':66},'host':45}},{'class':'twaver.Follower','ref':54,'p':{'icon':'portUpImage','parent':51,'image':'portUpImage','location':{'x':517,'y':66},'host':45}},{'class':'twaver.Follower','ref':55,'p':{'icon':'portUpImage','parent':51,'image':'portUpImage','location':{'x':541,'y':66},'host':45}},{'class':'twaver.Dummy','ref':56,'p':{'name':'module2','parent':45}},{'class':'twaver.Follower','ref':57,'p':{'icon':'portDownImage','parent':56,'image':'portDownImage','location':{'x':360,'y':87},'host':45}},{'class':'twaver.Follower','ref':58,'p':{'icon':'portDownImage','parent':56,'image':'portDownImage','location':{'x':384,'y':87},'host':45}},{'class':'twaver.Follower','ref':59,'p':{'icon':'portDownImage','parent':56,'image':'portDownImage','location':{'x':408,'y':87},'host':45}},{'class':'twaver.Follower','ref':60,'p':{'icon':'portDownImage','parent':56,'image':'portDownImage','location':{'x':432,'y':87},'host':45}},{'class':'twaver.Dummy','ref':61,'p':{'name':'module3','parent':45}},{'class':'twaver.Follower','ref':62,'p':{'icon':'portDownImage','parent':61,'image':'portDownImage','location':{'x':469,'y':87},'host':45}},{'class':'twaver.Follower','ref':63,'p':{'icon':'portDownImage','parent':61,'image':'portDownImage','location':{'x':493,'y':87},'host':45}},{'class':'twaver.Follower','ref':64,'p':{'icon':'portDownImage','parent':61,'image':'portDownImage','location':{'x':517,'y':87},'host':45}},{'class':'twaver.Follower','ref':65,'p':{'icon':'portDownImage','parent':61,'image':'portDownImage','location':{'x':541,'y':87},'host':45}},{'class':'twaver.Link','ref':66,'p':{'fromNode':44,'toNode':36},'s':{'link.type':'orthogonal.H.V','link.color':'#C0C0C0','link.width':5}},{'class':'twaver.Link','ref':67,'p':{'fromNode':44,'toNode':32},'s':{'link.type':'orthogonal.H.V','link.color':'#C0C0C0','link.width':5}},{'class':'twaver.Node','ref':68,'p':{'name':'IPTV/SDV','image':'terminal','location':{'x':666,'y':152}}},{'class':'twaver.Link','ref':69,'p':{'fromNode':68,'toNode':44},'s':{'link.type':'orthogonal.H.V','link.color':'#C0C0C0','link.width':5}},{'class':'twaver.Node','ref':70,'p':{'name':'Phone','image':'phone','location':{'x':648,'y':223}}},{'class':'twaver.Link','ref':71,'p':{'fromNode':70,'toNode':34},'s':{'link.type':'orthogonal.H.V','link.color':'#C0C0C0','link.width':5}},{'class':'twaver.Node','ref':72,'p':{'name':'PC','location':{'x':648,'y':266}}},{'class':'twaver.Link','ref':73,'p':{'fromNode':72,'toNode':34},'s':{'link.type':'orthogonal.H.V','link.color':'#C0C0C0','link.width':5}},{'class':'twaver.SubNetwork','ref':74,'p':{'name':'STB','image':'router2','location':{'x':609,'y':324}}},{'class':'twaver.Node','ref':75,'p':{'name':'Rack','parent':74,'image':'rackImage','location':{'x':150,'y':50}}},{'class':'twaver.Dummy','ref':76,'p':{'name':'module0','parent':75}},{'class':'twaver.Follower','ref':77,'p':{'icon':'portUpImage','parent':76,'image':'portUpImage','location':{'x':360,'y':66},'host':75}},{'class':'twaver.Follower','ref':78,'p':{'icon':'portUpImage','parent':76,'image':'portUpImage','location':{'x':384,'y':66},'host':75}},{'class':'twaver.Follower','ref':79,'p':{'icon':'portUpImage','parent':76,'image':'portUpImage','location':{'x':408,'y':66},'host':75}},{'class':'twaver.Follower','ref':80,'p':{'icon':'portUpImage','parent':76,'image':'portUpImage','location':{'x':432,'y':66},'host':75}},{'class':'twaver.Dummy','ref':81,'p':{'name':'module1','parent':75}},{'class':'twaver.Follower','ref':82,'p':{'icon':'portUpImage','parent':81,'image':'portUpImage','location':{'x':469,'y':66},'host':75}},{'class':'twaver.Follower','ref':83,'p':{'icon':'portUpImage','parent':81,'image':'portUpImage','location':{'x':493,'y':66},'host':75}},{'class':'twaver.Follower','ref':84,'p':{'icon':'portUpImage','parent':81,'image':'portUpImage','location':{'x':517,'y':66},'host':75}},{'class':'twaver.Follower','ref':85,'p':{'icon':'portUpImage','parent':81,'image':'portUpImage','location':{'x':541,'y':66},'host':75}},{'class':'twaver.Dummy','ref':86,'p':{'name':'module2','parent':75}},{'class':'twaver.Follower','ref':87,'p':{'icon':'portDownImage','parent':86,'image':'portDownImage','location':{'x':360,'y':87},'host':75}},{'class':'twaver.Follower','ref':88,'p':{'icon':'portDownImage','parent':86,'image':'portDownImage','location':{'x':384,'y':87},'host':75}},{'class':'twaver.Follower','ref':89,'p':{'icon':'portDownImage','parent':86,'image':'portDownImage','location':{'x':408,'y':87},'host':75}},{'class':'twaver.Follower','ref':90,'p':{'icon':'portDownImage','parent':86,'image':'portDownImage','location':{'x':432,'y':87},'host':75}},{'class':'twaver.Dummy','ref':91,'p':{'name':'module3','parent':75}},{'class':'twaver.Follower','ref':92,'p':{'icon':'portDownImage','parent':91,'image':'portDownImage','location':{'x':469,'y':87},'host':75}},{'class':'twaver.Follower','ref':93,'p':{'icon':'portDownImage','parent':91,'image':'portDownImage','location':{'x':493,'y':87},'host':75}},{'class':'twaver.Follower','ref':94,'p':{'icon':'portDownImage','parent':91,'image':'portDownImage','location':{'x':517,'y':87},'host':75}},{'class':'twaver.Follower','ref':95,'p':{'icon':'portDownImage','parent':91,'image':'portDownImage','location':{'x':541,'y':87},'host':75}},{'class':'twaver.Link','ref':96,'p':{'fromNode':74,'toNode':34},'s':{'link.type':'orthogonal.H.V','link.color':'#C0C0C0','link.width':5}},{'class':'twaver.Node','ref':97,'p':{'name':'IPTV/SDV','image':'terminal','location':{'x':641,'y':357}}},{'class':'twaver.Link','ref':98,'p':{'fromNode':97,'toNode':74},'s':{'link.type':'orthogonal.H.V','link.color':'#C0C0C0','link.width':5}}]};
+
+            var serializer = new twaver.JsonSerializer(box);
+            serializer.deserialize(JSON.stringify(seriJson));
+
+            document.body.appendChild(network.getView());
+            network.adjustBounds({ x: 0, y: 0, width: 1000, height: 1000 });          
+
+        }
+
+        var registImages= function () {
+              registerImage("images/pstn/antenna.png");
+              registerImage("images/pstn/cartridge_system.png");
+              registerImage("images/pstn/cloud.png");
+              registerImage("images/pstn/mainframe.png");
+              registerImage("images/pstn/modem.png");
+              registerImage("images/pstn/msc.png");
+              registerImage("images/pstn/phone.png");
+              registerImage("images/pstn/router.png");
+              registerImage("images/pstn/router2.png");
+              registerImage("images/pstn/satellite_antenna.png");
+              registerImage("images/pstn/terminal.png");
+              registerImage("images/pstn/testing.png");
+              registerImage("images/pstn/tw130.png");
+              registerImage("images/pstn/wdm.png");
+
+              registerImage("images/attachment/att1.png");
+              registerImage("images/attachment/att2.png");
+              registerImage("images/attachment/att3.png");
+              registerImage("images/propagation/rackImage.png");
+              registerImage("images/propagation/portUpImage.png");
+              registerImage("images/propagation/portDownImage.png");
+          };
+          var registerImage= function (url) {
+              registerTheImage(url, this.network);
+          };
+          var registerTheImage= function (url, svg) {
+              var image = new Image();
+              image.src = url;
+              var views = arguments;
+              var that = this;
+              image.onload = function () {
+                  twaver.Util.registerImage(getImageName(url), image, image.width, image.height, svg);
+                  image.onload = null;
+                  for (var i = 1; i < views.length; i++) {
+                      var view = views[i];
+                      if (view.invalidateElementUIs) {
+                          view.invalidateElementUIs();
+                      }
+                      if (view.invalidateDisplay) {
+                          view.invalidateDisplay();
+                      }
+                  }
+              };
+          };
+          var getImageName= function (url) {
+              var index = url.lastIndexOf('/');
+              var name = url;
+              if (index >= 0) {
+                  name = url.substring(index + 1);
+              }
+              index = name.lastIndexOf('.');
+              if (index >= 0) {
+                  name = name.substring(0, index);
+              }
+              return name;
+          };
+
+    </script>
+</head>
+<body  onload="init()" style="margin:0;">
+</body>
+</html>

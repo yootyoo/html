@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="../lib/twaver.js"></script>
+  <script>
+
+    var CNodeUI = function(network,element){
+      CNodeUI.superClass.constructor.apply(this, arguments);
+    };
+
+    twaver.Util.ext(CNodeUI, twaver.vector.NodeUI, {
+      getZoomViewRect : function(force) {
+        var zoomManager = this._network.zoomManager;
+        var locationZoom = zoomManager.getLocationZoom();
+        var gzoom = zoomManager.getGraphicsZoom();
+        if (locationZoom == 1) {
+          return _twaver.cloneRect(this._viewRect);
+        }
+        if (!this._zoomViewRect || force) {
+          var bodyZoomViewRect = this._getZoomViewRect(_twaver.cloneRect(this._unionBodyBounds), false);
+          var unionRect;
+          unionRect = _twaver.math.unionRect(unionRect, bodyZoomViewRect);
+          // var scope = this;
+          // this._attachments.forEach(function(attachment) {
+          //   if(attachment instanceof twaver.vector.EditAttachment){
+          //     unionRect = $math.unionRect(unionRect, attachment._viewRect);
+          //   }else{
+          //     unionRect = $math.unionRect(unionRect, attachment.getZoomViewRect());
+          //   }
+          // });
+          this._zoomViewRect = unionRect;
+
+        }
+        return _twaver.cloneRect(this._zoomViewRect);
+      },
+      validate : function() {
+        var scope = this;
+        if (this._invalidateFlag == false) {
+          return;
+        }
+        this._bodyBounds.clear();
+        if (this._invalidateAttachmentsFlag) {
+          this._invalidateAttachmentsFlag = false;
+          this.checkAttachments();
+        }
+        this._invalidateFlag = false;
+
+        this.updateStyle();
+        //calc body bounds
+        this.validateImpl();
+
+        this._attachments.forEach(function(attachment) {
+          attachment.validate();
+        });
+
+        var unionRect;
+        this._bodyBounds.forEach(function(rect) {
+          unionRect = _twaver.math.unionRect(unionRect, rect);
+        });
+        if(unionRect == null){
+          unionRect = _twaver.cloneRect(this._element.getLocation());
+          unionRect.width = 0;
+          unionRect.height = 0;
+        }
+        //body size，include border and select
+        this._unionBodyBounds = {
+          x : unionRect.x,
+          y : unionRect.y,
+          width : unionRect.width,
+          height : unionRect.height
+        };
+
+        // update view rect
+        this._attachments.forEach(function(attachment) {
+          if(attachment instanceof twaver.vector.EditAttachment){
+              if(attachment.getElementUI() instanceof  twaver.vector.LinkUI ){
+                  unionRect = _twaver.math.unionRect(unionRect, attachment._viewRect);
+              }else {
+                  unionRect =_twaver.math.unionRect(unionRect, scope._network.zoomManager._reverseElementZoomRect(scope, attachment._viewRect));
+              }
+          }else if(attachment.getElementUI() instanceof twaver.vector.LinkUI ){
+            unionRect =_twaver.math.unionRect(unionRect, scope._network.zoomManager._getAttachmentZoomOutLineRect(attachment, attachment._viewRect));
+          }else if((attachment.getElementUI() instanceof twaver.vector.GroupUI && attachment.getElementUI()._shapeRect)){
+            if(attachment instanceof twaver.vector.IconsAttachment){
+              unionRect =_twaver.math.unionRect(unionRect, attachment._viewRect);
+            }else{
+              unionRect =_twaver.math.unionRect(unionRect, scope._network.zoomManager._getAttachmentZoomOutLineRect(attachment, attachment._viewRect));
+            }
+          }else if(attachment instanceof twaver.vector.AlarmAttachment){
+          }else{
+            unionRect =_twaver.math.unionRect(unionRect, attachment._viewRect);
+          }
+        });
+
+        //the whole size of the ui
+        this._viewRect = unionRect;
+      },
+    });
+
+     var CNode = function(id){
+      CNode.superClass.constructor.apply(this, arguments);
+    };
+
+    twaver.Util.ext(CNode, twaver.Node, {
+      getVectorUIClass: function(){
+        return CNodeUI;
+      },
+    });
+
+    function init() {
+      var box = new twaver.ElementBox();
+      var box2 = new twaver.ElementBox();
+      var network = new twaver.vector.Network(box);
+      var network2 = new twaver.vector.Network(box2);
+      
+      document.body.appendChild(network.getView());
+      network.adjustBounds({ x: 0, y: 0, width: 500, height: 500 });
+
+      document.body.appendChild(network2.getView());
+      network2.adjustBounds({ x: 500, y: 0, width: 500, height: 500 });
+      
+      var node1 = new twaver.Node();
+      node1.setName('TWaver');
+      node1.setLocation(100, 100);
+      // node1.getAlarmState().increaseNewAlarm(twaver.AlarmSeverity.MAJOR,5);
+      box.add(node1);
+      
+      var node2 = new twaver.Node();
+      node2.setName('HTML5');
+      node2.setLocation(300, 200);
+      box.add(node2);
+
+      var link1 = new twaver.Link(node1, node2);
+      link1.setName('Hello!');
+      link1.setToolTip('<b>Hello!</b>');
+      box.add(link1);
+
+      var group1 = new twaver.Group();
+      box.add(group1);
+      group1.addChild(node1);
+      group1.addChild(node2);
+      group1.setExpanded(true);
+      group1.setStyle("group.padding.top",26);
+
+      var node3 = new twaver.Node();
+      node3.setName('TWaver');
+      node3.setLocation(100, 100);
+      node3.getAlarmState().increaseNewAlarm(twaver.AlarmSeverity.MAJOR,5);
+      box2.add(node3);
+      
+      var node4 = new twaver.Node();
+      node4.setName('HTML5');
+      node4.setLocation(300, 200);
+      box2.add(node4);
+      
+      var link2 = new twaver.Link(node3, node4);
+      link2.setName('Hello!');
+      link2.setToolTip('<b>Hello!</b>');
+      box2.add(link2);
+
+      var group2 = new twaver.Group();
+      box2.add(group2);
+      group2.addChild(node3);
+      group2.addChild(node4);
+      group2.setExpanded(true);
+    }
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

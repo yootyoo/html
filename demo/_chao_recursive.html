@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<script type="text/javascript" src="../lib/twaver.js"></script>
+	<script type="text/javascript">
+		function init() {
+			var box = new twaver.ElementBox();
+			var network = new twaver.vector.Network(box);
+			document.body.appendChild(network.getView());
+			network.adjustBounds({ x: 0, y: 0, width: 1300, height: 600 });
+
+			var groupA = new twaver.Group({
+				name:'groupA',
+				location:{x:200,y:100},
+				clients:{
+					'index':6,
+				}
+			});
+			groupA.setExpanded(true);
+
+			box.add(groupA);
+
+			var groupB = new twaver.Group({
+				name:'groupB',
+				location:{x:600,y:300},
+				clients:{
+					'index':3,
+				}
+			});
+			groupB.setExpanded(true);
+			box.add(groupB);
+
+			var link = new twaver.Link(groupA,groupB);
+			box.add(link);
+
+			network.addInteractionListener(function(e) {
+				var element = e.element;
+				if(e.kind === 'doubleClickElement' && element && element instanceof twaver.Link) {
+					var fromNode = element.getFromNode();
+					var toNode = element.getToNode();
+					var fromIndex = fromNode.getClient('index');
+					var toIndex = toNode.getClient('index');
+					var fromCount;
+					var toCount;
+					var nfromElement ;
+					var ntoElement ;
+
+					fromCount = getParentSize(fromNode, 0);
+					var currentIndex = fromCount+1;
+					if(currentIndex < fromIndex - 1){
+						nfromElement= new twaver.Group({
+							name:'fromgroup'+currentIndex,
+							location:{x:100,y:100},
+							clients:{
+								'index':fromIndex,
+							}
+						});
+						box.add(nfromElement);
+						fromNode.addChild(nfromElement);
+						nfromElement.setExpanded(true);
+					}else if(currentIndex === fromIndex){
+						nfromElement = fromNode;
+					}else {
+						nfromElement= new twaver.Node({
+							name:'fromNode'+currentIndex,
+							location:{x:100,y:100},
+							clients:{
+								'index':fromIndex,
+							}
+						});
+						box.add(nfromElement);
+						fromNode.addChild(nfromElement);
+					}
+					
+
+					
+					toCount = getParentSize(toNode, 0);
+					var currentIndex = toCount+1;
+					if(currentIndex < toIndex - 1){
+						ntoElement= new twaver.Group({
+							name:'toGroup'+currentIndex,
+							location:{x:300,y:200},
+							clients:{
+								'index':toIndex,
+							}
+						});
+						box.add(ntoElement);
+						toNode.addChild(ntoElement);
+						ntoElement.setExpanded(true);
+					}else if(currentIndex === toIndex){
+						ntoElement = toNode;
+					}else {
+						ntoElement = new twaver.Node({
+							name:'toNode'+currentIndex,
+							location:{x:300,y:200},
+							clients:{
+								'index':toIndex,
+							}
+						});
+						box.add(ntoElement);
+						toNode.addChild(ntoElement);
+					}
+
+					box.remove(element);
+					var link = new twaver.Link(nfromElement, ntoElement);
+					box.add(link);
+				}
+			});
+}
+
+function getParentSize (node, count, callback){
+	var parent = node.getParent();
+	if(parent){
+		count ++;
+		return getParentSize(parent, count, callback);
+	}else{
+		callback && callback(count);
+		return count;
+	}
+
+}
+</script>
+</head>
+<body onload="init();">
+
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="GB2312">
+    <title>Hello TWaver Full</title>
+    <script type="text/javascript" src="../../lib/twaver.js"></script>
+    <script type="text/javascript">
+        var network = new twaver.network.Network();
+        var box = network.getElementBox();
+        var alarmBox = box.getAlarmBox();
+
+        function loadJSON(path)
+        {
+            var result;
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function()
+            {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        //console.log(xhr.responseText);
+                        new twaver.XmlSerializer(box).deserialize(xhr.responseText);
+                    }
+                }
+            };
+            xhr.open("GET", path, true);
+            xhr.send();
+        }
+
+        function init() {
+
+            var networkDom = network.getView();
+            networkDom.style.width = "100%";
+            networkDom.style.height = "100%";
+            document.body.appendChild(networkDom);
+
+            loadJSON("data.xml");
+
+        }
+    </script>
+</head>
+<body onload="init()" style="margin:0;">
+</body>
+</html>

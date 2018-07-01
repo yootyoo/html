@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>面板编辑器</title>
+    <meta name="keywords" content="TWaver, TWaver 3D, 3D, editor, "/>
+    <meta name="description" content=""/>
+    <link rel="stylesheet" href="css/jquery-ui-1.10.4.custom.min.css">
+    <link rel="stylesheet" href="./css/twaver-doodle.css">
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+<div id='top'>
+    <img src='./images/logo.png' alt='mono can' id='top-logo'><span>Device Editor</span>
+    <div><span></span>
+        <div class='header'></div>
+    </div>
+    <div id="toolbar" class="toolbar">
+        <span id="alignBox" class="alignBox">
+            <span data-type="up" class="mn-toolbar mn-align-up" title="上对齐"></span>
+            <span data-type="down" class="mn-toolbar mn-align-down" title="下对齐"></span>
+            <span data-type="left" class="mn-toolbar mn-align-left" title="左对齐"></span>
+            <span data-type="right" class="mn-toolbar mn-align-right" title="右对齐"></span>
+            <span data-type="center" class="mn-toolbar mn-align-middle" title="水平对齐"></span>
+            <span data-type="middle" class="mn-toolbar mn-align-center" title="垂直对齐"></span>
+        </span>
+        <span id="flowBox" class="flowBox">
+            <span data-type="hor" class="mn-toolbar mn-align-hor" title="水平分布"></span>
+            <span data-type="ver" class="mn-toolbar mn-align-ver" title="垂直分布"></span>
+        </span>
+        <span class='nm-divider'></span>
+
+        <span id="panModel" class="mn-toolbar mn-multi-select" title="框选模式"></span>
+        <span id="editable" class="mn-toolbar mn-disable-edit" title="开启鼠标编辑"></span>
+        <span id="overview" class="mn-toolbar mn-overview" title="缩放到全屏"></span>
+        <span id='undo' class="mn-toolbar mn-undo" title = "前进"></span>
+        <span id='redo' class="mn-toolbar mn-redo" title = "后退"></span>
+        <span class='nm-divider'></span>
+
+        <span id="import" class="mn-toolbar mn-import-json" title="导入JSON"></span>
+        <span id='export' class="mn-toolbar mn-export-json" title="导出JSON"></span>
+
+        <span id='exportImage' class="mn-toolbar mn-export-image" title="导出图片"></span>
+        <span id='save' class="mn-toolbar mn-save" title="保存模板"></span>
+        <span id='clear' class="mn-toolbar mn-clear" title="清空"></span>
+
+    </div>
+</div>
+<div class="main" id="mainBox"></div>
+
+<div class="exportJson" style="display: none">
+    导出数据：<br>
+    name : <input class='name' value="custom"><br><br>
+    <textarea class="content" style="width: 98%;height: 225px" disabled></textarea>
+</div>
+<div class="exportImageDialog" style="display: none">
+    <div>原始尺寸:</div>
+    <div>width:<span class="width">100</span></div>
+    <div>height:<span class="height">200</span></div>
+    <br><div>导出参数:</div>
+    <div>scale:<input class="scale" value="1"></div>
+    <div>name:<input class="name" value="front"></div>
+</div>
+<script src="libs/jquery.js"></script>
+<script src="libs/jquery-ui-1.10.4.custom.min.js"></script>
+<script src="libs/jquery.ba-resize.js"></script>
+<script src="libs/twaver.js"></script>
+<script src="js/Util.js"></script>
+<script src="dataJson.js"></script>
+<script src="libs/FileSaver.js"></script>
+<script src="libs/canvas-toBlob.js"></script>
+<script src="libs/memoryCache.js"></script>
+<script src="libs/serverCache.js"></script>
+<script src="libs/proxy.js"></script>
+
+
+<script src="libs/twaver-doodle.js"></script>
+
+
+<script src="deviceEditor.js"></script>
+<script src="tools.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="js/twaver.js"></script>
+  <script src="js/CElement.js"></script>
+  <script>
+    var box = new twaver.ElementBox();
+    var network = new twaver.vector.Network(box);
+    twaver.Styles.setStyle("select.style","none");
+    twaver.Styles.setStyle("body.type","default");
+    twaver.Styles.setStyle("vector.shape","circle");
+    twaver.Styles.setStyle("vector.fill.color","rgba(10,193,71,0.1)");
+    twaver.Styles.setStyle("vector.outline.color","#A3F2C2");
+    twaver.Styles.setStyle("vector.outline.width",2);
+    twaver.Styles.setStyle("link.bundle.expanded",false);
+    var init = function() {
+      registImages(network);   
+      buildData();   
+      document.body.appendChild(network.getView());
+      network.adjustBounds({ x: 0, y: 0, width: 1024, height: 768 });
+      
+    };
+
+    var buildData = function(){
+      var node1 = new twaver.Node();//CNodeX();
+      node1.setLocation(200, 300);
+      // node1.setImage("node");
+
+      node1.setClient("vector.radius",30);
+      node1.setClient("icons.offset",5);
+      node1.setClient("icons.angle",[0,-40,40]);
+      node1.setClient("icons.radius",10);
+      node1.setClient("icons.outline.width",2);
+      node1.setClient("icons.outline.color","#E7E7E7");
+      node1.setClient("icons.fill.color","#FFFFFF");
+      // node1.setStyle("icons.names",["att1","att2","att3"]);
+      // node1.getAlarmState().increaseNewAlarm(twaver.AlarmSeverity.CRITICAL, 1);
+      node1.getAlarmState().setAcknowledgedAlarmCount(twaver.AlarmSeverity.CRITICAL, 2);
+      node1.getAlarmState().setAcknowledgedAlarmCount(twaver.AlarmSeverity.MAJOR, 1);
+      box.add(node1);
+      
+      var node2 = new twaver.Node();//CNodeX();
+      node2.setName("node2");
+      node2.setClient("vector.radius",30);
+      // node2.setImage("node");
+      node2.setLocation(300, 460);
+      box.add(node2);
+      
+      
+      var node3 = new twaver.Node();//CNodeX();
+      node3.setName("node3");
+      node3.name = "node3";
+      node3.setClient("vector.radius",30);
+      node3.setLocation(600, 400);
+      // node3.setImage("node");
+      box.add(node3);
+      
+      var node4 = new twaver.Node();//CNodeX();
+      node4.setName("node4");
+      node4.name = "node4";
+      node4.setClient("vector.radius",30);
+      node4.setLocation(600, 200);
+      // node4.setImage("node");
+      box.add(node4);
+
+      var link = new CLinkX(node1, node2);
+      link.setStyle("link.width", 3);
+      link.setClient("show.line",true);
+      link.setClient("percent.line",0.1);
+      link.setClient("offset.line", 5);
+      link.setClient("length.line",40);
+      link.setClient("color.line", "#1DB964");
+      link.setClient("width.line",2);
+      link.setClient("icon.from.text","100kb");
+      link.setClient("icon.to.text","200kb");
+      box.add(link);
+
+      // var link1 = new CLinkX(node2, node3);
+      // link1.setStyle("link.width", 3);
+      // link1.setStyle("link.from.xoffset", 10);
+      // box.add(link1);
+      
+      var link2 = new CLinkX(node2, node3);
+      link2.setStyle("link.width", 3);
+      link2.setStyle("link.color", "#D8F1D3");
+      link2.setStyle("link.from.xoffset", 10);
+      box.add(link2);
+      
+//       var child1 = new CNodeX();
+//       child1.setClient("vector.radius",30);
+//       child1.setImage("node");
+//       child1.setLocation(650, 100);
+//       box.add(child1);
+
+//       var child2 = new CNodeX();
+//       child2.setClient("vector.radius",30);
+//       child2.setLocation(450, 300);
+//       box.add(child2);
+//       child2.setImage("node");
+
+//       var group = new CGroupX();
+//       group.setStyle("group.shape", "rectangle");
+//       //        group.setStyle(Styles.ICONS_NAMES, ["att1","att2","att3"]);
+//       group.setClient("icons.offset",3);
+//       group.setClient("icons.angle",[0,-40,40]);
+//       group.setClient("icons.radius",7);
+//       group.setClient("icons.outline.width",2);
+//       group.setClient("icons.outline.color","#E7E7E7");
+//       group.setClient("icons.fill.color","#FFFFFF");
+//       group.setClient("vector.radius",30);
+//       //        group.name = "Group";
+//       group.setImage("node");
+      
+//       group.addChild(child1);
+//       group.addChild(child2);
+//       box.add(group);
+//       //        var link3:Link = new CLinkX(node2, group);
+//       //        link3.setStyle(Styles.LINK_WIDTH, 3);
+//       //        box.add(link3);
+//       //        var link4:Link = new CLinkX(node2, group);
+//       //        link4.setStyle(Styles.LINK_WIDTH, 3);
+//       //        box.add(link4);
+      
+//       var group1 = new CGroupX();
+//       group1.setStyle("grouo.shape", "circle");
+//       //        group1.name = "Group1";
+//       group1.setImage("node");
+//       group1.setClient("vector.radius",30);
+// //        group1.addChild(node3);
+// //        group1.addChild(node4);
+//       box.add(group1);
+      
+    };
+
+    var registImages= function (network) {
+        registerImage("images/node.png",network);
+        registerImage("images/att1.png",network);
+        registerImage("images/att2.png",network);
+        registerImage("images/att3.png",network);
+    };
+
+    var registerImage = function (url, network) {
+        var image = new Image();
+        image.src = url;
+        var views = arguments;
+        var that = this;
+        image.onload = function () {
+            twaver.Util.registerImage(that.getImageName(url), image, image.width, image.height, network);
+            image.onload = null;
+            for (var i = 1; i < views.length; i++) {
+                var view = views[i];
+                if (view.invalidateElementUIs) {
+                    view.invalidateElementUIs();
+                }
+                if (view.invalidateDisplay) {
+                    view.invalidateDisplay();
+                }
+            }
+        };
+    };
+    var getImageName = function (url) {
+        var index = url.lastIndexOf('/');
+        var name = url;
+        if (index >= 0) {
+            name = url.substring(index + 1);
+        }
+        index = name.lastIndexOf('.');
+        if (index >= 0) {
+            name = name.substring(0, index);
+        }
+        return name;
+    };
+
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

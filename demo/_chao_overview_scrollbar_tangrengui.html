@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<title>Map Demo</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../lib/twaver.js"></script>
+<script type="text/javascript">
+var box = new twaver.ElementBox();
+var network = new twaver.vector.Network(box);
+var overView = new twaver.vector.Overview(network);
+
+function init() {
+    initNetwork();
+    initDataBox();
+}
+
+
+function initNetwork() {
+    //setting view
+    var view = network.getView();
+    document.body.appendChild(view);
+
+    overView.setFillColor("rgba(184,211,240,0.5)");
+    var overviewDiv = document.createElement("div");
+    overviewDiv.style.background = "#666666";
+    overviewDiv.style.position = "absolute";
+    overviewDiv.style.right = "10px";
+    overviewDiv.style.bottom = "20px";
+    overviewDiv.style.display = "block";
+
+    var overviewView = overView.getView();
+    overviewView.style.left = '0px';
+    overviewView.style.right = '0px';
+    overviewView.style.top = '0px';
+    overviewView.style.bottom = '0px';
+    overviewDiv.appendChild(overviewView);
+    document.body.appendChild(overviewDiv);
+
+    var winWidth = 0;
+    var winHeight = 0;
+
+    function findDimensions() {
+        if (window.innerWidth)
+            winWidth = window.innerWidth;
+        else if ((document.body) && (document.body.clientWidth))
+            winWidth = document.body.clientWidth;
+        if (window.innerHeight)
+            winHeight = window.innerHeight;
+        else if ((document.body) && (document.body.clientHeight))
+            winHeight = document.body.clientHeight;
+        if (document.documentElement && document.documentElement.clientHeight && document.documentElement.clientWidth) {
+            winHeight = document.documentElement.clientHeight;
+            winWidth = document.documentElement.clientWidth;
+        }
+    }
+
+    findDimensions();
+    network.adjustBounds({x: 0, y: 0, width: winWidth, height: winHeight});
+    // overview.adjustBounds({ x: 600, y: 0, width: 600, height: 600 });
+    overviewDiv.style.width = winWidth/4 + "px";
+    overviewDiv.style.height = winHeight/4 + "px";
+}
+
+function initDataBox() {
+    var node = new twaver.Node({
+        name:'Node',
+        location:{x:400,y:-3000},
+    });
+    box.add(node);
+
+    // var node2 = new twaver.Node({
+    //     name:'Node2',
+    //     location:{x:600,y:3000},
+    // });
+    // box.add(node2);
+
+    // var link = new twaver.Link(node, node2);
+    //   link.setName('Hello!');
+    //   link.setToolTip('<b>Hello!</b>');
+    //   box.add(link);
+    //   
+    //
+}
+
+</script>
+</head>
+<body onload="init()">
+
+<div>
+</div>
+</body>
+</html>

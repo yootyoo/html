@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="twaver.js"></script>
+  <script src="images.js"></script>
+  <script>
+	var highlightedNodeColor='#FFFED5';
+	var highlightedLinkColor='#FF7D02';
+	var nodeMovable=true;
+	var nodeMaxWidth=100;
+	var leftPadding=10;
+	var rectLineWidth=2;
+	var bottomPadding=5, rightPadding=5;
+	var followerHeight=28;
+	var followerPadding =40;
+
+	twaver.Util.registerImage('test_vector', {		
+		w: '<%=getClient("width")%>',
+		h: followerHeight,
+		origin: { x: 0, y: 0 },
+		lineWidth:1,
+		lineColor: '#D66204',	
+		v: [{
+			shape: 'rect',
+			w: '100%',
+			h: '100%',
+			fill: function(data, view){
+				if(data.getClient('highlighted')){
+					return highlightedNodeColor;
+				}
+				if(data.getChildrenSize()>0){
+					return '#FFE6D5';
+				}
+				return '#FFFCFA';
+			},
+			lineWidth:2,
+		},{
+			shape: 'rect',
+			x: 7.5,
+			y: 8.5,
+			w: 12,
+			h: 12,					
+			visible: '<%=getChildrenSize()>0%>',
+		},{
+		  shape: 'line',
+		  p1: { x: 13.5, y: 9 },
+		  p2: { x: 13.5, y: 21, },
+		  lineWidth:0.5,
+		  visible: '<%=getChildrenSize()>0 && !isExpanded()%>',
+		},{
+		  shape: 'line',
+		  p1: { x: 8, y: 14.5 },
+		  p2: { x: 20, y: 14.5 },
+		  lineWidth:0.5,		  
+		  visible: '<%=getChildrenSize()>0%>',
+		},{
+			shape: 'vector',
+			name: '<%=getClient("icon")%>',
+			scale: { x: 0.85, y: 0.85 },
+			x: 30,
+			y: 13,
+			lineWidth:0,
+		}],
+		onMouseEnter: function (data, view) {
+			updateFocus(data, true);
+		},
+		onMouseLeave: function (data, view) {
+			updateFocus(data, false);
+		},
+	});
+
+	twaver.Util.registerImage('test_vector_host', {		
+		w: '<%=getClient("width")%>',
+		h: '<%=getClient("height")%>',
+		origin: { x: 0, y: 0 },
+		lineWidth:1,
+		lineColor: '#D66204',	
+		v: [{
+			shape: 'rect',
+			w: '100%',
+			h: '100%',
+			fill: function(data, view){
+				if(data.getClient('highlighted')){
+					return highlightedNodeColor;
+				}
+				if(data.getChildrenSize()>0){
+					return '#FFE6D5';
+				}
+				return '#FFFCFA';
+			},
+			lineWidth:2,
+		}],
+		onMouseEnter: function (data, view) {
+			updateFocus(data, true);
+		},
+		onMouseLeave: function (data, view) {
+			updateFocus(data, false);
+		},
+	});
+
+	MyFollower = function(){
+		MyFollower.superClass.constructor.apply(this, arguments);
+		this.setImage('test_vector');		
+		this.setStyle('label.position', 'topleft.topright');
+		this.setStyle('label.xoffset', 38);
+		this.setStyle('label.yoffset', 24);
+		this.setStyle('label.font', '14px "Microsoft Yahei"');
+		this.setStyle('select.style', 'null');
+		this.setLayerId('node');	
+	}
+
+	twaver.Util.ext('MyFollower', twaver.Follower,{
+		// getVectorUIClass : function(){
+		// 	return MyGroupUI;
+		// },
+	});
+ 
+
+    function init() {
+		var box = new twaver.ElementBox();
+		var network = new twaver.vector.Network(box);
+
+		document.body.appendChild(network.getView());
+		network.adjustBounds({x:0,y:0,width:document.documentElement.clientWidth,height:document.documentElement.clientHeight});
+		network.setLinkPathFunction(createLinkPath);
+		network.setMovableFunction(function (element) { 
+			if(element instanceof twaver.Follower){
+				return !nodeMovable; 
+			}
+			return nodeMovable;
+		});
+		network.setToolTipEnabled(false);
+		network.getView().addEventListener('mousemove',function(e){		
+			var element = network.getElementAt(e);
+			highlightNode(network.getElementBox(), element);
+		})
+
+		box.addDataPropertyChangeListener(function(e){
+			if(e.property==='expanded'){
+				var node=e.source;
+				// node.setExpanded(true);
+				// fixLocation(node);
+			}
+		});
+				
+		box.getLayerBox().add(new twaver.Layer('node'));
+		box.getLayerBox().add(new twaver.Layer('link'));			
+		
+		setupData(box);
+
+		var autoLayouter = new twaver.layout.AutoLayouter(box);
+		autoLayouter.isMovable = function(element){
+			if(element instanceof twaver.Follower){
+				return false;
+			}else{
+				return true;
+			}
+		};
+		autoLayouter.doLayout('leftright');
+		autoLayouter.setExplicitYOffset(-100);
+		autoLayouter.setExplicitXOffset(10);
+		// autoLayouter.setExpandGroup(true);
+		autoLayouter.setRepulsion(0.1);
+		window.onresize = function (e) { 
+			network.adjustBounds({x:0,y:0,width:document.documentElement.clientWidth,height:document.documentElement.clientHeight});
+		};
+    }
+
+	function fixLocation(node){		
+		if(node.isExpanded()){
+			node.getChildren().forEach(function(child){
+				child.setLocation(child.getClient('x'), child.getClient('y'));
+				fixLocation(child);
+			});
+		}else{
+				node.setLocation(node.getClient('x'), node.getClient('y'));
+		}
+	}
+
+	function updateFocus(data, focus){
+		if(data instanceof MyGroup){
+			var oldFocus=data.getClient('focus');
+			if(oldFocus!=focus){
+				data.setClient('focus', focus);	
+			}
+		}
+	}
+
+	function createNode(box, x, y,height){
+		var node = new twaver.Node();			
+		node.setClient('width', nodeMaxWidth+ leftPadding + rightPadding + 2*rectLineWidth);
+		node.setClient('height',height);
+		node.setImage("test_vector_host");
+		node.setClient('x', x);
+		node.setClient('y', y);
+		box.add(node);		
+
+		if(x && y){
+			node.setLocation(x, y);
+		}
+		return node;
+	}
+
+	function createFollower(box, x, y, name, icon, parent){
+		var node = new MyFollower();			
+		node.setClient('width', nodeMaxWidth);
+		node.setClient('x', x);
+		node.setClient('y', y);
+		box.add(node);		
+
+		if(x && y){
+			node.setLocation(x, y);
+		}
+		if(name){
+			node.setName(name);
+		}
+		if(icon){
+			node.setClient('icon', icon);
+		}
+		if(parent){
+			node.setHost(parent);
+			// node.setParent(parent);
+			// parent.setExpanded(true);
+		}
+
+		return node;
+	}
+
+	function createLink(box, from, to, offset, pattern){
+		var link = new twaver.Link(from, to);	
+		if(offset){
+			link.setClient('offset', offset);
+		}
+		link.setStyle('link.type', 'orthogonal.horizontal');
+		link.setStyle('arrow.to', true);		
+		link.setStyle('arrow.to.height', 6);
+		link.setStyle('arrow.to.width', 8);
+		link.setStyle('arrow.to.xoffset', -3);
+		if(pattern){
+			link.setStyle('link.pattern', pattern);
+		}
+		link.setLayerId('link');
+		highlightLink(link, false);
+		box.add(link);
+	}
+
+	function createLinkPath(linkUI, defaultPoints){
+		var f = linkUI.getFromPoint();
+		var t = linkUI.getToPoint();		
+		var fromNode=linkUI.getElement().getFromAgent();
+		var toNode=linkUI.getElement().getToAgent();
+
+		var points = new twaver.List();
+		var pFrom={x: f.x+fromNode.getWidth()/2+1, y: f.y};
+		var pFromNext={x: f.x+fromNode.getWidth()/2+1+20, y: f.y};
+		var pToNext2={x: t.x-toNode.getWidth()/2-2-20, y: t.y};
+		var pToNext1={x: t.x-toNode.getWidth()/2-2-10, y: t.y};
+		var pTo={x: t.x-toNode.getWidth()/2-2, y: t.y};
+
+		points.add(pFrom);
+		if(linkUI._element.getClient('offset')){
+			var direction=t.x<f.x ? -1: 1;
+			var controlY=linkUI._element.getClient('offset');
+			var seg = new twaver.List();
+			seg.add({x: f.x+fromNode.getWidth()/2+1+10, y: f.y});
+			seg.add({x: f.x+fromNode.getWidth()/2+1+10, y: controlY});						
+			seg.add({x: f.x+fromNode.getWidth()/2+1+50*direction, y: controlY});
+			points.add(seg);
+			points.add({x: t.x-toNode.getWidth()/2-2-50*direction, y: controlY});
+			var seg = new twaver.List();
+			seg.add({x: t.x-toNode.getWidth()/2-2-20, y: controlY});
+			seg.add({x: t.x-toNode.getWidth()/2-2-20, y: t.y});
+			seg.add({x: t.x-toNode.getWidth()/2-2-5, y: t.y});
+			points.add(seg);
+		}else{
+			var seg = new twaver.List();	
+			seg.add(pFromNext);
+			seg.add(pToNext2);
+			seg.add(pToNext1);			
+			points.add(seg);
+		}
+		points.add(pTo);
+
+		return points;
+	}
+
+	function highlightNode(box, element){		
+		box.forEach(function(data){
+			if(data instanceof twaver.Node){
+				data.setClient('highlighted', false);		
+				data.setStyle('group.fill.color', '#FFFCFA');
+			}
+			if(data instanceof twaver.Link){
+				highlightLink(data, false);
+			}
+		});
+		if(element){
+			if(element instanceof twaver.Node){
+				element.setClient('highlighted', true);
+				element.setStyle('group.fill.color', highlightedNodeColor);
+			}
+			if(element instanceof twaver.Link){
+				highlightLink(element, true);
+			}
+		}
+		//highlight related links.
+		if(element instanceof twaver.Node){
+			var nodes=[];
+			nodes.push(element);
+			if(element.getChildrenSize()>0){
+				nodes=nodes.concat(element.getChildren().toArray());
+			}
+			
+			box.forEach(function(data){
+				if(data instanceof twaver.Link){
+					var link=data;
+					var from=link.getFromAgent();
+					var to=link.getToAgent();
+					if(arrayContains(nodes, from, to)){
+						highlightLink(link, true);
+					}
+				}
+			});
+		}		
+	}
+
+	function highlightLink(link, highlighted){
+		if(highlighted){
+			link.setStyle('link.color', highlightedLinkColor);
+			link.setStyle('link.width', 1);
+			link.setStyle('arrow.to.color', highlightedLinkColor);
+		}else{
+			link.setStyle('link.color','#309FC9');
+			link.setStyle('link.width', 0.5);
+			link.setStyle('arrow.to.color', '#309FC9');
+		}
+	}
+
+	function arrayContains(array, object1, object2) {
+		var i = array.length;
+		while (i--) {
+			if (array[i] === object1 || array[i] === object2) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	function setupData(box){
+		var bw_x = 1250;
+		var bw_y = 150;
+		var followerNum = 5;
+		var bw62 = createNode(box,bw_x, bw_y, followerPadding * (followerNum-1) + followerHeight + bottomPadding + rectLineWidth);
+		var bw620=createFollower(box, bw_x, bw_y, '表1','icon_apple',bw62);
+		var bw621=createFollower(box, bw_x+ leftPadding+ rectLineWidth, bw_y + followerPadding*1, '字段1','icon_apple',bw62);
+		var bw622=createFollower(box, bw_x+ leftPadding+ rectLineWidth, bw_y + followerPadding*2, '字段2','icon_apple',bw62);
+		var bw623=createFollower(box, bw_x+ leftPadding+ rectLineWidth, bw_y + followerPadding*3, '字段3','icon_apple',bw62);
+		var bw624=createFollower(box, bw_x+ leftPadding+ rectLineWidth, bw_y + followerPadding*4, '字段4','icon_apple',bw62);
+
+		bw_x = 1100;
+		bw_y = 320;
+		followerNum = 4;
+		var bw71 = createNode(box,bw_x, bw_y, followerPadding * (followerNum-1) + followerHeight + bottomPadding + rectLineWidth);
+		var bw710=createFollower(box, bw_x, bw_y, '表2', 'icon_apple',bw71);
+		var bw711=createFollower(box, bw_x+ leftPadding+ rectLineWidth, bw_y + followerPadding*1, '字段1','icon_apple',bw71);
+		var bw712=createFollower(box, bw_x+ leftPadding+ rectLineWidth, bw_y + followerPadding*2, '字段2','icon_apple',bw71);
+		var bw713=createFollower(box, bw_x+ leftPadding+ rectLineWidth, bw_y + followerPadding*3, '字段3','icon_apple',bw71);
+
+		bw_x = 1250;
+		bw_y = 320;
+		followerNum = 10;
+		var bw72 = createNode(box,bw_x, bw_y, followerPadding * (followerNum-1) + followerHeight + bottomPadding + rectLineWidth);
+		var bw720=createFollower(box, bw_x, bw_y, '表3', 'icon_apple',bw72);
+		var bw721=createFollower(box, bw_x+ leftPadding+ rectLineWidth, bw_y + followerPadding*1, '字段1','icon_apple',bw72);
+		var bw722=createFollower(box, bw_x+ leftPadding+ rectLineWidth, bw_y + followerPadding*2, '字段2', 'icon_apple', bw72);
+		var bw723=createFollower(box, bw_x+ leftPadding+ rectLineWidth, bw_y + followerPadding*3, '字段3', 'icon_apple', bw72);
+		var bw7211=createFollower(box, bw_x+ leftPadding+ rectLineWidth, bw_y + followerPadding*4, '字段4', 'icon_apple', bw72);
+		var bw7222=createFollower(box, bw_x+ leftPadding+ rectLineWidth, bw_y + followerPadding*5, '字段5', 'icon_apple', bw72);
+		var bw7233=createFollower(box, bw_x+ leftPadding+ rectLineWidth, bw_y + followerPadding*6, '字段6', 'icon_apple', bw72);
+		var bw7214=createFollower(box, bw_x+ leftPadding+ rectLineWidth, bw_y + followerPadding*7, '字段7', 'icon_apple', bw72);
+		var bw7225=createFollower(box, bw_x+ leftPadding+ rectLineWidth, bw_y + followerPadding*8, '字段8', 'icon_apple', bw72);
+		var bw7236=createFollower(box, bw_x+ leftPadding+ rectLineWidth, bw_y + followerPadding*9, '字段9', 'icon_apple', bw72);
+
+
+
+		createLink(box, bw71, bw62);
+		createLink(box, bw71, bw72);
+
+	}
+
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="../lib/twaver.js"></script>
+  <script>
+
+    var CNetwork = function(box){
+      CNetwork.superClass.constructor.call(this, box);
+    };
+
+    twaver.Util.ext(CNetwork, twaver.network.Network, {
+      isVisible: function(element) {
+        var isOriginVisible = CNetwork.superClass.isVisible.apply(this, arguments);
+        if(element && element.getClient("type") && element.getClient("spec")){
+          var typeVal = element.getClient("type");
+          var specVal = element.getClient("spec");
+
+          if(typeVal == "id"){
+            if(element instanceof twaver.Link&&element.getId()==specVal){
+              return false;
+            }else{
+              alert(isOriginVisible);
+              return isOriginVisible;
+            }
+          }else if("upperLinkId"==typeVal){
+            var ttp = element.getClient(typeVal);
+            if(ttp==specVal){
+              return false;
+            }else if(element.getId()==specVal){
+              return true;
+            }else{
+              return isOriginVisible;
+            }
+          }else{
+            if(element instanceof twaver.Node&&element.getFollowers()!=null&&element.getClient(typeVal)==specVal){
+              return true;
+            }else if(element instanceof twaver.Follower&&element.getHost()!=null&&element.getHost().getClient(typeVal)==specVal){
+              return true;
+            }else if(element instanceof twaver.Link&&(element.getFromNode().getHost().getClient(typeVal)==specVal
+            ||element.getToNode().getHost().getClient(typeVal)==specVal)){
+              return true;
+            }else {
+              return false;
+            }
+          }
+        }else{
+          return isOriginVisible;
+        }
+      }
+    });
+
+    var box = new twaver.ElementBox();
+    var network = new CNetwork(box);
+
+    function init() {
+      
+      var node1 = new twaver.Node();
+      node1.setName('node1');
+      node1.setLocation(100, 100);
+      box.add(node1);
+      
+      var node2 = new twaver.Node();
+      node2.setName('node2');
+      node2.setLocation(300, 200);
+      box.add(node2);
+      
+      var link1 = new twaver.Link(node1, node2);
+      link1.setName('link1!');
+      link1.setToolTip('<b>Hello!</b>');
+      box.add(link1);
+
+      var node3 = new twaver.Node();
+      node3.setName('node3');
+      node3.setLocation(500, 300);
+      box.add(node3);
+
+      var link2 = new twaver.Link(node2, node3);
+      link2.setName('link2!');
+      link2.setClient('upperLinkId','1234567');
+      box.add(link2);
+
+      var node4 = new twaver.Node();
+      node4.setName('node4');
+      node4.setLocation(300, 400);
+      node4.setClient('xxxid','12345678');
+      box.add(node4);
+
+      var networkDOM = network.getView();
+      networkDOM.style.width = "800px";
+      networkDOM.style.height = "600px";
+      document.body.appendChild(networkDOM);
+
+    }
+
+    function setVisible(type,spec){
+      box.forEach(function(element){
+        element.setClient('type', type);
+        element.setClient('spec', spec);
+      });
+    }
+  </script>
+</head>
+<body onload="init()">
+  <input type="button" onclick="setVisible('upperLinkId','1234567');" value="hidden link2"></input>
+</body>
+</html>
+
+

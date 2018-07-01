@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="../../lib/twaver.js"></script>
+  <script src="images.js"></script>
+  <script>
+	var highlightedNodeColor='#FFFED5';
+	// var highlightedNodeColor='#EEF4FF';
+	var highlightedLinkColor='#FF7D02';
+	var nodeMovable=true;
+
+	var globalGroup;
+
+	twaver.Util.registerImage('test_vector', {		
+		w: '<%=getClient("width")%>',
+		h: '<%=getClient("height")%>',
+		origin: { x: 0, y: 0 },
+		lineWidth:1,
+		lineColor: '#D66204',
+		// lineColor: '#017A75',	
+		v: [{
+			shape: 'rect',
+			w: '100%',
+			h: '100%',
+			fill: function(data, view){
+				if(data.getClient('highlighted')){
+					return highlightedNodeColor;
+				}
+				if(data.getChildrenSize()>0){
+					return '#FFE6D5';
+					// return '#999999';
+				}
+				return '#FFFCFA';
+			},
+			lineWidth:2,
+		},{
+			shape: 'rect',
+			x: 7.5,
+			y: 8.5,
+			w: 12,
+			h: 12,					
+			visible: '<%=getChildrenSize()>0%>',
+		},{
+		  shape: 'line',
+		  p1: { x: 13.5, y: 9 },
+		  p2: { x: 13.5, y: 21, },
+		  lineWidth:0.5,
+		  visible: '<%=getChildrenSize()>0 && !isExpanded()%>',
+		},{
+		  shape: 'line',
+		  p1: { x: 8, y: 14.5 },
+		  p2: { x: 20, y: 14.5 },
+		  lineWidth:0.5,		  
+		  visible: '<%=getChildrenSize()>0%>',
+		},{
+			shape: 'vector',
+			name: '<%=getClient("icon")%>',
+			scale: { x: 0.85, y: 0.85 },
+			x: 30,
+			y: 13,
+			lineWidth:0,
+		}],
+		onMouseEnter: function (data, view) {
+			updateFocus(data, true);
+		},
+		onMouseLeave: function (data, view) {
+			updateFocus(data, false);
+		},
+	});
+
+	MyGroup = function(){
+		MyGroup.superClass.constructor.apply(this, arguments);
+		this.setImage('test_vector');		
+		this.setStyle('label.position', 'topleft.topright');
+		this.setStyle('label.xoffset', 38);
+		this.setStyle('label.yoffset', 24);
+		this.setStyle('label.font', '14px "Microsoft Yahei"');
+		this.setStyle('select.style', 'null');
+		this.setStyle('group.padding.top', 22);
+		// this.setStyle('group.padding.left', 10);
+		this.setStyle('group.padding.left',-5);
+		this.setStyle('group.padding.right', -5);
+		this.setStyle('group.padding.bottom', -5);
+		this.setStyle('group.fill.color', '#FFFCFA');
+		// this.setStyle('group.fill.color', '#EEF4FF');		
+		this.setStyle('group.outline.color', '#D66204');
+		// this.setStyle('group.outline.color', '#017A75');
+		this.setStyle('group.outline.width', 2);
+		this.setStyle('group.deep', 0);
+		this.setLayerId('node');
+		// this.setStyle('group.shape', 'rectangle');	
+	}
+
+	twaver.Util.ext('MyGroup', twaver.Group,{
+		/**
+ 		 * 获取网元矢量UI的类名，网元UI用于在network组件上绘制这个网元。
+ 		 * TWaver会用返回的这个UI类去创建UI对象
+ 		 * @method twaver.Element.getVectorUIClass
+ 		 * @return {twaver.vector.ElementUI} 矢量UI类型
+ 		 */
+		getVectorUIClass : function(){
+			return MyGroupUI;
+			// return twaver.vector.GroupUI
+		},
+	});
+ 
+	MyGroupUI = function(){
+		MyGroupUI.superClass.constructor.apply(this, arguments);
+		console.log(this);
+		// this.getNetwork().getView().addEventListener('click',function(e){		
+		// 	if (this.getElement()) {
+		// 		console.log("123");
+		// 	}
+		// });	
+	};
+
+	twaver.Util.ext('MyGroupUI', twaver.vector.GroupUI, {
+				/**
+		 		 * 绘制网元主体
+				 * @method twaver.canvas.ElementUI.paintBody
+				 * @param {CanvasRenderingContext2D} ctx 画布上下文
+				 */
+				//绘制网元主体，判断是否为展开状态，进行相应的绘制。
+				paintBody: function (ctx) {	
+					// console.log('paintBody:'+this);		
+					/*_shapeRect是GroupUI展开时的内容区域，
+					包含x、y、width和height属性的Object对象{Object}*/
+					if (this._shapeRect) {
+						// console.log(this._shapeRect.width);
+						// console.log('paintBody的this:'+this);
+						/**
+		 				 * 画展开后的组，用group.shape样式属性定义的形状画出矢量图形
+						 * @method twaver.canvas.GroupUI.drawExpandedGroup
+						 * @param {CanvasRenderingContext2D} ctx canvas画布
+						 */ 
+						this.drawExpandedGroup(ctx);
+						twaver.vector.GroupUI.superClass.paintBody.apply(this, arguments);
+					}else{
+						// console.log(this.getElement().getName());
+						// console.log(this.getElement().getWidth());
+						// console.log(this.getElement().getHeight());
+						twaver.vector.GroupUI.superClass.paintBody.apply(this, arguments);
+					}
+				},
+				/**
+		 		 * 刷新连线视图所占的区域
+		 		 * @method twaver.canvas.LinkUI.validateBodyBounds
+		 		 */
+				validateBodyBounds: function () {
+					// _ bodyBounds是一个数组
+					// console.log('validateBodyBounds'+this);
+					this._bodyBounds.add(this.createBodyRect2());
+					if (this._shapeRect) {
+						// console.debug('validateBodyBounds的this:'+this._shapeRect);
+						/**
+						 * 获取路径边界
+						 * @method twaver.canvas.NodeUI.getPathRect
+						 * @param {String} prefix 前缀
+						 * @param {Number} padding 内边距
+						 * @return {Object} 返回路径边界
+						 */
+						// console.log('this.getPathRect中的：'+this.getElement().getName());
+						var rect = this.getPathRect("group", false);
+						// console.debug('rect:'+rect);
+						//group.deep 网元组深度
+						var deep = this.getStyle('group.deep');
+						/**
+						 * 将指定的矩形扩大一定的宽高值。
+						   这种扩大是矩形的中心点保持不变，像四周扩大指定值的宽度、高度。
+						 * 比如指定的矩形为{x:20,y:20,width:100;height:100},
+						   如果扩大的width为10，height为10，那么扩大后的矩形变为{x:10,y:10,width:120,height:120}
+						 * @method twaver.Util.grow
+						 * @param {Object} rect 指定扩大的矩形
+						 * @param {Number} width 扩大的宽度值
+						 * @param {Number} height 扩大的高度值
+						 * @static
+						 */
+						_twaver.math.grow(rect,deep,deep);
+						// console.log('_twaver:'+_twaver.math);
+						/**
+						 * 添加内容区域，所有内容区域合并后构成unionBodyBounds
+						 * @method twaver.canvas.ElementUI.addBodyBounds
+						 * @param {Object} rect 区域，值为包含x、y、width和height属性的Object对象
+						 */
+						this.addBodyBounds(rect);
+					} else {
+						twaver.vector.GroupUI.superClass.validateBodyBounds.call(this);
+					}
+				},
+				/**
+		 		 * 创建节点内容区域，默认为网元节点的x坐标、y坐标、宽度和高度组成
+		 		 * @method twaver.canvas.NodeUI.createBodyRect
+		 		 * @return {Object} 返回内容区域，值为包含x、y、width和height属性的Object对象
+		 		 */
+				createBodyRect: function () {
+					// console.log('createBodyRect'+this._shapeRect);
+					this._shapeRect = null;
+					// console.log(this);
+					var group = this._element;
+					// console.log('this._element:'+this);
+					var network = this._network;
+					if (group.isExpanded()) {
+						group.getChildren().forEach(function (child) {
+							var ui = network.getElementUI(child);
+							/**
+							 * 更新属性, 并重新计算附件大小和位置
+							 * @method twaver.canvas.Attachment.validate
+							 */
+							//如果ui存在，则更新ui属性,并重新计算附件大小和位置
+							ui && ui.validate();
+						});
+						var rects = this.getChildrenRects();
+						if (!rects.isEmpty()) {
+							var shape = group.getStyle('group.shape');
+							var func = _twaver.group[shape];
+							if (!func) {
+								throw "Can not resolve group shape '" + shape + "'";
+							}
+							this._shapeRect = func(rects);
+						}
+					}
+					//do this.
+					if (this._shapeRect) {						
+						_twaver.math.addPadding(this._shapeRect, group, 'group.padding', 1);
+						var bodyRect = twaver.vector.GroupUI.superClass.createBodyRect.call(this);
+						return {x: this._shapeRect.x, y: this._shapeRect.y , width: bodyRect.width, height: bodyRect.height};
+							return this._shapeRect;
+					} else {
+							return twaver.vector.GroupUI.superClass.createBodyRect.call(this);
+					}
+				},
+				createBodyRect2: function () {
+					// console.log('createBodyRect2'+this);
+					this._shapeRect = null;
+					var group = this._element;
+					var network = this._network;
+					if (group.isExpanded()) {
+						group.getChildren().forEach(function (child) {
+							var ui = network.getElementUI(child);
+							// console.log('ui'+ui);
+							/**
+							 * 此方法被Network调用，用以重画网元视图内容，此内部检查所有附件是否
+							   可见（checkAttachments），并调用updateMeasure方法重画网元内容，最后调用附件的updateMeasure方法，让附件重画
+							 * @method twaver.canvas.ElementUI.validate
+							 */
+							ui && ui.validate();
+						});
+						var rects = this.getChildrenRects();
+						if (!rects.isEmpty()) {
+							var shape = group.getStyle('group.shape');
+							var func = _twaver.group[shape];
+							if (!func) {
+								throw "Can not resolve group shape '" + shape + "'";
+							}
+							this._shapeRect = func(rects);
+						}
+					}
+					//do this.
+					if (this._shapeRect ) {
+						_twaver.math.addPadding(this._shapeRect, group, 'group.padding', 1);
+							return this._shapeRect;
+					} else {
+						return twaver.vector.GroupUI.superClass.createBodyRect.call(this);
+					}
+				},
+	});
+
+    function init() {
+		var box = new twaver.ElementBox();
+		var network = new twaver.vector.Network(box);
+
+		document.body.appendChild(network.getView());
+		network.adjustBounds({x:0,y:0,width:document.documentElement.clientWidth,height:document.documentElement.clientHeight});
+		network.setLinkPathFunction(createLinkPath);
+		network.setMovableFunction(function (element) { return nodeMovable; });
+		network.setToolTipEnabled(false);
+		network.getView().addEventListener('mousemove',function(e){		
+			var element = network.getElementAt(e);
+			highlightNode(network.getElementBox(), element);
+		})
+		network.getView().addEventListener('mousemove',function(e){
+			var element = network.getElementAt(e);
+			if (element) {
+				console.log(element);		
+				if (element.getParent()){
+					element.getParent().setHost(element);
+					// console.log('element:'+element.isHostOn());
+					// console.log('parent:'+element.getParent().getHost());
+				}
+			}
+		});	
+
+		box.addDataPropertyChangeListener(function(e){
+			if(e.property==='expanded'){
+				var node=e.source;
+				// node.setExpanded(true);
+				// fixLocation(node);
+			}
+		});
+				
+		box.getLayerBox().add(new twaver.Layer('node'));
+		box.getLayerBox().add(new twaver.Layer('link'));			
+		
+		setupData(box);
+		// console.log(new twaver.XmlSerializer(box).serialize());
+		var autoLayouter = new twaver.layout.AutoLayouter(box);
+		autoLayouter.doLayout('leftright',function(){
+			var loc =  globalGroup.getLocation();
+			var newNode = createNode(box, loc.x, loc.y+28, '字段1','icon_apple',28);
+			newNode.setParent(globalGroup);
+      box.add(newNode);
+      globalGroup.setLocation(loc.x,loc.y);
+      // var loc2 =  globalGroup.getLocation();
+		});
+		autoLayouter.setExplicitYOffset(-100);
+		autoLayouter.setExplicitXOffset(10);
+		autoLayouter.setExpandGroup(true);
+		autoLayouter.setRepulsion(0.1);
+		window.onresize = function (e) { 
+			network.adjustBounds({x:0,y:0,width:document.documentElement.clientWidth,height:document.documentElement.clientHeight});
+		};
+    }
+
+	function fixLocation(node){		
+		if(node.isExpanded()){
+			node.getChildren().forEach(function(child){
+				child.setLocation(child.getClient('x'), child.getClient('y'));
+				fixLocation(child);
+			});
+		}else{
+			node.setLocation(node.getClient('x'), node.getClient('y'));
+		}
+	}
+
+	function updateFocus(data, focus){
+		if(data instanceof MyGroup){
+			var oldFocus=data.getClient('focus');
+			if(oldFocus!=focus){
+				data.setClient('focus', focus);	
+			}
+		}
+	}
+
+	function createNode(box, x, y, name, icon,height){
+		var node = new MyGroup();	
+		node.setClient('width', 200);
+		node.setClient('x', x);
+		node.setClient('y', y);
+		box.add(node);		
+
+		if(x && y){
+			node.setLocation(x, y);
+		}
+		if(name){
+			node.setName(name);
+		}
+		if(icon){
+			node.setClient('icon', icon);
+		}
+		// if(parent){
+		// 	node.setParent(parent);
+		// 	parent.setExpanded(true);		
+		// }
+		node.setClient('height',height);
+		return node;
+	}
+
+	function createLink(box, from, to, offset, pattern){
+		var link = new twaver.Link(from, to);	
+		if(offset){
+			link.setClient('offset', offset);
+		}
+		link.setStyle('link.type', 'orthogonal.horizontal');
+		link.setStyle('arrow.to', true);		
+		link.setStyle('arrow.to.height', 6);
+		link.setStyle('arrow.to.width', 8);
+		link.setStyle('arrow.to.xoffset', -3);
+		if(pattern){
+			link.setStyle('link.pattern', pattern);
+		}
+		link.setLayerId('link');
+		highlightLink(link, false);
+		box.add(link);
+	}
+
+	function createLinkPath(linkUI, defaultPoints){
+		/**
+ 		 * 获取连线起始坐标
+ 		 * @method twaver.canvas.LinkUI.getFromPoint
+ 		 * @return {Object} 返回连线起始坐标，值为包含x和y属性的Object对象
+ 		 */
+		var f = linkUI.getFromPoint();
+		var t = linkUI.getToPoint();		
+		var fromNode=linkUI.getElement().getFromAgent();
+		var toNode=linkUI.getElement().getToAgent();
+
+		var points = new twaver.List();
+		/*pFrom为连线起点 pTo为连线终点*/
+		var pFrom={x: f.x+fromNode.getWidth()/2+1, y: f.y};
+		var pTo={x: t.x-toNode.getWidth()/2-2, y: t.y};
+		var pFromNext={x: f.x+fromNode.getWidth()/2+1+20, y: f.y};
+		var pToNext2={x: t.x-toNode.getWidth()/2-2-20, y: t.y};
+		var pToNext1={x: t.x-toNode.getWidth()/2-2-10, y: t.y};
+		
+
+		points.add(pFrom);
+		/*linkUI._element是内部私有变量，linkUI.getElement()为getter*/
+		// if(linkUI._element.getClient('offset')){
+		if(linkUI.getElement().getClient('offset')){	
+			var direction=t.x<f.x ? -1: 1;
+			var controlY=linkUI._element.getClient('offset');
+			var seg = new twaver.List();
+			seg.add({x: f.x+fromNode.getWidth()/2+1+10, y: f.y});
+			seg.add({x: f.x+fromNode.getWidth()/2+1+10, y: controlY});						
+			seg.add({x: f.x+fromNode.getWidth()/2+1+50*direction, y: controlY});
+			points.add(seg);
+			points.add({x: t.x-toNode.getWidth()/2-2-50*direction, y: controlY});
+			var seg = new twaver.List();
+			seg.add({x: t.x-toNode.getWidth()/2-2-20, y: controlY});
+			seg.add({x: t.x-toNode.getWidth()/2-2-20, y: t.y});
+			seg.add({x: t.x-toNode.getWidth()/2-2-5, y: t.y});
+			points.add(seg);
+		}else{
+			var seg = new twaver.List();	
+			seg.add(pFromNext);
+			seg.add(pToNext2);
+			seg.add(pToNext1);			
+			points.add(seg);
+		}
+		points.add(pTo);
+
+		return points;
+	}
+
+	function highlightNode(box, element){		
+		box.forEach(function(data){
+			if(data instanceof twaver.Node){
+				data.setClient('highlighted', false);		
+				data.setStyle('group.fill.color', '#FFFCFA');
+			}
+			if(data instanceof twaver.Link){
+				highlightLink(data, false);
+			}
+		});
+		if(element){
+			if(element instanceof twaver.Node){
+				element.setClient('highlighted', true);
+				element.setStyle('group.fill.color', highlightedNodeColor);
+				// if (element.getParent()) {
+				// 	console.log(element.getParent().getName());
+				// 	element.setHost(element.getParent());
+				// };
+			}
+			if(element instanceof twaver.Link){
+				highlightLink(element, true);
+			}
+		}
+		//highlight related links.
+		if(element instanceof twaver.Node){
+			var nodes=[];
+			nodes.push(element);
+			if(element.getChildrenSize()>0){
+				nodes=nodes.concat(element.getChildren().toArray());
+			}
+			
+			box.forEach(function(data){
+				if(data instanceof twaver.Link){
+					var link=data;
+					var from=link.getFromAgent();
+					var to=link.getToAgent();
+					if(arrayContains(nodes, from, to)){
+						highlightLink(link, true);
+					}
+				}
+			});
+		}		
+	}
+
+	function highlightLink(link, highlighted){
+		if(highlighted){
+			link.setStyle('link.color', highlightedLinkColor);
+			link.setStyle('link.width', 1);
+			link.setStyle('arrow.to.color', highlightedLinkColor);
+		}else{
+			link.setStyle('link.color','#309FC9');
+			link.setStyle('link.width', 0.5);
+			link.setStyle('arrow.to.color', '#309FC9');
+		}
+	}
+
+	function arrayContains(array, object1, object2) {
+		var i = array.length;
+		while (i--) {
+			if (array[i] === object1 || array[i] === object2) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	function setupData(box){
+
+
+		var bw62=createNode(box, 1100, 320, '表1','icon_apple',195);
+		globalGroup = bw62;
+		// var bw621=createNode(box, 1100, 348, '字段1','icon_apple',bw62);
+		// var bw622=createNode(box, 1100, 376, '字段2','icon_apple',bw62);
+		// var bw623=createNode(box, 1100, 404, '字段3','icon_apple',bw62);
+		// var bw624=createNode(box, 1100, 432, '字段4','icon_apple',bw62);
+
+		var bw71=createNode(box, 1250, 150, '表2', 'icon_apple',155);
+		// var bw711=createNode(box, 1260, 190, '字段1', 'icon_apple', bw71);
+		// var bw712=createNode(box, 1260, 230, '字段2', 'icon_apple', bw71);
+		// var bw713=createNode(box, 1260, 270, '字段3', 'icon_apple', bw71);
+
+		var bw72=createNode(box, 1250, 320, '表3', 'icon_apple',435);
+		// var bw721=createNode(box, 1260, 360, '字段1', 'icon_apple', bw72);
+		// var bw722=createNode(box, 1260, 400, '字段2', 'icon_apple', bw72);
+		// var bw723=createNode(box, 1260, 440, '字段3', 'icon_apple', bw72);
+		// var bw7211=createNode(box, 1260, 480, '字段4', 'icon_apple', bw72);
+		// var bw7222=createNode(box, 1260, 520, '字段5', 'icon_apple', bw72);
+		// var bw7233=createNode(box, 1260, 560, '字段6', 'icon_apple', bw72);
+		// var bw7214=createNode(box, 1260, 620, '字段7', 'icon_apple', bw72);
+		// var bw7225=createNode(box, 1260, 660, '字段8', 'icon_apple', bw72);
+		// var bw7236=createNode(box, 1260, 700, '字段9', 'icon_apple', bw72);
+
+		createLink(box, bw71, bw62);
+		createLink(box, bw71, bw72);
+
+
+		// var bw62=createNode(box, 0, 0, 'MARA:物料号','icon_apple');
+		// var bw621=createNode(box, 0, 0, '字段1','icon_apple',bw62);
+		// var bw622=createNode(box, 0, 0, '字段2','icon_apple',bw62);
+		// var bw623=createNode(box, 0, 0, '字段3','icon_apple',bw62);
+		// var bw624=createNode(box, 0, 0, '字段4','icon_apple',bw62);
+
+		// var bw71=createNode(box, 0, 0, 'EBAN:采购申请', 'icon_apple');
+		// var bw711=createNode(box, 0, 0, '字段1', 'icon_apple', bw71);
+		// var bw712=createNode(box, 0, 0, '字段2', 'icon_apple', bw71);
+		// var bw713=createNode(box, 0, 0, '字段3', 'icon_apple', bw71);
+
+		// var bw72=createNode(box, 0, 0, 'T001W：工厂', 'icon_apple');
+		// var bw721=createNode(box, 0, 0, '字段1', 'icon_apple', bw72);
+		// var bw722=createNode(box, 0, 0, '字段2', 'icon_apple', bw72);
+		// var bw723=createNode(box, 0, 0, '字段3', 'icon_apple', bw72);
+
+		// var bw82=createNode(box, 0, 0, 'T002W：呵呵', 'icon_apple');
+		// var bw821=createNode(box, 0, 0, '字段1', 'icon_apple', bw82);
+		// var bw822=createNode(box, 0, 0, '字段2', 'icon_apple', bw82);
+		// var bw823=createNode(box, 0, 0, '字段3', 'icon_apple', bw82);
+		// var bw824=createNode(box, 0, 0, '字段1', 'icon_apple', bw82);
+		// var bw825=createNode(box, 0, 0, '字段2', 'icon_apple', bw82);
+		// var bw826=createNode(box, 0, 0, '字段3', 'icon_apple', bw82);
+		// var bw827=createNode(box, 0, 0, '字段1', 'icon_apple', bw82);
+		// var bw828=createNode(box, 0, 0, '字段2', 'icon_apple', bw82);
+		// var bw829=createNode(box, 0, 0, '字段3', 'icon_apple', bw82);
+		// var bw830=createNode(box, 0, 0, '字段1', 'icon_apple', bw82);
+		// var bw831=createNode(box, 0, 0, '字段2', 'icon_apple', bw82);
+		// var bw832=createNode(box, 0, 0, '字段3', 'icon_apple', bw82);
+
+		// createLink(box, bw71, bw62);
+		// createLink(box, bw71, bw72);
+		// createLink(box, bw72, bw82);
+
+	}
+
+	// function setupData(box){
+	// 	var erp=createNode(box, 190, 108, 'ERP系统', 'icon_apple');	
+
+	// 	var bw=createNode(box, 340, 108, 'BW系统', 'icon_apple');	
+	// 	var bw1=createNode(box, 350, 150, '数据处理', 'icon_apple', bw);
+	// 	var bw2=createNode(box, 500, 150, '数据模型', 'icon_apple', bw);
+	// 	var bw31=createNode(box, 650, 150, '数据处理', 'icon_apple', bw);
+	// 	var bw32=createNode(box, 650, 190, '应用功能', 'icon_apple', bw);
+	// 	var bw33=createNode(box, 650, 230, '数据接口', 'icon_apple', bw);
+	// 	var bw41=createNode(box, 800, 150, '数据接口', 'icon_apple', bw);
+	// 	var bw42=createNode(box, 800, 190, '数据模型', 'icon_apple', bw);
+	// 	var bw51=createNode(box, 950, 150, '数据处理', 'icon_apple', bw);
+	// 	var bw52=createNode(box, 950, 190, '应用功能', 'icon_apple', bw);
+	// 	var bw53=createNode(box, 950, 230, '数据接口', 'icon_apple', bw);
+
+	// 	var bw531=createNode(box, 965, 270, '/BIC/AM', 'icon_apple', bw53);
+	// 	var bw61=createNode(box, 1100, 150, '数据处理', 'icon_apple', bw);
+	// 	var bw611=createNode(box, 1110, 190, 'ZMM_1', 'icon_apple', bw61);
+	// 	var bw612=createNode(box, 1110, 230, 'ZMM_2', 'icon_apple', bw61);
+	// 	var bw613=createNode(box, 1110, 270, 'ZMM_3', 'icon_apple', bw61);
+
+	// 	var bw62=createNode(box, 1100, 320, '数据接口', 'icon_apple', bw);
+	// 	var bw621=createNode(box, 1110, 360, '/BIC/OC', 'icon_apple', bw62);
+	// 	var bw622=createNode(box, 1110, 400, '/BIC/OC', 'icon_apple', bw62);
+	// 	var bw623=createNode(box, 1110, 440, '/BIC/OC', 'icon_apple', bw62);
+	// 	var bw624=createNode(box, 1110, 480, '/BIC/OC', 'icon_apple', bw62);
+	// 	var bw625=createNode(box, 1110, 520, '/BIC/OC', 'icon_apple', bw62);
+	// 	var bw626=createNode(box, 1110, 560, '/BIC/OC', 'icon_apple', bw62);
+
+	// 	var bw71=createNode(box, 1250, 150, '数据模型', 'icon_apple', bw);
+	// 	var bw711=createNode(box, 1260, 190, 'ZMM_1', 'icon_apple', bw71);
+	// 	var bw712=createNode(box, 1260, 230, 'ZMM_2', 'icon_apple', bw71);
+	// 	var bw713=createNode(box, 1260, 270, 'ZMM_3', 'icon_apple', bw71);
+	// 	var bw72=createNode(box, 1250, 320, '应用功能', 'icon_apple', bw);
+	// 	var bw721=createNode(box, 1260, 360, '/BIC/OC', 'icon_apple', bw72);
+	// 	var bw722=createNode(box, 1260, 400, '/BIC/OC', 'icon_apple', bw72);
+	// 	var bw723=createNode(box, 1260, 440, '/BIC/OC', 'icon_apple', bw72);
+	// 	var bw724=createNode(box, 1260, 480, '/BIC/OC', 'icon_apple', bw72);
+	// 	var bw725=createNode(box, 1260, 520, '/BIC/OC', 'icon_apple', bw72);
+	// 	var bw726=createNode(box, 1260, 560, '/BIC/OC', 'icon_apple', bw72);
+	// 	var bw7261=createNode(box, 1260, 600, 'test', 'icon_apple', bw726);
+	// 	var bw81=createNode(box, 1400, 150, '数据处理', 'icon_apple', bw);
+	// 	var bw82=createNode(box, 1400, 190, '应用功能', 'icon_apple', bw);
+	// 	var bw83=createNode(box, 1400, 230, '数据接口', 'icon_apple', bw);
+	// 	var bw91=createNode(box, 1550, 150, '数据模型', 'icon_apple', bw);
+	// 	var node10=createNode(box, 1700, 108, '数据存储中心', 'icon_apple');	
+	// 	var node11=createNode(box, 1700, 448, '指标管理平台', 'icon_apple');	
+	// 	node10.setClient('width', 130);
+	// 	node11.setClient('width', 130);
+
+	// 	createLink(box, erp, bw1);
+	// 	createLink(box, erp, node10, 50);
+	// 	createLink(box, erp, node11, 660);
+	// 	createLink(box, bw1, bw2);
+	// 	createLink(box, bw1, bw31, 130);
+	// 	createLink(box, bw1, bw42, 280);
+	// 	createLink(box, bw1, bw531, 300);
+	// 	createLink(box, bw2, bw31);
+	// 	createLink(box, bw2, bw32);
+	// 	createLink(box, bw2, bw33);
+	// 	createLink(box, bw32, bw41);
+	// 	createLink(box, bw31, bw42);
+	// 	createLink(box, bw41, node10, 60);
+	// 	createLink(box, bw42, bw51);
+	// 	createLink(box, bw42, bw52);
+	// 	createLink(box, bw42, bw531);
+	// 	createLink(box, bw42, node10, 70);
+	// 	createLink(box, bw51, bw42, 80, [5, 2]);
+	// 	createLink(box, bw51, bw42, 85, [5, 2]);
+	// 	createLink(box, bw51, bw42, 90, [5, 2]);
+	// 	createLink(box, bw51, bw42, 95, [5, 2]);
+	// 	createLink(box, bw52, bw611);
+	// 	createLink(box, bw52, bw612);
+	// 	createLink(box, bw52, bw613);
+	// 	createLink(box, bw52, bw621);
+	// 	createLink(box, bw52, bw622);
+	// 	createLink(box, bw52, bw623);
+	// 	createLink(box, bw52, bw624);
+	// 	createLink(box, bw52, bw625);
+	// 	createLink(box, bw52, bw626);
+	// 	createLink(box, bw531, node11, 655);
+	// 	createLink(box, bw621, node11, 630);
+	// 	createLink(box, bw622, node11, 635);
+	// 	createLink(box, bw623, node11, 640);
+	// 	createLink(box, bw624, node11, 645);
+	// 	createLink(box, bw625, node11, 650);
+	// 	createLink(box, bw611, node10, 80);
+	// 	createLink(box, bw612, node10, 90);
+	// 	createLink(box, bw612, bw711);
+	// 	createLink(box, bw612, bw712);
+	// 	createLink(box, bw612, bw713);
+	// 	createLink(box, bw613, bw721);
+	// 	createLink(box, bw613, bw722);
+	// 	createLink(box, bw613, bw723);
+	// 	createLink(box, bw613, bw724);
+	// 	createLink(box, bw613, bw725);
+	// 	createLink(box, bw613, bw726);
+	// 	createLink(box, bw711, bw81);
+	// 	createLink(box, bw712, bw81);
+	// 	createLink(box, bw713, bw81);
+	// 	createLink(box, bw721, bw82);
+	// 	createLink(box, bw722, bw82);
+	// 	createLink(box, bw723, bw82);
+	// 	createLink(box, bw724, bw83);
+	// 	createLink(box, bw725, bw83);
+	// 	createLink(box, bw726, bw83);
+	// 	createLink(box, bw81, node10, 100);
+	// 	createLink(box, bw82, bw91);
+	// 	createLink(box, bw83, bw91);
+	// 	createLink(box, bw91, node10);
+	// 	createLink(box, bw91, node11);
+	// }
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

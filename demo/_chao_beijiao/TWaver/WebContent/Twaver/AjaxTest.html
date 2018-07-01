@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>test json</title>
+<script type="text/javascript" src="libs/jquery.js"></script>
+</head>
+<body>
+
+<script type="text/javascript">
+	
+	
+		//alert('this is javascript code');
+		
+		//function loadjson(){
+			
+		//$.get('xmldata.xml',function(data){
+			
+		//	alert(data);
+			
+		//});
+		
+//  		function loadxml(){
+		
+// 		$.ajax({
+			
+// 			url: 'xmlData.xml',			
+// 			dataType: 'xml',		
+// 			error:function(xhr,ts){				
+// 				alert("xmlHttpRequest error status is" + ts);
+// 			},
+			
+// 			success:function(xmldata){	
+// 				var d=JSON.parse(data);
+// 				alert(xmldata);//XMLDocument				
+// 			}			
+// 		});
+// 		}
+		
+// 		function loadxml1(){
+			
+// 			$.ajax({				
+// 				url:'xmlData.xml',
+// 				success:function(data){					
+// 					alert(data);//Object
+// 				}
+// 			});			
+// 		}
+		
+// 		function loadjson(){
+			
+// 			$.ajax({				
+// 				url:'jsonData',
+// 				dataType:'json',
+// 				success:function(data){					
+// 					alert(data.key1);	//Object				
+// 				}			
+// 			});			
+// 		}
+		
+// 		function loadjson1(){
+			
+// 			$.ajax({
+				
+// 				url:'jsonData',				
+// 				success:function(data){
+					
+// 					var d=JSON.parse(data);
+// 					alert(d.key1);//不做任何处理……
+// 				}
+// 			});
+// 		}	
+
+		function loadRoom(){
+			
+			$.ajax({
+				
+				url:'room.json',
+				//dataType:'json',
+				error:function(xhr,ts){
+					
+					alert('error code is' + ts);
+				},
+				success:function(data){
+					
+					alert(data);
+					alert(data.primitives[0].id);
+					var d = JSON.parse(data);
+					alert(d.primitives[0].id);
+					
+					//var d=JSON.parse(data);
+					//alert(d.primitives[0].id);
+					//alert(data.primitives[0].id);
+					
+				}
+				
+			});
+			
+		}
+		
+		//loadxml();
+		//loadxml1();
+		//loadjson();
+		//loadjson1();
+		
+		loadRoom();
+	//}
+	//loadjson();
+		
+</script>
+
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="../lib/twaver.js"></script>
+  <script>
+    function init() {
+      var box = new twaver.ElementBox();
+      var network = new twaver.vector.Network(box);
+      
+      document.body.appendChild(network.getView());
+      network.adjustBounds({ x: 0, y: 0, width: 800, height: 600 });
+
+      var group1 = new twaver.Group();
+      group1.setExpanded(false);
+      box.add(group1);
+      
+      var node1 = new twaver.Node();
+      node1.setName('node1');
+      node1.setLocation(200, 100);
+      box.add(node1);
+      group1.addChild(node1);
+      
+      var node2 = new twaver.Node();
+      node2.setName('node2');
+      node2.setLocation(280, 140);
+      box.add(node2);
+      group1.addChild(node2);
+      
+      var link1_2 = new twaver.Link(node1, node2);
+      link1_2.setName('link1_2!');
+      link1_2.setToolTip('<b>link1_2!</b>');
+      box.add(link1_2);
+
+
+
+      var group2 = new twaver.Group();
+      group2.setExpanded(false);
+      group2.setStyle("group.shape","roundrect");
+      // group2.setStyle("group.shape.roundrect.radius",10);
+      // group2.setStyle("group.shape.roundrect.topLeftRadius",30);
+      // group2.setStyle("group.shape.roundrect.topRightRadius",30);
+      // group2.setStyle("group.shape.roundrect.bottomLeftRadius",30);
+      // group2.setStyle("group.shape.roundrect.bottomRightRadius",30);
+      group2.setImage("node_image");
+      box.add(group2);
+
+      var node3 = new twaver.Node();
+      node3.setName('node3');
+      node3.setLocation(500, 100);
+      box.add(node3);
+      group2.addChild(node3);
+      
+      var node4 = new twaver.Node();
+      node4.setName('node4');
+      node4.setLocation(580, 140);
+      box.add(node4);
+      group2.addChild(node4);
+      
+      var link3_4 = new twaver.Link(node3, node4);
+      link3_4.setName('link3_4!');
+      link3_4.setToolTip('<b>link3_4!</b>');
+      box.add(link3_4);
+
+
+
+      var link1_3 = new twaver.Link(node1, node3);
+      link1_3.setName('link1_3!');
+      link1_3.setToolTip('<b>link1_2!</b>');
+      box.add(link1_3);
+
+      var link2_4 = new twaver.Link(node2, node4);
+      link2_4.setName('link2_4!');
+      link2_4.setToolTip('<b>link2_4!</b>');
+      box.add(link2_4);
+
+    }
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

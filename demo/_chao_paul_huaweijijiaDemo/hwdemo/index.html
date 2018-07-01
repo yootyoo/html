@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TWaver HTML5 - HW Demo</title>
+    <meta charset='UTF-8'>
+    <link rel="stylesheet" href="./css/base.css" type="text/css">
+
+    <!-- 引入twaver.js库 -->
+    <script src="./libs/twaver.js"></script>
+
+    <!--      测试数据         -->
+    <script src="./js/json/treeData.js"></script>
+    <script src="./js/json/topoRootData.js"></script>
+    <script src="./js/json/diagramData.js"></script>
+    <script src="./js/json/devicesData.js"></script>
+    <script src="./js/json/wiringDiagram.js"></script>
+
+    <!--      测试接口         -->
+    <script src="./js/__testData.js"></script>
+    <!-- <script src="./js/_testData.js"></script> -->
+
+    <script src="./js/Util.js"></script>
+    <script src="./dataJson.js"></script>
+    <script src="./js/Diagram.js"></script>
+    <script src="./js/NavigationTree.js"></script>
+    <script src="./js/CatalogTree.js"></script>
+    <script src="./js/TopoNetwork.js"></script>
+    <script src="./js/Main.js"></script>
+</head>
+<body onload="init()">
+  <div id='main'>
+    <div id="navigation" class="">
+      <input id="txtNavigation">
+    </div>
+    <div id="catalog" class="">
+      <input id="txtCatalog">
+    </div>
+  </div>
+  <div id='rackEdit'>
+  </div>
+</body>
+</html>

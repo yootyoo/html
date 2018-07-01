@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="pragma" content="no-cache">
+	<title>Scale Link Demo</title>
+	<script type="text/javascript" src="lib/twaver.js"></script>
+	<script type="text/javascript">
+		
+		var demo = {};	
+		
+			//定义左键菜单
+		var leftPopupMenu = function(network){
+     leftPopupMenu.superClass.constructor.apply(this, arguments);
+    };
+
+    twaver.Util.ext('leftPopupMenu', twaver.controls.PopupMenu, {
+        setContextView: function (contextView) {
+            this._contextView = contextView;
+            var view = contextView.getView ? contextView.getView() : contextView;
+             
+            _twaver.html.addEventListener('click', '_handleMouseDown', view, this);
+	    
+        },
+        _handleMouseDown:function(e){
+            if (this.onMenuShowing(e) === true ) {
+                this.show(e);
+            }
+            e.preventDefault();
+        },
+        _handleBodyClicked:function(e){
+
+        }
+    });
+    
+		
+		var box = new twaver.ElementBox();
+		var network = new twaver.canvas.Network(box);
+		var  popupMenu = new leftPopupMenu(network);
+		
+		function init() {
+			
+			// 添加工具条和拓扑
+			var toolbar = document.createElement('div');
+			var pane = new twaver.controls.BorderPane(network, toolbar);
+			pane.setTopHeight(25);
+			var view = pane.getView();
+			view.style.left = '0px';
+			view.style.top = '0px';
+			view.style.right = '0px';
+			view.style.bottom = '0px';
+			document.body.appendChild(view);
+			window.onresize = function () {
+				pane.invalidate();
+			};			
+			
+			network.getView().addEventListener("click", function(event){
+        var hitUI  = network.hitTest(event);
+        if(hitUI instanceof demo.ScaleLinkUI){
+          var point;
+          if (event.target) {
+              point = network.getLogicalPoint(event);
+          } else if(event.event) {
+              point = network.getLogicalPoint(event.event);
+          } else {
+              point = event;
+          }
+          var position = hitUI.hitCanvasRectAtScaleLine(point.x, point.y);
+          if(position === "from"){
+          	hitUI._element.setClient("position","from");
+          }else if(position === "to"){
+          	hitUI._element.setClient("position","to");
+          }else if(position === "center"){
+          	hitUI._element.setClient("position","center");
+          }else{
+          	hitUI._element.setClient("position",null);
+          }
+
+        }
+      });
+			
+			initBox();
+			initPopupMenu();
+		}
+		
+		function initBox () {
+			
+			registerImages();
+			
+			var node1 = new twaver.Node();
+			node1.getAlarmState().increaseNewAlarm(twaver.AlarmSeverity.CRITICAL);
+			node1.setLocation(614, 122);
+			node1.setImage("RAC");
+			node1.setIcon("route_icon");
+			box.add(node1);
+			var node2 = new twaver.Node();
+			node2.setLocation(914, 142);
+			node2.setImage("Tower");
+			node2.setIcon("route_icon");
+			box.add(node2);			
+		
+			var link = createLink(node1, node2, [1,1], ["#ff0000","#00ff00","#646464"]);
+			link.setClient('scaleNumbers', 1); 
+			box.add(link);	
+
+		}
+		
+		function createLink(from, to, percents ,colors){
+			var link = new demo.ScaleLink(from, to);
+			link.setClient('fromFillPercent', percents[0]);
+			link.setClient('toFillPercent', percents[1]);
+			link.setStyle('link.width', 3);
+			link.setStyle('link.color', colors[2]);
+
+			link.setClient('fromFillColor',colors[0]);
+			link.setClient('toFillColor',colors[1]);
+			
+			return link;
+		}		
+		
+		 function registerImages() {				
+				// 注册图片
+				registerImage("images/RAC.png");
+				registerImage("images/Tower.png");       
+			}
+				
+			// 注册图片					
+		 function registerImage(url, svg) {
+        var image = new Image();
+        image.src = url;
+        var views = arguments;
+        image.onload = function () {
+            twaver.Util.registerImage(getImageName(url), image, image.width, image.height, svg === true);
+            image.onload = null;
+            for (var i = 1; i < views.length; i++) {
+                var view = views[i];
+                if (view.invalidateElementUIs) {
+                    view.invalidateElementUIs();
+                }
+                if (view.invalidateDisplay) {
+                    view.invalidateDisplay();
+                }
+            }
+        };
+    	}
+		    	
+	    function getImageName(url) {
+	        var index = url.lastIndexOf('/');
+	        var name = url;
+	        if (index >= 0) {
+	            name = url.substring(index + 1);
+	        }
+	        index = name.lastIndexOf('.');
+	        if (index >= 0) {
+	            name = name.substring(0, index);
+	        }
+	        return name;
+	    }			    			  
+		
+		function randomInt (n) {
+			return Math.floor(Math.random() * n);
+		}
+		
+		function getAngle (p1, p2) {
+			if (p1.x === p2.x) {
+				if (p2.y === p1.y) {
+					return 0;
+				} else if (p2.y > p1.y) {
+					return Math.PI/2;
+				} else {
+					return -Math.PI/2;
+				}
+			}
+			return Math.atan((p2.y - p1.y) / (p2.x - p1.x));
+		}
+		
+			//初始化左键单击菜单  
+     function initPopupMenu() {
+        var lastData, lastPoint, magnifyInteraction;
+        this.popupMenu.onMenuShowing = function (e) {
+            lastData = self.network.getSelectionModel().getLastData();
+            lastPoint = self.network.getLogicalPoint(e);
+            return true;
+        };
+        var self = this;
+        this.popupMenu.onAction = function (menuItem) {
+            if (menuItem.label === 'Remove') {
+                box.remove(lastData);
+            }
+            if (menuItem.label === 'Add Node') {
+                var node = new twaver.Node();
+                node.setParent(self.network.getCurrentSubNetwork());
+                node.setCenterLocation(lastPoint);
+                self.box.add(node);
+            }
+            if (menuItem.label === 'Add Dotted Link') {
+                var link = new twaver.Link();
+                link.setStyle('link.pattern',[10,5]);//Link虚线
+                self.box.add(link);
+            }
+             if (menuItem.label === 'Drill Down') {
+            window.open("interface.html","","resizable=true,top=120,left=200,width=1300,height=620,scrollbars=yes");
+          }
+        };
+        this.popupMenu.isVisible = function (menuItem) {
+            if (magnifyInteraction) {
+                return menuItem.group === 'Magnify';
+            } else {
+                if (lastData) {
+                    if (lastData instanceof twaver.SubNetwork && menuItem.group === 'SubNetwork') {
+                        return true;
+                    }
+                    if (lastData instanceof twaver.Group && menuItem.group === 'Group') {
+                        return true;
+                    }
+                    if (lastData instanceof twaver.Link) {
+                        return true;
+                    }
+                    if (lastData instanceof twaver.Node) {
+                        return  menuItem.group === 'Idicator';
+                    }
+                    return menuItem.group === 'Element';
+                } 
+            }
+        };
+        this.popupMenu.isEnabled = function (menuItem) {
+            if (lastData) {
+                if (lastData instanceof twaver.SubNetwork) {
+                    return true;
+                }
+                if (lastData instanceof twaver.Group && menuItem.group === 'Group') {
+                    var expanded = lastData.isExpanded();
+                    return menuItem.expand ? !expanded : expanded;
+                }
+                if (lastData instanceof twaver.Link && menuItem.group === 'Link') {
+                    var expanded = lastData.getStyle("link.bundle.expanded");
+                    return menuItem.expand ? !expanded : expanded;
+                }
+                if (menuItem.label === 'Clear Alarm') {
+                    return !lastData.getAlarmState().isEmpty();
+                }
+            } else {
+                if (menuItem.label === 'Up SubNetwork') {
+                    return self.network.getCurrentSubNetwork() != null;
+                }
+            }
+            return true;
+        };
+        this.popupMenu.setMenuItems([
+		        {label : "Drill Down", group: 'Element'}, // 下钻
+		         { separator: true, group: 'Element' },
+		        {label : "Idicator Info", group: 'Idicator'},// 指标信息	         
+            { separator: true, group: 'Link' },
+        ]);
+    }       
+    
+// 自定义Link构造函数
+demo.ScaleLink = function(id, from, to) {
+    // 调用基类构造函数
+    demo.ScaleLink.superClass.constructor.call(this, id, from, to);
+    // 设置链路宽度为3个像素
+    this.setStyle('link.width', 3);
+    //this.setStyle('link.color', 'rgba(0, 0, 0, 0)');
+    // 设置Link类型为平行
+    this.setStyle('link.type', 'parallel');
+    // 设置链路捆绑的间距为40
+    this.setStyle('link.bundle.offset', 10);
+    // 设置刻度颜色
+    this.setClient('scaleColor', 'black');
+    // 设置刻度宽度
+    this.setClient('scaleWidth', 1);
+    // 设置刻度个数
+    this.setClient('scaleNumbers', 4);
+    // 设置是否变短
+    this.setClient('shortened', false);
+    // 设置变短后的长度
+    this.setClient('shortenLength', 100);
+    // 设置分割线颜色
+    this.setClient('splitterColor', 'black');
+    // 设置起始填充百分比
+    this.setClient('fromFillPercent', 0);
+    // 设置结束填充百分比
+    this.setClient('toFillPercent', 0);
+};
+// 设置自定义Link继承twaver.Link
+twaver.Util.ext('demo.ScaleLink', twaver.Link, {
+    // 重载获取UI类方法，返回自定义UI类
+  getCanvasUIClass : function () {
+    return demo.ScaleLinkUI;
+  },
+  // 获取起始填充颜色
+  getFromFillColor: function () {
+    return this.getClient("fromFillColor");
+  },
+  // 获取结束填充颜色
+  getToFillColor: function () {
+    return this.getClient("toFillColor");
+  },
+  // 获取起始百分比
+  getFromFillPercent: function () {
+      // 如果是链路捆绑代理，返回所有捆绑链路中填充百分比最大的值
+    if (this.isBundleAgent()) {
+      var fromAgent = this.getFromAgent(),
+        percentKey, maxPercent = 0, percent;
+      this.getBundleLinks().forEachSiblingLink(function (link) {
+        percentKey = fromAgent === link.getFromAgent() ? 'fromFillPercent' : 'toFillPercent';
+        percent = link.getClient(percentKey);
+        maxPercent = percent > maxPercent ? percent : maxPercent;
+      });
+      return maxPercent;
+    } else {
+      return this.getClient('fromFillPercent');
+    }
+  },
+  // 获取结束百分比
+  getToFillPercent: function () {
+      // 如果是链路捆绑代理，返回所有捆绑链路中填充百分比最大的值
+    if (this.isBundleAgent()) {
+      var toAgent = this.getToAgent(),
+        percentKey, maxPercent = 0, percent;
+      this.getBundleLinks().forEachSiblingLink(function (link) {
+        percentKey = toAgent === link.getToAgent() ? 'toFillPercent' : 'fromFillPercent';
+        percent = link.getClient(percentKey);
+        maxPercent = percent > maxPercent ? percent : maxPercent;
+      });
+      return maxPercent;
+    } else {
+      return this.getClient('toFillPercent');
+    }
+  },
+  // 重载获取网元名称方法，判断如果是链路捆绑代理，就返回起始和结束代理节点的名称
+  getName: function () {
+      if (this.getClient('shortened')) {
+          return null;
+      } else if (this.isBundleAgent()) {
+      return this.getFromAgent().getName() + '-' + this.getToAgent().getName();
+    } else {
+      return demo.ScaleLink.superClass.getName.call(this);
+    }
+  }
+});
+		
+// 自定义LinkUI构造函数
+demo.ScaleLinkUI = function(network, element){
+    // 调用基类构造函数
+    demo.ScaleLinkUI.superClass.constructor.call(this, network, element);
+};
+// 设置自定义Link继承twaver.canvas.LinkUI
+twaver.Util.ext('demo.ScaleLinkUI', twaver.canvas.LinkUI, {
+  // 获取Link角度
+  getAngle: function () {
+    return getAngle(this.getFromPoint(), this.getToPoint());
+  },
+  // 获取Link中间点
+  getMiddlePoint: function (from, to, percent) {
+    return {
+        x: from.x + (to.x - from.x) * percent,
+        y: from.y + (to.y - from.y) * percent
+      };
+  },
+  // 画刻度线
+  drawScaleLine: function (from, to, angle, length, ctx, percent, lineWidth, lineColor) {
+      var point = this.getMiddlePoint(from, to, percent);
+      var y = length/2 * Math.sin(angle),
+        x = length/2 * Math.cos(angle);
+      ctx.beginPath();
+      ctx.lineWidth = lineWidth;
+      ctx.strokeStyle = lineColor;
+      ctx.moveTo(point.x + x, point.y + y);
+      ctx.lineTo(point.x - x, point.y -y);
+      ctx.stroke();
+  },
+  // 获取是否将链路变短
+  isShorten: function () {
+    var link = this.getElement();
+    return link.getClient('shortened') && this.getLineLength() > link.getClient('shortenLength') * 2;
+  },
+  // 重载画链路函数，用自定义逻辑画链路
+  paintBody: function (ctx) {
+        var points = this.getLinkPoints(),
+          link = this.getElement();
+        if (!points || points.size() < 2) {
+            return;
+        }
+        
+        var lineLength = this.getLineLength(),
+          shortenLength = link.getClient('shortenLength'),
+          percent = shortenLength / lineLength,
+        from = points.get(0),
+        to = points.get(1),
+        angle = this.getAngle() + Math.PI/2;
+      if (this.isShorten()) {
+          fromPoints = new twaver.List([from, this.getMiddlePoint(from, to, percent)]);
+          toPoints = new twaver.List([this.getMiddlePoint(from, to, 1 - percent), to]);
+          this._paintBody(ctx, fromPoints, angle);
+          this._paintBody(ctx, toPoints, angle);
+          
+          // 画文字
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = 'black';
+      var textCenter = {x: (fromPoints.get(0).x + fromPoints.get(1).x)/2, y: (fromPoints.get(0).y + fromPoints.get(1).y)/2};
+      ctx.fillText(link.getName(), textCenter.x, textCenter.y);
+      
+      textCenter = {x: (toPoints.get(0).x + toPoints.get(1).x)/2, y: (toPoints.get(0).y + toPoints.get(1).y)/2};
+      ctx.fillText(link.getName(), textCenter.x, textCenter.y);
+      
+      ctx.fillText(link.getToNode().getName(), fromPoints.get(1).x, fromPoints.get(1).y);
+      ctx.fillText(link.getFromNode().getName(), toPoints.get(0).x, toPoints.get(0).y);
+        } else {
+          this._paintBody(ctx, points, angle);
+        }
+      
+    // 画起始箭头
+    if (link.getClient('arrow.from')) {
+        twaver.Util.drawArrow(ctx, 12, 9, points, true, 'arrow.standard', true, 'gray', 0, 0, 1, 'black');
+          }
+      // 画结束箭头
+          if (link.getClient('arrow.to')) {
+        twaver.Util.drawArrow(ctx, 12, 9, points, false, 'arrow.standard', true, 'gray', 0, 0, 1, 'black');
+          }
+  },
+  _paintBody: function (ctx, points, angle) {
+        var link = this.getElement(),
+          width = link.getStyle('link.width'),
+          grow = width,
+          outerColor = this.getOuterColor();
+        if (outerColor) {
+            var outerWidth = link.getStyle('outer.width');
+            grow += outerWidth * 2;
+        }
+        var selectBorder = !this.getEditAttachment() && this.getNetwork().isSelected(link);
+        if (selectBorder) {
+            var selectWidth = link.getStyle('select.width');
+            grow += selectWidth * 2;
+        }
+        ctx.lineCap = link.getStyle('link.cap');
+        ctx.lineJoin = link.getStyle('link.join');
+
+        var fromFillPercent = link.getFromFillPercent();
+        var toFillPercent = link.getToFillPercent();
+        var fromFillColor = link.getFromFillColor();
+        var toFillColor = link.getToFillColor();
+        var from = points.get(0);
+        var to = points.get(1);
+        var fromEnd = {
+          x: from.x + (to.x - from.x) / 2 * fromFillPercent, 
+          y: from.y + (to.y - from.y) / 2 * fromFillPercent
+        };
+        var fromPoints = new twaver.List([from, fromEnd]);
+        var toEnd = {
+          x: to.x + (from.x - to.x) / 2 * toFillPercent,
+          y: to.y + (from.y - to.y) / 2 * toFillPercent
+        }
+        var toPoints = new twaver.List([to, toEnd]);
+        var middlePoints = new twaver.List([fromEnd, toEnd]);
+
+        // 画选中边框
+        if (selectBorder) {
+            var position = this._element.getClient("position");
+            if(position){
+              if(position === "from"){
+                this.drawLinePoints(ctx, fromPoints, grow, link.getStyle('select.color'));
+              }else if(position === "to"){
+                this.drawLinePoints(ctx, toPoints, grow, link.getStyle('select.color'));
+              }else{
+                this.drawLinePoints(ctx, middlePoints, grow, link.getStyle('select.color'));
+              }
+            }
+        }
+        // 画边框
+        if (outerColor) {
+            this.drawLinePoints(ctx, points, width + outerWidth * 2, outerColor);
+        }
+
+        // 画起始填充色
+        this.drawLinePoints(ctx, fromPoints, width, fromFillColor);
+        // 画结束填充色
+        this.drawLinePoints(ctx, toPoints, width, toFillColor);
+        // 画中间填充色
+        this.drawLinePoints(ctx, middlePoints, width, this.getInnerColor() || link.getStyle('link.color'));
+      
+      from = points.get(0);
+      to = points.get(1);
+      var scaleWidth = link.getClient('scaleWidth'),
+        scaleColor = link.getClient('scaleColor');
+      // 画刻度
+      for (var i = 1, n = link.getClient('scaleNumbers') * 2; i < n; i++) {
+        this.drawScaleLine(from, to, angle, width/2, ctx, i/n, scaleWidth, scaleColor);
+      }
+      // 画分隔线
+      this.drawScaleLine(from, to, angle, width, ctx, 0.5, 3, link.getClient('splitterColor'));
+  },
+
+   hitCanvasRectAtScaleLine: function(x, y){      
+        var points = this.getLinkPoints();
+        if (!points || points.size() < 2){
+            return;
+        }
+        var from = points.get(0);
+        var to = points.get(1);
+        var fromEnd = {
+          x: from.x + (to.x - from.x) / 2 , 
+          y: from.y + (to.y - from.y) / 2 
+        };
+     		var fromMin = Math.min.apply(null, [from.x,fromEnd.x]);
+     		var fromMax = Math.max.apply(null, [from.x,fromEnd.x]);
+     		
+        var toEnd = {
+          x: to.x + (from.x - to.x) / 2 ,
+          y: to.y + (from.y - to.y) / 2
+        }       
+        var toMin = Math.min.apply(null, [to.x,toEnd.x]);
+     		var toMax = Math.max.apply(null, [to.x,toEnd.x]);
+
+        if(x <= fromMax && x >= fromMin){
+          return "from";       
+        }else if(x <= toMax && x >= toMin){
+          return "to";
+        }else{
+          return null;
+        }                  	 
+  }
+});						
+
+	</script>
+</head>
+<body onload="init()">
+</body>
+</html>

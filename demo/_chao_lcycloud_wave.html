@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="../lib/twaver.js"></script>
+  <script>
+
+    function canvasToDescartes(canvasPoint,baseCanvasPoint){
+      return {
+        x : canvasPoint.x - baseCanvasPoint.x,
+        y : baseCanvasPoint.y - canvasPoint.y
+      }
+    }
+    function descartesToCanvas(descartesPoint,baseCanvasPoint){
+      return {
+        x : baseCanvasPoint.x + descartesPoint.x,
+        y : baseCanvasPoint.y - descartesPoint.y
+      }
+    }
+
+    function rotateChange(changePoint,basePoint,angle){
+      var rotateInDescartes = function(descartesPoint,angle){
+        return {
+          x : descartesPoint.x * Math.cos(angle) - descartesPoint.y * Math.sin(angle),
+          y : descartesPoint.x * Math.sin(angle) + descartesPoint.y * Math.cos(angle)
+        }
+      };
+      var descartesPoint = canvasToDescartes(changePoint,basePoint);
+      var rotatedDescartesPoint = rotateInDescartes(descartesPoint,angle);
+      return descartesToCanvas(rotatedDescartesPoint,basePoint);
+    }
+
+    function init() {
+      var box = new twaver.ElementBox();
+      var network = new twaver.vector.Network(box);
+      
+      document.body.appendChild(network.getView());
+      network.adjustBounds({ x: 0, y: 0, width: 800, height: 800 });
+      
+      var node1 = new twaver.Node();
+      node1.setName('TWaver');
+      node1.setLocation(100, 100);
+      box.add(node1);
+      
+      var node2 = new twaver.Node();
+      node2.setName('HTML5');
+      node2.setLocation(400, 500);
+      box.add(node2);
+      
+      var link = new twaver.Link(node1, node2);
+      link.setName('Hello!');
+      link.setToolTip('<b>Hello!</b>');
+      link.setClient("wavelength",8* Math.PI);
+      link.setClient("amplitude",16);
+      box.add(link);
+
+      network.setLinkPathFunction(createLinkPath); 
+
+    }
+
+    function createLinkPath(linkUI, defaultPoints){
+        var f = linkUI.getFromPoint();
+        var t = linkUI.getToPoint();        
+        var fromNode=linkUI.getElement().getFromAgent();
+        var toNode=linkUI.getElement().getToAgent();
+
+        var points = new twaver.List();
+        var linkDistance = Math.sqrt((f.x-t.x)*(f.x-t.x) + (f.y-t.y)*(f.y-t.y));
+
+        var angle= getAngleInDescartes(f, t);
+        var cx;
+        var cy;
+        var centerPoint;
+        points.add(f);
+        var wavelength = linkUI._element.getClient("wavelength");
+        var amplitude = linkUI._element.getClient("amplitude");
+        var i;
+        var waveCount = (linkDistance - wavelength/4) * 2/wavelength;
+        for(i=0;i<waveCount;i++){
+          cx = f.x + (wavelength/4 +wavelength*i/2) * (t.x-f.x)/linkDistance;
+          cy = f.y - (wavelength/4 +wavelength*i/2) * (f.y-t.y)/linkDistance;
+          centerPoint = {
+            x: cx,
+            y: cy
+          }
+          var p1,p2,pe;
+          var k = Math.PI - wavelength/amplitude/Math.PI;
+          if(i%2 === 0){
+            p1 = rotateChange({
+              x : cx - k,
+              y : cy - amplitude
+            },centerPoint, angle);
+            p2 = rotateChange({
+              x : cx + k,
+              y : cy - amplitude
+            },centerPoint, angle);
+            pe = rotateChange({
+              x : cx + wavelength/4,
+              y : cy
+            },centerPoint, angle);
+
+          }else{
+            p1 = rotateChange({
+              x : cx - k,
+              y : cy + amplitude
+            },centerPoint, angle);
+            p2 = rotateChange({
+              x : cx + k,
+              y : cy + amplitude
+            },centerPoint, angle);
+            pe = rotateChange({
+              x : cx + wavelength/4,
+              y : cy
+            },centerPoint, angle);
+          }
+          var seg = new twaver.List();
+          seg.add(p1);
+          seg.add(p2);
+          seg.add(pe);
+          points.add(seg);
+        }
+        points.add(t);
+
+        return points;
+    }
+
+    function getAngleInDescartes(p1, p2){
+      if(p1.x > p2.x){
+        return Math.atan((p1.y - p2.y) / (p2.x - p1.x)) + Math.PI;
+      }else if(p1.x < p2.x){
+        return Math.atan((p1.y - p2.y) / (p2.x - p1.x));
+      }else{
+        if(p2.y == p1.y){
+          return 0;
+        }
+        else if(p2.y > p1.y){
+          return Math.PI/2;
+        }
+        else{
+          return -Math.PI/2;
+        }
+      }
+    }
+
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

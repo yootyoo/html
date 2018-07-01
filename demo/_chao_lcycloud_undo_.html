@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="../lib/twaver.js"></script>
+  <script>
+    function init() {
+      var box = new twaver.ElementBox();
+      var network = new twaver.vector.Network(box);
+      
+      document.getElementById('main').appendChild(network.getView());
+      network.adjustBounds({ x: 0, y: 0, width: 500, height: 500 });
+
+      var node1 = new twaver.Node("node1");
+      box.add(node1);
+
+      var node2 = new twaver.Node("node2");
+      box.add(node2);
+
+      var link = new twaver.Link("link",node1, node2);
+      box.add(link);
+
+      initProperty(box);
+
+      document.getElementById("refresh").addEventListener("click",function(){
+        // document.getElementById('main').removeChild(network.getView());
+        // network = new twaver.vector.Network(box);
+        // document.getElementById('main').appendChild(network.getView());
+        // network.adjustBounds({ x: 0, y: 0, width: 500, height: 500 });
+        initProperty(box);
+        network.zoomReset();
+        console.log(network.getViewRect().x);
+        console.log(network.getViewRect().y);
+        // network.setViewRect(0,0,500,500);
+        
+      });
+
+    }
+
+
+    function initProperty(box){
+      var quickfinder = new twaver.QuickFinder(box, "id");
+      var node1 = quickfinder.findFirst("node1");
+      var node2 = quickfinder.findFirst("node2");
+      var link = quickfinder.findFirst("link");
+      node1.setName('TWaver');
+      node1.setLocation(100, 100);
+
+      node2.setName('HTML5');
+      node2.setLocation(300, 200);
+      
+      link.setName('Hello!');
+      link.setToolTip('<b>Hello!</b>');
+    }
+  </script>
+</head>
+<body onload="init()">
+  <div>
+    <input style="margin-left:10%;" type="button" value="refresh" id="refresh"/>
+  </div>
+  <div id="main" style="position:absolute;"></div>
+</body>
+</html>

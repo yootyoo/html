@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="../lib/twaver.js"></script>
+  <script>
+    function init() {
+      var box = new twaver.ElementBox();
+      var network = new twaver.vector.Network(box);
+      
+      document.body.appendChild(network.getView());
+      network.adjustBounds({ x: 0, y: 0, width: document.documentElement.clientWidth, height: document.documentElement.clientHeight});
+
+      var group = new twaver.Group();
+      group.setExpanded(true);
+      group.setStyle("group.shape", "roundrect");
+      box.add(group);
+      
+      for (var k = 0; k < 2; k++) {
+            var ip = "192.168." + k + ".";
+            var count = 0;
+            var root = new twaver.Node();
+            root.setName(ip + count++);
+            root.setParent(group);
+            box.add(root);
+
+            for (var i = 0; i < 3; i++) {
+                var iNode = new twaver.Node();
+                iNode.setName(ip + count++);
+                iNode.setParent(group);
+                box.add(iNode);
+                var link = new twaver.Link(root, iNode);
+                link.setStyle('link.width', 2);
+                link.setStyle('link.color', '#00FF00');
+                box.add(link);
+                for (var j = 0; j < 9; j++) {
+                    var jNode = new twaver.Follower();
+                    jNode.setName(ip + count++);
+                    jNode.setParent(group);
+                    jNode.setHost(iNode);
+                    box.add(jNode);
+                    link = new twaver.Link(iNode, jNode);
+                    link.setStyle('link.width', 2);
+                    link.setStyle('link.color', '#00FF00');
+                    box.add(link);
+                }
+            }
+        }
+        var autoLayouter = new twaver.layout.AutoLayouter(box);
+        autoLayouter.doLayout("round");
+    }
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

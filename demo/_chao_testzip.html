@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script type="text/javascript" src="../lib/twaver.js"></script>
+    <script type="text/javascript">
+	var network = new twaver.network.Network();
+	var node2 = new twaver.Node();
+	function init(){
+	var box = network.getElementBox();
+	var node = new twaver.Node();
+	node.setName("from");
+	node.setLocation(100, 100);
+	box.add(node);
+
+	node2.setName("to");
+	node2.setLocation(300, 1200);
+	box.add(node2);
+	var link = new twaver.Link(node, node2);
+	box.add(link);
+	
+	var networkDom = network.getView();
+	networkDom.style.width = "60%";
+	networkDom.style.height = "60%";
+	document.body.appendChild(networkDom);
+}
+       
+    </script>
+</head>
+<body onload="init()">
+    <input type="button" onclick="network.setZoom(5,false);network.makeVisible(node2);" value="µã»÷"></input>
+</body>
+</html>

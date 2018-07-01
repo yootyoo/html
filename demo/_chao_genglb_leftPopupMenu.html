@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="../lib/twaver.js"></script>
+  <script>
+
+    var leftPopupMenu = function(contextView){
+      leftPopupMenu.superClass.constructor.apply(this, arguments);
+    };
+
+    twaver.Util.ext('leftPopupMenu', twaver.controls.PopupMenu, {
+        setContextView: function (contextView) {
+            this._contextView = contextView;
+            var view = contextView.getView ? contextView.getView() : contextView;
+            _twaver.html.addEventListener('click', '_handleMouseDown', view, this);
+        },
+        _handleMouseDown:function(e){
+            if (this.onMenuShowing(e) === true ) {
+                this.show(e);
+            }
+            e.preventDefault();
+        },
+        _handleBodyClicked:function(e){
+
+        }
+    });
+
+    var box = new twaver.ElementBox();
+    var network = new twaver.vector.Network(box);
+    var popupMenu = new leftPopupMenu(network);
+    function init() {
+      
+      network.setToolTipEnabled(false);
+      document.body.appendChild(network.getView());
+      network.adjustBounds({ x: 0, y: 0, width: document.documentElement.clientWidth, height: document.documentElement.clientHeight });
+      
+      var node1 = new twaver.Node();
+      node1.setName('TWaver');
+      node1.setLocation(100, 100);
+      box.add(node1);
+      
+      var node2 = new twaver.Node();
+      node2.setName('HTML5');
+      node2.setLocation(300, 200);
+      box.add(node2);
+      
+      var link = new twaver.Link(node1, node2);
+      link.setName('Hello!');
+      link.setToolTip('<b>Hello!</b>');
+      box.add(link);
+
+      initPopupMenu();
+
+    }
+
+
+    function initPopupMenu() {
+        var lastData, lastPoint, magnifyInteraction;
+        this.popupMenu.onMenuShowing = function (e) {
+            lastData = self.network.getSelectionModel().getLastData();
+            lastPoint = self.network.getLogicalPoint(e);
+            magnifyInteraction = null;
+            self.network.getInteractions().forEach(function (interaction) {
+                if (interaction instanceof twaver.network.interaction.MagnifyInteraction
+                        || interaction instanceof twaver.canvas.interaction.MagnifyInteraction) {
+                    magnifyInteraction = interaction;
+                }
+            });
+            return true;
+        };
+        var self = this;
+        this.popupMenu.onAction = function (menuItem) {
+            if (menuItem.label === 'Expand Group'
+                    || menuItem.label === 'Collapse Group') {
+                lastData.reverseExpanded();
+            }
+            if (menuItem.label === 'Enter SubNetwork') {
+                self.network.setCurrentSubNetwork(lastData);
+            }
+            if (menuItem.label === 'Up SubNetwork') {
+                self.network.upSubNetwork();
+            }
+            if (menuItem.label === 'Expand LinkBundle'
+                    || menuItem.label === 'Collapse LinkBundle') {
+                lastData.reverseBundleExpanded();
+            }
+            if (menuItem.label === 'Critical') {
+                lastData.getAlarmState().increaseNewAlarm(twaver.AlarmSeverity.CRITICAL, 1);
+            }
+            if (menuItem.label === 'Major') {
+                lastData.getAlarmState().increaseNewAlarm(twaver.AlarmSeverity.MAJOR, 1);
+            }
+            if (menuItem.label === 'Minor') {
+                lastData.getAlarmState().increaseNewAlarm(twaver.AlarmSeverity.MINOR, 1);
+            }
+            if (menuItem.label === 'Warning') {
+                lastData.getAlarmState().increaseNewAlarm(twaver.AlarmSeverity.WARNING, 1);
+            }
+            if (menuItem.label === 'Indeterminate') {
+                lastData.getAlarmState().increaseNewAlarm(twaver.AlarmSeverity.INDETERMINATE, 1);
+            }
+            if (menuItem.label === 'Clear Alarm') {
+                lastData.getAlarmState().clear();
+            }
+            if (menuItem.label === 'Remove') {
+                self.box.remove(lastData);
+            }
+            if (menuItem.label === 'Add Node') {
+                var node = new twaver.Node();
+                node.setParent(self.network.getCurrentSubNetwork());
+                node.setCenterLocation(lastPoint);
+                self.box.add(node);
+            }
+        };
+        this.popupMenu.isVisible = function (menuItem) {
+            if (magnifyInteraction) {
+                return menuItem.group === 'Magnify';
+            } else {
+                if (lastData) {
+                    if (lastData instanceof twaver.SubNetwork && menuItem.group === 'SubNetwork') {
+                        return true;
+                    }
+                    if (lastData instanceof twaver.Group && menuItem.group === 'Group') {
+                        return true;
+                    }
+                    if (lastData instanceof twaver.Link && menuItem.group === 'Link') {
+                        return true;
+                    }
+                    return menuItem.group === 'Element';
+                } else {
+                    return menuItem.group === 'none';
+                }
+            }
+        };
+        this.popupMenu.isEnabled = function (menuItem) {
+            if (lastData) {
+                if (lastData instanceof twaver.SubNetwork) {
+                    return true;
+                }
+                if (lastData instanceof twaver.Group && menuItem.group === 'Group') {
+                    var expanded = lastData.isExpanded();
+                    return menuItem.expand ? !expanded : expanded;
+                }
+                if (lastData instanceof twaver.Link && menuItem.group === 'Link') {
+                    var expanded = lastData.getStyle("link.bundle.expanded");
+                    return menuItem.expand ? !expanded : expanded;
+                }
+                if (menuItem.label === 'Clear Alarm') {
+                    return !lastData.getAlarmState().isEmpty();
+                }
+            } else {
+                if (menuItem.label === 'Up SubNetwork') {
+                    return self.network.getCurrentSubNetwork() != null;
+                }
+            }
+            return true;
+        };
+        this.popupMenu.setMenuItems([
+            { label: 'Remove', group: 'Element' },
+            { label: 'Add Alarm', group: 'Element', 
+                     items:[{label:'Critical', group:'Element'},
+                            {label:'Major', group:'Element'},
+                            {label:'Minor', group:'Element'},
+                            {label:'Warning', group:'Element'},
+                            {label:'Indeterminate', group:'Element'}] },
+            { label: 'Clear Alarm', group: 'Element' },
+            { separator: true, group: 'Element' },
+            { label: 'Expand LinkBundle', group: 'Link', expand: true },
+            { label: 'Collapse LinkBundle', group: 'Link' },
+            { separator: true, group: 'Link' },
+            { label: 'Expand Group', group: 'Group', expand: true },
+            { label: 'Collapse Group', group: 'Group' },
+            { separator: true, group: 'Group' },
+            { label: 'Enter SubNetwork', group: 'SubNetwork' },
+
+            { label: 'Add Node', group: 'none', icon: '../images/toolbar/node_icon.png' },
+            { label: 'Up SubNetwork', group: 'none' },
+            { label: 'Shape', group: 'Magnify', items: [
+                { label: 'rectangle', type: 'radio', groupName: 'Shape', group: 'Magnify', action: function () {
+                    magnifyInteraction.setShape('rectangle');
+                    magnifyInteraction.setYRadius(magnifyInteraction.getXRadius());
+                } },
+                { label: 'roundrect', type: 'radio', groupName: 'Shape', group: 'Magnify', action: function () {
+                    magnifyInteraction.setShape('roundrect');
+                    magnifyInteraction.setYRadius(magnifyInteraction.getXRadius());
+                } },
+                { label: 'oval', type: 'radio', groupName: 'Shape', group: 'Magnify', action: function () {
+                    magnifyInteraction.setShape('oval');
+                    magnifyInteraction.setYRadius(magnifyInteraction.getXRadius() * 0.75);
+                } },
+                { label: 'round', type: 'radio', groupName: 'Shape', selected: true, group: 'Magnify', action: function () {
+                    magnifyInteraction.setShape('round');
+                    magnifyInteraction.setYRadius(magnifyInteraction.getXRadius());
+                } },
+                { label: 'star', type: 'radio', groupName: 'Shape', group: 'Magnify', action: function () {
+                    magnifyInteraction.setShape('star');
+                    magnifyInteraction.setYRadius(magnifyInteraction.getXRadius());
+                } },
+            ] },
+            { label: 'Zoom', group: 'Magnify', items: [
+                { label: 2, type: 'radio', groupName: 'Zoom', selected: true, group: 'Magnify', action: function () { magnifyInteraction.setZoom(2); } },
+                { label: 3, type: 'radio', groupName: 'Zoom', group: 'Magnify', action: function () { magnifyInteraction.setZoom(3); } },
+                { label: 4, type: 'radio', groupName: 'Zoom', group: 'Magnify', action: function () { magnifyInteraction.setZoom(4); } }
+            ] },
+            { label: 'Size', group: 'Magnify', items: [
+                { label: 50, type: 'radio', groupName: 'Size', group: 'Magnify', action: function () { magnifyInteraction.setXRadius(50); magnifyInteraction.setYRadius(50); } },
+                { label: 100, type: 'radio', groupName: 'Size', selected: true, group: 'Magnify', action: function () { magnifyInteraction.setXRadius(100); magnifyInteraction.setYRadius(100); } },
+                { label: 200, type: 'radio', groupName: 'Size', group: 'Magnify', action: function () { magnifyInteraction.setXRadius(200); magnifyInteraction.setYRadius(200); } }
+            ] },
+            { label: 'BorderWidth', group: 'Magnify', items: [
+                { label: '1', type: 'radio', groupName: 'BorderWidth', selected: true, group: 'Magnify', action: function () { magnifyInteraction.setBorderWidth(1); } },
+                { label: '2', type: 'radio', groupName: 'BorderWidth', group: 'Magnify', action: function () { magnifyInteraction.setBorderWidth(2); } },
+                { label: '3', type: 'radio', groupName: 'BorderWidth', group: 'Magnify', action: function () { magnifyInteraction.setBorderWidth(3); } }
+            ] },
+            { label: 'BorderColor', group: 'Magnify', items: [
+                { label: 'black', type: 'radio', groupName: 'BorderColor', selected: true, group: 'Magnify', action: function () { magnifyInteraction.setBorderColor('black'); } },
+                { label: 'green', type: 'radio', groupName: 'BorderColor', group: 'Magnify', action: function () { magnifyInteraction.setBorderColor('green'); } },
+                { label: 'blue', type: 'radio', groupName: 'BorderColor', group: 'Magnify', action: function () { magnifyInteraction.setBorderColor('blue'); } }
+            ] },
+            { label: 'BackgroundColor', group: 'Magnify', items: [
+                { label: 'white', type: 'radio', groupName: 'BackgroundColor', selected: true, group: 'Magnify', action: function () { magnifyInteraction.setBackgroundColor('white'); } },
+                { label: 'transparent', type: 'radio', groupName: 'BackgroundColor', group: 'Magnify', action: function () { magnifyInteraction.setBackgroundColor('transparent'); } },
+                { label: 'black', type: 'radio', groupName: 'BackgroundColor', group: 'Magnify', action: function () { magnifyInteraction.setBackgroundColor('black'); } }
+            ] }
+        ]);
+    }
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

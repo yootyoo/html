@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script type="text/javascript" src="../lib/twaver.js"></script>
+  <script>
+
+    var CNetwork = function (box) {
+      CNetwork.superClass.constructor.apply(this, arguments);
+    }
+    twaver.Util.ext('CNetwork', twaver.vector.Network, {
+      getLabel:function(){
+        var label = CNetwork.superClass.getLabel.apply(this, arguments);
+        if(label.length > 10){
+          return label.substring(0,3)+"...";
+        }else{
+          return label;
+        }
+      }
+    });
+    function init() {
+      var box = new twaver.ElementBox();
+      var network = new CNetwork(box);
+      // network.setPanInteractions();
+      // network.setInteractions([new twaver.network.interaction.PanInteraction(network),new twaver.network.interaction.DefaultInteraction(network)]);
+      
+      document.body.appendChild(network.getView());
+      network.adjustBounds({ x: 0, y: 0, width: 500, height: 500 });
+
+      // network.setDragToPan(false);
+      
+      var node1 = new twaver.Node();
+      var nameString = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+      node1.setStyle("label.color","rgba(255,0,0,0.1)");
+      node1.setName(nameString);
+      node1.setToolTip(nameString);
+
+      node1.setLocation(100, 100);
+      node1.setStyle("outer.shape","rectangle");
+      node1.setStyle("outer.color", "#ff0000");
+      node1.setStyle("outer.width", 2);
+      node1.setStyle("outer.padding", 10);
+      node1.setStyle("outer.padding.left", 0);
+      node1.setStyle("outer.padding.right", 0);
+      node1.setStyle("outer.padding.top", 10);
+      node1.setStyle("outer.padding.bottom", 0);
+      node1.setStyle("outer.cap", "butt");
+      node1.setStyle("outer.join", "bevel");
+
+
+      box.add(node1);
+      
+      var node2 = new twaver.Node();
+      node2.setName('HTML5');
+      node2.setLocation(300, 200);
+      box.add(node2);
+
+      var node3 = new twaver.Node();
+      node3.setName('HTML');
+      node3.setLocation(200, 150);
+
+      box.add(node3);
+      
+      var link = new twaver.Link(node1, node2);
+      link.setName('Hello!');
+      link.setToolTip('<b>Hello!</b>');
+      link.setStyle("outer.shape","circle");
+      link.setStyle("outer.color", "#ff0000");
+      link.setStyle("outer.width", 8);
+      link.setStyle("outer.padding", 100);
+      link.setStyle("outer.padding.left", 0);
+      link.setStyle("outer.padding.right", 0);
+      link.setStyle("outer.padding.top", 10);
+      link.setStyle("outer.padding.bottom", 0);
+      link.setStyle("outer.cap", "round");
+      link.setStyle("outer.join", "miter");
+      box.add(link);
+
+      // box.sendToTop(node3);
+
+      var node4 = new twaver.Node();
+      node4.setName('HTML');
+      node4.setLocation(600, 150);
+
+      box.add(node4);
+
+      
+    }
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

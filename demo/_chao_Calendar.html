@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script type="text/javascript" src="../lib/twaver.js"></script>
+  <script>
+
+   var nodeIdMap = {};
+   var box = new twaver.ElementBox();
+   var network = new twaver.vector.Network(box);
+   var monthModeLine = 6;
+   function init() {
+      var mode = "month";
+      var width = 1200;
+      var height = 1000;
+
+      var date = date || new Date(),
+         month = date.getMonth(), 
+         year = date.getFullYear(), 
+         first = new Date(year, month, 1), 
+         last = new Date(year, month + 1, 0),
+         startingDay = first.getDay(), 
+         thedate = new Date(year, month, 1 - startingDay),
+         // dayclass = lastmonthcss,
+         today = new Date(),
+         i, j; 
+      if (mode === 'week') {
+         thedate = new Date(date);
+         thedate.setDate(date.getDate() - date.getDay());
+         first = new Date(thedate);
+         last = new Date(thedate);
+         last.setDate(last.getDate()+6);
+      } else if (mode === 'day') {
+         thedate = new Date(date);
+         first = new Date(thedate);
+         last = new Date(thedate);
+         last.setDate(thedate.getDate() + 1);
+      }
+
+      var layerBox = box.getLayerBox();
+      
+      document.body.appendChild(network.getView());
+      network.adjustBounds({ x: 0, y: 0, width: width, height: height });
+
+      var layer0 = new twaver.Layer("layer0");
+      layerBox.add(layer0);
+      var layer1 = new twaver.Layer("layer1");
+      layerBox.add(layer1);
+
+      for(i=0; i<monthModeLine; i++){
+         for(j=0; j<7; j++){
+            var node = createDateNode(thedate.getDate(),i,j);
+            node.setLayerId(layer0.getId());
+            box.add(node);
+            thedate.setDate(thedate.getDate() + 1);
+         }
+      }
+
+      layout();
+
+      // var node0 = new twaver.Node();
+      // node0.setLayerId(layer0.getId());
+      // node0.setSize(400,300);
+      // node0.setLocation(500,300);
+      // node0.setStyle('body.type', 'vector');
+      // node0.setStyle('vector.shape', "rectangle");
+      // box.add(node0);
+
+      // var node1 = new twaver.Node();
+      // node1.setLayerId(layer1.getId());
+      // node1.setLocation(700,450);
+      // box.add(node1);
+
+      // var node2 = new twaver.Node();
+      // node2.setLayerId(layer1.getId());
+      // node2.setLocation(200,100);
+      // box.add(node2);
+
+      // var myLayer;
+      // if(layerBox.contains("layer0")){
+      //   myLayer = layerBox.getDataById("layer0");
+      // }else{
+      //   myLayer = new twaver.Layer("layer0");
+      // }
+
+
+      
+   };
+   var createDateNode = function(name,i,j){
+      var node = new twaver.Node();
+      node.setName(name);
+      node.setMovable(false);
+      node.setStyle('body.type', 'vector');
+      node.setStyle('vector.shape', 'rectangle');
+      var nodeId = i+"+"+j;
+      nodeIdMap[nodeId] = node;
+      node.setClient("nodeId",nodeId);
+      return node;
+   };
+
+   var layout= function(){
+      var viewRect = network.getViewRect();
+      var viewWidth = viewRect.width;
+      var viewHeight = viewRect.height;
+      var dateNodeWidth = 0.13 * viewWidth;
+      var dateNodeHeight = 120;
+      var i,j;
+      for(i=0; i<monthModeLine; i++){
+         for(j=0; j<7; j++){
+            var x = (1.5 * 0.01 + j * 0.14) * viewWidth;
+            var y = 100 + i* dateNodeHeight + i* 0.01* viewWidth;
+            setNodeSizeAndPosition(i+"+"+j, x, y,dateNodeWidth, dateNodeHeight);
+         }
+      }
+   };
+   var setNodeSizeAndPosition = function(nodeId,x,y,width,height){
+      var node = nodeIdMap[nodeId];
+      node.setLocation(x,y);
+      if(node.getName()){
+        node.setStyle('label.xoffset',width/2-10);
+        node.setStyle('label.yoffset',-20);
+      }
+      node.setSize(width,height);
+   };
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

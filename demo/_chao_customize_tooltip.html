@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta http-equiv="pragma" content="no-cache">
+   <title></title>
+   <script type="text/javascript" src="../lib/twaver.js"></script>
+   <script type="text/javascript">
+      
+      var box = new twaver.ElementBox();
+      var network = new twaver.network.Network(box);
+      var toolbar = document.createElement('div');
+      
+      function init () {
+         initToolbar();
+         var pane = new twaver.controls.BorderPane(network, toolbar);
+         pane.setTopHeight(25);
+         var view = pane.getView();
+         view.style.left = '0px';
+         view.style.top = '0px';
+         view.style.right = '0px';
+         view.style.bottom = '0px';
+         document.body.appendChild(view);
+         window.onresize = function () {
+            pane.invalidate();
+         };
+      
+         network.getToolTip = function (data) {
+            if (!data.getToolTip()) {
+               var pieChart = new twaver.charts.PieChart();
+               pieChart.formatValueText = function (value, data) {
+                  return value.toFixed(1);
+               };
+               createPieChartElement("Sprint", 23, 'BLUE', pieChart);
+               createPieChartElement("Verizon", 26, 'YELLOW', pieChart);
+               createPieChartElement("AT&T", 26, 'GREEN', pieChart);
+               createPieChartElement("T-Mobile", 11, 'MAGENTA', pieChart);
+               createPieChartElement("Alltel", 5, 'CYAN', pieChart);
+               createPieChartElement("Rest", 9, 'RED', pieChart);
+               var pieChartPane = new twaver.charts.ChartPane(pieChart);
+               pieChartPane.adjustBounds({ x: 0, y: 0, width: 200, height: 200 });
+               data.setToolTip(pieChartPane.getView());
+               twaver.Util.getToolTipDiv().style.width = '200px';
+               twaver.Util.getToolTipDiv().style.height = '200px';
+            }
+            return data.getToolTip();
+         };
+         initBox();
+      }
+
+      function createPieChartElement (name, value, color, pieChart) {
+        var element = new twaver.Element();
+        element.setName(name);
+        element.setStyle('chart.value', value);
+        element.setStyle('chart.color', color);
+        pieChart.getDataBox().add(element);
+        return element;
+    }
+      
+      function initBox () {
+          from = new twaver.Node();
+          from.setName('From');
+          from.setLocation(400, 100);
+          box.add(from);
+          
+          var to = new twaver.Node();
+          to.setName('To');
+          to.setLocation(300, 300);
+          box.add(to);
+          
+          var link = new twaver.Link(from, to);
+          link.setName('Link');
+          box.add(link);
+      }
+      
+      function initToolbar() {
+         addButton(toolbar, 'Zoom In', function () {
+            network.zoomIn();
+         });
+         addButton(toolbar, 'Zoom Out', function () {
+            network.zoomOut();
+         });
+         addButton(toolbar, 'Zoom Overview', function () {
+            network.zoomOverview();
+         });
+         addButton(toolbar, 'Zoom Reset', function () {
+            network.zoomReset();
+         });
+      }
+      
+      function addButton(toolbar, label, handler) {
+        var button = document.createElement('input');
+         button.type = 'button';
+         button.value =  label;
+         button.onclick = handler;
+         toolbar.appendChild(button);
+      }
+      
+   </script>
+</head>
+<body onload="init()">
+</body>
+</html>

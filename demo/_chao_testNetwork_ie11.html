@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="../lib/twaver.js"></script>
+  <script>
+    function init() {
+      var box = new twaver.ElementBox();
+      var network = new twaver.vector.Network(box);
+      var interactions2d = [
+            new twaver.vector.interaction.EditInteraction(network),
+            new twaver.vector.interaction.DefaultInteraction(network)
+      ];
+
+      document.body.appendChild(network.getView());
+      network.adjustBounds({x:0,y:0,width:document.documentElement.clientWidth,height:document.documentElement.clientHeight});
+      window.onresize = function (e) { 
+          network.adjustBounds({x:0,y:0,width:document.documentElement.clientWidth,height:document.documentElement.clientHeight});
+      };
+
+      
+      network.setEditPointSize(10);
+      
+      network.setInteractions([
+            new twaver.vector.interaction.CreateShapeNodeInteraction(network, twaver.ShapeNode),
+            new twaver.vector.interaction.DefaultInteraction(network)
+       ]);
+
+      // network.addElementByInteraction = function(element) {
+      //   twaver.vector.Network.prototype.addElementByInteraction.call(this, element);         
+      //   network.setInteractions(interactions2d);
+      // };
+
+      network.addElementByInteraction = function(element) {
+        twaver.vector.Network.prototype.addElementByInteraction.call(this, element);   
+        setTimeout(function(){
+          network.setInteractions(interactions2d);
+        },100);
+      };
+
+      network.getElementBox().addDataBoxChangeListener(function(e){
+        console.log(e);
+      }, this);
+    }
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>TWaver HTML5</title>
+<script src="twaver.js"></script>
+<script src="images.js"></script>
+<script type="text/javascript" src="jquery.js"></script>
+<script>
+	var highlightedNodeColor='#FFFED5';
+	var highlightedLinkColor='#FF7D02';
+	var nodeMovable=true;
+	var nodeObj = {},
+		box,network,bw;
+	var jsonStr = '{"groups":[{"id":"DM10","name":"ERP系统","parentId":"DM0","x":"1","y":"1"},{"id":"DM20","name":"BW系统","parentId":"DM0","x":"2","y":"1",  "groups":[    {"id":"DM201","name":"数据处理","parentId":"DM20","x":"1","y":"1"},    {"id":"DM202","name":"数据模型","parentId":"DM20","x":"2","y":"1"},    {"id":"DM203","name":"数据处理","parentId":"DM20","x":"3","y":"1"},    {"id":"DM204","name":"应用功能","parentId":"DM20","x":"3","y":"2"},    {"id":"DM205","name":"数据接口","parentId":"DM20","x":"3","y":"3"},    {"id":"DM206","name":"数据接口","parentId":"DM20","x":"4","y":"1"},    {"id":"DM207","name":"数据模型","parentId":"DM20","x":"4","y":"2"},    {"id":"DM208","name":"数据处理","parentId":"DM20","x":"5","y":"1"},    {"id":"DM209","name":"应用功能","parentId":"DM20","x":"5","y":"2"},    {"id":"DM210","name":"数据接口","parentId":"DM20","x":"5","y":"3",      "groups":[        {"id":"DM2101","name":"接口BIC/AM","parentId":"DM210","x":"1","y":"1"}      ]    },    {"id":"DM211","name":"数据处理","parentId":"DM20","x":"6","y":"1",      "groups":[        {"id":"DM2111","name":"处理ZMM_1","parentId":"DM211","x":"1","y":"1"},        {"id":"DM2112","name":"处理ZMM_2","parentId":"DM211","x":"1","y":"2"},        {"id":"DM2113","name":"处理ZMM_3","parentId":"DM211","x":"1","y":"3"}      ]    },    {"id":"DM212","name":"数据接口","parentId":"DM20","x":"6","y":"2",      "groups":[        {"id":"DM2121","name":"接口BIC/OC1","parentId":"DM212","x":"1","y":"1"},        {"id":"DM2122","name":"接口BIC/OC2","parentId":"DM212","x":"1","y":"2"},        {"id":"DM2123","name":"接口BIC/OC3","parentId":"DM212","x":"1","y":"3"},        {"id":"DM2124","name":"接口BIC/OC4","parentId":"DM212","x":"1","y":"4"},        {"id":"DM2125","name":"接口BIC/OC5","parentId":"DM212","x":"1","y":"5"},        {"id":"DM2126","name":"接口BIC/OC6","parentId":"DM212","x":"1","y":"6"}      ]    },    {"id":"DM213","name":"数据模型","parentId":"DM20","x":"7","y":"1",      "groups":[        {"id":"DM2131","name":"模型ZMM_1","parentId":"DM213","x":"1","y":"1"},        {"id":"DM2132","name":"模型ZMM_2","parentId":"DM213","x":"1","y":"2"},        {"id":"DM2133","name":"模型ZMM_3","parentId":"DM213","x":"1","y":"3"}      ]    },    {"id":"DM214","name":"应用功能","parentId":"DM20","x":"7","y":"2",      "groups":[        {"id":"DM2141","name":"功能BIC/OC1","parentId":"DM214","x":"1","y":"1"},        {"id":"DM2142","name":"功能BIC/OC2","parentId":"DM214","x":"1","y":"2"},        {"id":"DM2143","name":"功能BIC/OC3","parentId":"DM214","x":"1","y":"3"},        {"id":"DM2144","name":"功能BIC/OC4","parentId":"DM214","x":"1","y":"4"},        {"id":"DM2145","name":"功能BIC/OC5","parentId":"DM214","x":"1","y":"5"},        {"id":"DM2146","name":"功能BIC/OC6","parentId":"DM214","x":"1","y":"6"}      ]    },    {"id":"DM215","name":"数据处理","parentId":"DM20","x":"8","y":"1"},    {"id":"DM216","name":"应用功能","parentId":"DM20","x":"8","y":"2"},    {"id":"DM217","name":"数据接口","parentId":"DM20","x":"8","y":"3"},    {"id":"DM218","name":"数据模型","parentId":"DM20","x":"9","y":"1"}  ]},{"id":"DM30","name":"数据存储中心","parentId":"DM0","x":"10","y":"1"},{"id":"DM40","name":"指标管理平台","parentId":"DM0","x":"10","y":"2"}]}';
+
+	
+	
+	twaver.Util.registerImage('test_vector', {		
+		w: '<%=getClient("width")%>',
+		h: 28,
+		origin: { x: 0, y: 0 },
+		lineWidth:1,
+		lineColor: '#D66204',	
+		v: [{
+			shape: 'rect',
+			w: '100%',
+			h: '100%',
+			fill: function(data, view){
+				if(data.getClient('highlighted')){
+					return highlightedNodeColor;
+				}
+				if(data.getChildrenSize()>0){
+					return '#FFE6D5';
+				}
+				return '#FFFCFA';
+			},
+			lineWidth:2,
+		},{
+			shape: 'rect',
+			x: 7.5,
+			y: 8.5,
+			w: 12,
+			h: 12,					
+			visible: '<%=getChildrenSize()>0%>',
+		},{
+		  shape: 'line',
+		  p1: { x: 13.5, y: 9 },
+		  p2: { x: 13.5, y: 21, },
+		  lineWidth:0.5,
+		  visible: '<%=getChildrenSize()>0 && !isExpanded()%>',
+		},{
+		  shape: 'line',
+		  p1: { x: 8, y: 14.5 },
+		  p2: { x: 20, y: 14.5 },
+		  lineWidth:0.5,		  
+		  visible: '<%=getChildrenSize()>0%>',
+		},{
+			shape: 'vector',
+			name: '<%=getClient("icon")%>',
+			scale: { x: 0.85, y: 0.85 },
+			x: 30,
+			y: 13,
+			lineWidth:0,
+		}],
+		onMouseEnter: function (data, view) {
+			updateFocus(data, true);
+		},
+		onMouseLeave: function (data, view) {
+			updateFocus(data, false);
+		},
+	});
+
+	MyGroup = function(){
+		MyGroup.superClass.constructor.apply(this, arguments);
+		this.setImage('test_vector');		
+		this.setStyle('label.position', 'topleft.topright');
+		this.setStyle('label.xoffset', 38);
+		this.setStyle('label.yoffset', 24);
+		this.setStyle('label.font', '14px "Microsoft Yahei"');
+		this.setStyle('select.style', 'null');
+		this.setStyle('group.padding.top', 35);
+		this.setStyle('group.padding.left', 10);
+		this.setStyle('group.padding.right', 5);
+		this.setStyle('group.padding.bottom', 5);
+		this.setStyle('group.fill.color', '#FFFCFA');
+		this.setStyle('group.outline.color', '#D66204');
+		this.setStyle('group.outline.width', 2);
+		this.setStyle('group.deep', 0);
+		this.setLayerId('node');	
+	}
+
+	twaver.Util.ext('MyGroup', twaver.Group,{
+		getVectorUIClass : function(){
+			return MyGroupUI;
+		},
+	});
+ 
+	MyGroupUI = function(){
+		MyGroupUI.superClass.constructor.apply(this, arguments);
+	};
+
+	twaver.Util.ext('MyGroupUI', twaver.vector.GroupUI, {
+		paintBody: function (ctx) {
+			if (this._shapeRect) {
+				this.drawExpandedGroup(ctx);
+				twaver.vector.GroupUI.superClass.paintBody.apply(this, arguments);
+			}else{
+				twaver.vector.GroupUI.superClass.paintBody.apply(this, arguments);
+			}
+		},
+		validateBodyBounds: function () {
+			// this.getBodyRect();
+			this._bodyBounds.add(this.createBodyRect2());
+			if (this._shapeRect) {
+				var rect = this.getPathRect("group", false);
+				var deep = this.getStyle('group.deep');
+				_twaver.math.grow(rect,deep+1,deep+1);
+				this.addBodyBounds(rect);
+			} else {
+				twaver.vector.GroupUI.superClass.validateBodyBounds.call(this);
+			}
+		},
+
+		createBodyRect: function () {
+			this._shapeRect = null;
+			var group = this._element;
+			var network = this._network;
+			if (group.isExpanded()) {
+				group.getChildren().forEach(function (child) {
+					var ui = network.getElementUI(child);
+					ui && ui.validate();
+				});
+				var rects = this.getChildrenRects();
+				if (!rects.isEmpty()) {
+					var shape = group.getStyle('group.shape');
+					var func = _twaver.group[shape];
+					if (!func) {
+						throw "Can not resolve group shape '" + shape + "'";
+					}
+					this._shapeRect = func(rects);
+				}
+			}
+			//do this.
+			if (this._shapeRect) {
+				_twaver.math.addPadding(this._shapeRect, group, 'group.padding', 1);
+				var bodyRect = twaver.vector.GroupUI.superClass.createBodyRect.call(this);
+				return {x: this._shapeRect.x, y: this._shapeRect.y , width: bodyRect.width , height: bodyRect.height};
+					// return this._shapeRect;
+			} else {
+					return twaver.vector.GroupUI.superClass.createBodyRect.call(this);
+			}
+		},
+		createBodyRect2: function () {
+			this._shapeRect = null;
+			var group = this._element;
+			var network = this._network;
+			if (group.isExpanded()) {
+				group.getChildren().forEach(function (child) {
+					var ui = network.getElementUI(child);
+					ui && ui.validate();
+				});
+				var rects = this.getChildrenRects();
+				if (!rects.isEmpty()) {
+					var shape = group.getStyle('group.shape');
+					var func = _twaver.group[shape];
+					if (!func) {
+						throw "Can not resolve group shape '" + shape + "'";
+					}
+					this._shapeRect = func(rects);
+				}
+			}
+			//do this.
+			if (this._shapeRect ) {
+				_twaver.math.addPadding(this._shapeRect, group, 'group.padding', 1);
+					return this._shapeRect;
+			} else {
+				return twaver.vector.GroupUI.superClass.createBodyRect.call(this);
+			}
+		},
+	});
+
+    function init() {
+		box = new twaver.ElementBox();
+		network = new twaver.vector.Network(box);
+
+		document.body.appendChild(network.getView());
+		network.adjustBounds({x:0,y:0,width:document.documentElement.clientWidth,height:document.documentElement.clientHeight});
+		network.setLinkPathFunction(createLinkPath);
+		network.setMovableFunction(function (element) { return nodeMovable; });
+		network.setToolTipEnabled(false);
+		network.getView().addEventListener('mousemove',function(e){		
+			var element = network.getElementAt(e);
+			highlightNode(network.getElementBox(), element);
+		})
+
+		box.addDataPropertyChangeListener(function(e){
+			if(e.property==='expanded'){
+				var node=e.source;
+				fixLocation(node);
+			}
+			// console.log(bw);
+			// if(bw){
+			// 	console.log(network.getElementUI(bw)._shapeRect);
+			// }
+		});
+		network.addInteractionListener(function(e){
+			if(e.kind == "doubleClickElement") {
+				var node = e.element;
+// 				console.log(node.getClient('x') + '---' + node.getClient('y'));
+// 				if(e.element.getClient("show.tip")) {
+// 					e.element.setClient("show.tip", ffaallssee);
+// 				} eellssee {
+// 					e.element.setClient("show.tip", ttrruuee);
+// 				}
+			}
+		});
+				
+		box.getLayerBox().add(new twaver.Layer('node'));
+		box.getLayerBox().add(new twaver.Layer('link'));			
+		
+		var json = $.parseJSON(jsonStr);
+		setData(json);
+		setLink();
+
+		// for(var i=0 ;i<box._dataList._as.length;i++){
+		// 	console.log(box._dataList._as[i].getClient('xLogic') + "--------" +box._dataList._as[i].getClient('y'));
+		// }
+
+		for(var i=0 ;i<box._dataList._as.length;i++){
+			var dataName = box._dataList._as[i]._name;
+			if(dataName === "处理ZMM_3"){
+				bw = box._dataList._as[i];
+				break;
+			}
+		}
+		console.log(bw);
+		console.log(bw.getWidth()+"--"+ bw.getHeight());
+		console.log("--------_shapeRect-----------");
+		console.log(network.getElementUI(bw)._shapeRect);
+
+		// network.addViewListener(function(e) {
+  //       if(e.kind == "validateEnd") {
+  //         console.log(network.getElementUI(bw)._shapeRect);
+  //       }
+  //   });
+		
+		// setupData();
+		window.onresize = function (e) { 
+			network.adjustBounds({x:0,y:0,width:document.documentElement.clientWidth,height:document.documentElement.clientHeight});
+		};
+    }
+
+	function fixLocation(node){
+		if(node.isExpanded()){
+			node.getChildren().forEach(function(child){
+				child.setLocation(child.getClient('x'), child.getClient('y'));
+				fixLocation(child);
+			});
+		}else{
+			node.setLocation(node.getClient('x'), node.getClient('y'));
+		}
+	}
+
+	function updateFocus(data, focus){
+		if(data instanceof MyGroup){
+			var oldFocus=data.getClient('focus');
+			if(oldFocus!=focus){
+				data.setClient('focus', focus);	
+			}
+		}
+	}
+
+	function createNode(x, y, xLogic,name, icon, parent){
+		var node = new MyGroup();			
+		node.setClient('width', 130);
+		node.setClient('x', x);
+		node.setClient('y', y);
+		box.add(node);		
+
+		if(x && y){
+			node.setLocation(x, y);
+		}
+		node.setClient('xLogic',xLogic);
+		if(name){
+			node.setName(name);
+		}
+		if(icon){
+			node.setClient('icon', icon);
+		}
+		if(parent){
+			node.setParent(parent);
+			parent.setExpanded(true);
+		}
+
+		return node;
+	}
+
+	function createLink(box, from, to, offset, pattern){
+		var link = new twaver.Link(from, to);	
+		if(offset){
+			link.setClient('offset', offset);
+		}
+		link.setStyle('link.type', 'orthogonal.horizontal');
+		link.setStyle('arrow.to', true);		
+		link.setStyle('arrow.to.height', 6);
+		link.setStyle('arrow.to.width', 8);
+		link.setStyle('arrow.to.xoffset', -3);
+		if(pattern){
+			link.setStyle('link.pattern', pattern);
+		}
+		link.setLayerId('link');
+		highlightLink(link, false);
+		box.add(link);
+	}
+	function createLink2(box, from, to, pattern){
+		var link = new twaver.Link(from, to);	
+		var offset;
+		var fromXLogic = from.getClient('xLogic');
+		var toXLogic = to.getClient('xLogic');
+		if(toXLogic-fromXLogic >1  || fromXLogic-toXLogic >0){
+			offset = 60 - Math.abs(toXLogic-fromXLogic) *5;
+		}
+		
+		if(offset){
+			link.setClient('offset', offset);
+		}
+		link.setStyle('link.type', 'orthogonal.horizontal');
+		link.setStyle('arrow.to', true);		
+		link.setStyle('arrow.to.height', 6);
+		link.setStyle('arrow.to.width', 8);
+		link.setStyle('arrow.to.xoffset', -3);
+		if(pattern){
+			link.setStyle('link.pattern', pattern);
+		}
+		link.setLayerId('link');
+		highlightLink(link, false);
+		box.add(link);
+	}
+
+	function createLinkPath(linkUI, defaultPoints){
+		var f = linkUI.getFromPoint();
+		var t = linkUI.getToPoint();		
+		var fromNode=linkUI.getElement().getFromAgent();
+		var toNode=linkUI.getElement().getToAgent();
+
+		var points = new twaver.List();
+		var pFrom={x: f.x+fromNode.getWidth()/2+1, y: f.y};
+		var pFromNext={x: f.x+fromNode.getWidth()/2+1+20, y: f.y};
+		var pToNext2={x: t.x-toNode.getWidth()/2-2-20, y: t.y};
+		var pToNext1={x: t.x-toNode.getWidth()/2-2-10, y: t.y};
+		var pTo={x: t.x-toNode.getWidth()/2-2, y: t.y};
+
+		points.add(pFrom);
+		if(linkUI._element.getClient('offset')){
+			var direction=t.x<f.x ? -1: 1;
+			var controlY=linkUI._element.getClient('offset');
+			var seg = new twaver.List();
+			seg.add({x: f.x+fromNode.getWidth()/2+1+10, y: f.y});
+			seg.add({x: f.x+fromNode.getWidth()/2+1+10, y: controlY});						
+			seg.add({x: f.x+fromNode.getWidth()/2+1+50*direction, y: controlY});
+			points.add(seg);
+			points.add({x: t.x-toNode.getWidth()/2-2-50*direction, y: controlY});
+			var seg = new twaver.List();
+			seg.add({x: t.x-toNode.getWidth()/2-2-20, y: controlY});
+			seg.add({x: t.x-toNode.getWidth()/2-2-20, y: t.y});
+			seg.add({x: t.x-toNode.getWidth()/2-2-5, y: t.y});
+			points.add(seg);
+		}else{
+			var seg = new twaver.List();	
+			seg.add(pFromNext);
+			seg.add(pToNext2);
+			seg.add(pToNext1);			
+			points.add(seg);
+		}
+		points.add(pTo);
+
+		return points;
+	}
+
+	function highlightNode(box, element){		
+		box.forEach(function(data){
+			if(data instanceof twaver.Node){
+				data.setClient('highlighted', false);		
+				data.setStyle('group.fill.color', '#FFFCFA');
+			}
+			if(data instanceof twaver.Link){
+				highlightLink(data, false);
+			}
+		});
+		if(element){
+			if(element instanceof twaver.Node){
+				element.setClient('highlighted', true);
+				element.setStyle('group.fill.color', highlightedNodeColor);
+			}
+			if(element instanceof twaver.Link){
+				highlightLink(element, true);
+			}
+		}
+		//highlight related links.
+		if(element instanceof twaver.Node){
+			var nodes=[];
+			nodes.push(element);
+			if(element.getChildrenSize()>0){
+				nodes=nodes.concat(element.getChildren().toArray());
+			}
+			
+			box.forEach(function(data){
+				if(data instanceof twaver.Link){
+					var link=data;
+					var from=link.getFromAgent();
+					var to=link.getToAgent();
+					if(arrayContains(nodes, from, to)){
+						highlightLink(link, true);
+					}
+				}
+			});
+		}		
+	}
+
+	function highlightLink(link, highlighted){
+		if(highlighted){
+			link.setStyle('link.color', highlightedLinkColor);
+			link.setStyle('link.width', 1);
+			link.setStyle('arrow.to.color', highlightedLinkColor);
+		}else{
+			link.setStyle('link.color','#309FC9');
+			link.setStyle('link.width', 0.5);
+			link.setStyle('arrow.to.color', '#309FC9');
+		}
+	}
+
+	function arrayContains(array, object1, object2) {
+		var i = array.length;
+		while (i--) {
+			if (array[i] === object1 || array[i] === object2) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	function setData(json){
+		//console.log(json);
+		$.each(json.groups,function(index,item){
+			var x = item.x , y = item.y;
+			if(nodeObj[item.parentId]){
+				x = nodeObj[item.parentId].getClient('x') + (x - 1) * 170 + 20;
+				y = nodeObj[item.parentId].getClient('y') + (y - 1) * 50 + 42;//10
+				if(item.groups && item.y > 1){
+					y += item.groups.length * 25;
+				}
+				var xLogic = nodeObj[item.parentId].getClient('xLogic') + parseInt(item.x)-1;
+				var node = createNode(x, y, xLogic,item.name, 'icon_apple',nodeObj[item.parentId]);
+				// console.log(item.name + ":  " + x + "--" + y);
+				nodeObj[item.id] = node;
+			}else{
+				x = x * 195 + 20;
+				y = y * 50 + 10;
+				var xLogic = parseInt(item.x)-1;
+				var node = createNode(x, y, xLogic,item.name, 'icon_apple');
+				// console.log(item.name + ":  " + x + "--" + y);
+				nodeObj[item.id] = node;
+			}
+
+			if(item.groups)
+				setData(item);
+		});
+	}
+
+	function setLink(){
+		var erp=nodeObj["DM10"];
+		var bw=nodeObj["DM20"];
+		var bw1=nodeObj["DM201"];
+		var bw2=nodeObj["DM202"];
+		var bw31=nodeObj["DM203"];
+		var bw32=nodeObj["DM204"];
+		var bw33=nodeObj["DM205"];
+		var bw41=nodeObj["DM206"];
+		var bw42=nodeObj["DM207"];
+		var bw51=nodeObj["DM208"];
+		var bw52=nodeObj["DM209"];
+		var bw53=nodeObj["DM210"];
+		var bw531=nodeObj["DM2101"];
+		var bw61=nodeObj["DM211"];
+		var bw611=nodeObj["DM2111"];
+		var bw612=nodeObj["DM2112"];
+		var bw613=nodeObj["DM2113"];
+		var bw62=nodeObj["DM212"];
+		var bw621=nodeObj["DM2121"];
+		var bw622=nodeObj["DM2122"];
+		var bw623=nodeObj["DM2123"];
+		var bw624=nodeObj["DM2124"];
+		var bw625=nodeObj["DM2125"];
+		var bw626=nodeObj["DM2126"];
+		var bw71=nodeObj["DM213"];
+		var bw711=nodeObj["DM2131"];
+		var bw712=nodeObj["DM2132"];
+		var bw713=nodeObj["DM2133"];
+		var bw72=nodeObj["DM214"];
+		var bw721=nodeObj["DM2141"];
+		var bw722=nodeObj["DM2142"];
+		var bw723=nodeObj["DM2143"];
+		var bw724=nodeObj["DM2144"];
+		var bw725=nodeObj["DM2145"];
+		var bw726=nodeObj["DM2146"];
+		var bw81=nodeObj["DM215"];
+		var bw82=nodeObj["DM216"];
+		var bw83=nodeObj["DM217"];
+		var bw91=nodeObj["DM218"];
+		var node10=nodeObj["DM30"];
+		var node11=nodeObj["DM40"];
+
+		createLink2(box, erp, bw1);
+		createLink2(box, erp, node10);
+		createLink2(box, erp, node11);
+		createLink2(box, bw1, bw2);
+		createLink2(box, bw1, bw31);
+		createLink2(box, bw1, bw42);
+		createLink2(box, bw1, bw531);
+		createLink2(box, bw2, bw31);
+		createLink2(box, bw2, bw32);
+		createLink2(box, bw2, bw33);
+		createLink2(box, bw32, bw41);
+		createLink2(box, bw31, bw42);
+		createLink2(box, bw41, node10);
+		createLink2(box, bw42, bw51);
+		createLink2(box, bw42, bw52);
+		createLink2(box, bw42, bw531);
+		createLink2(box, bw42, node10);
+		createLink2(box, bw51, bw42, [5, 2]);
+		createLink2(box, bw52, bw611);
+		createLink2(box, bw52, bw612);
+		createLink2(box, bw52, bw613);
+		createLink2(box, bw52, bw621);
+		createLink2(box, bw52, bw622);
+		createLink2(box, bw52, bw623);
+		createLink2(box, bw52, bw624);
+		createLink2(box, bw52, bw625);
+		createLink2(box, bw52, bw626);
+		// createLink(box, bw531, bw532);
+		createLink2(box, bw531, node11);
+		createLink2(box, bw621, node11);
+		createLink2(box, bw622, node11);
+		createLink2(box, bw623, node11);
+		createLink2(box, bw624, node11);
+		createLink2(box, bw625, node11);
+		createLink2(box, bw611, node10);
+		createLink2(box, bw612, node10);
+		createLink2(box, bw612, bw711);
+		createLink2(box, bw612, bw712);
+		createLink2(box, bw612, bw713);
+		createLink2(box, bw613, bw721);
+		createLink2(box, bw613, bw722);
+		createLink2(box, bw613, bw723);
+		createLink2(box, bw613, bw724);
+		createLink2(box, bw613, bw725);
+		createLink2(box, bw613, bw726);
+		createLink2(box, bw711, bw81);
+		createLink2(box, bw712, bw81);
+		createLink2(box, bw713, bw81);
+		createLink2(box, bw721, bw82);
+		createLink2(box, bw722, bw82);
+		createLink2(box, bw723, bw82);
+		createLink2(box, bw724, bw83);
+		createLink2(box, bw725, bw83);
+		createLink2(box, bw726, bw83);
+		createLink2(box, bw81, node10);
+		createLink2(box, bw82, bw91);
+		createLink2(box, bw83, bw91);
+		createLink2(box, bw91, node10);
+		createLink2(box, bw91, node11);
+	}
+	
+	// function setupData(){
+	// 	var erp=createNode( 215, 60, 'ERP系统', 'icon_apple');	
+	// 	var bw=createNode( 410, 60, 'BW系统', 'icon_apple');	
+	// 	var bw1=createNode( 430, 102, '数据处理', 'icon_apple', bw);
+	// 	var bw2=createNode(600, 102, '数据模型', 'icon_apple', bw);
+	// 	var bw31=createNode( 770, 102, '数据处理', 'icon_apple', bw);
+	// 	var bw32=createNode(770, 152, '应用功能', 'icon_apple', bw);
+	// 	var bw33=createNode( 770, 202, '数据接口', 'icon_apple', bw);
+	// 	var bw41=createNode( 940, 102, '数据接口', 'icon_apple', bw);
+	// 	var bw42=createNode(940, 152, '数据模型', 'icon_apple', bw);
+	// 	var bw51=createNode(1110, 102, '数据处理', 'icon_apple', bw);
+	// 	var bw52=createNode( 1110, 152, '应用功能', 'icon_apple', bw);
+	// 	var bw53=createNode(1110, 227, '数据接口', 'icon_apple', bw);
+	// 	var bw531=createNode( 1130, 269, '/BIC/AM', 'icon_apple', bw53);
+	// 	var bw61=createNode( 1280, 102, '数据处理', 'icon_apple', bw);
+	// 	var bw611=createNode( 1300, 144, 'ZMM_1', 'icon_apple', bw61);
+	// 	var bw612=createNode(1300, 194, 'ZMM_2', 'icon_apple', bw61);
+	// 	var bw613=createNode(1300, 244, 'ZMM_3', 'icon_apple', bw61);
+	// 	var bw62=createNode(1280, 302, '数据接口', 'icon_apple', bw);
+	// 	var bw621=createNode(1300, 344, '/BIC/OC', 'icon_apple', bw62);
+	// 	var bw622=createNode(1300, 394, '/BIC/OC', 'icon_apple', bw62);
+	// 	var bw623=createNode(1300, 444, '/BIC/OC', 'icon_apple', bw62);
+	// 	var bw624=createNode(1300, 494, '/BIC/OC', 'icon_apple', bw62);
+	// 	var bw625=createNode(1300, 544, '/BIC/OC', 'icon_apple', bw62);
+	// 	var bw626=createNode(1300, 594, '/BIC/OC', 'icon_apple', bw62);
+	// 	var bw71=createNode(1450, 102, '数据模型', 'icon_apple', bw);
+	// 	var bw711=createNode(1470, 144, 'ZMM_1', 'icon_apple', bw71);
+	// 	var bw712=createNode(1470, 194, 'ZMM_2', 'icon_apple', bw71);
+	// 	var bw713=createNode(1470, 244, 'ZMM_3', 'icon_apple', bw71);
+	// 	var bw72=createNode(1450, 302, '应用功能', 'icon_apple', bw);
+	// 	var bw721=createNode(1470, 344, '/BIC/OC', 'icon_apple', bw72);
+	// 	var bw722=createNode(1470, 394, '/BIC/OC', 'icon_apple', bw72);
+	// 	var bw723=createNode(1470, 444, '/BIC/OC', 'icon_apple', bw72);
+	// 	var bw724=createNode(1470, 494, '/BIC/OC', 'icon_apple', bw72);
+	// 	var bw725=createNode(1470, 544, '/BIC/OC', 'icon_apple', bw72);
+	// 	var bw726=createNode(1470, 594, '/BIC/OC', 'icon_apple', bw72);
+	// 	var bw81=createNode(1620, 102, '数据处理', 'icon_apple', bw);
+	// 	var bw82=createNode(1620, 152, '应用功能', 'icon_apple', bw);
+	// 	var bw83=createNode(1620, 202, '数据接口', 'icon_apple', bw);
+	// 	var bw91=createNode(1790, 102, '数据模型', 'icon_apple', bw);
+	// 	var node10=createNode(1970, 60, '数据存储中心', 'icon_apple');	
+	// 	var node11=createNode( 1970, 110, '指标管理平台', 'icon_apple');	
+
+
+	// 	// var erp=createNode( 215, 60, 'ERP系统', 'icon_apple');	
+	// 	// var bw=createNode( 410, 60, 'BW系统', 'icon_apple');	
+	// 	// var bw1=createNode( 430, 70, '数据处理', 'icon_apple', bw);
+	// 	// var bw2=createNode(600, 70, '数据模型', 'icon_apple', bw);
+	// 	// var bw31=createNode( 770, 70, '数据处理', 'icon_apple', bw);
+	// 	// var bw32=createNode(770, 120, '应用功能', 'icon_apple', bw);
+	// 	// var bw33=createNode( 770, 170, '数据接口', 'icon_apple', bw);
+	// 	// var bw41=createNode( 940, 70, '数据接口', 'icon_apple', bw);
+	// 	// var bw42=createNode(940, 120, '数据模型', 'icon_apple', bw);
+	// 	// var bw51=createNode(1110, 70, '数据处理', 'icon_apple', bw);
+	// 	// var bw52=createNode( 1110, 120, '应用功能', 'icon_apple', bw);
+	// 	// var bw53=createNode(1110, 195, '数据接口', 'icon_apple', bw);
+	// 	// var bw531=createNode( 1130, 205, '/BIC/AM', 'icon_apple', bw53);
+	// 	// var bw61=createNode( 1280, 70, '数据处理', 'icon_apple', bw);
+	// 	// var bw611=createNode( 1300, 80, 'ZMM_1', 'icon_apple', bw61);
+	// 	// var bw612=createNode(1300, 130, 'ZMM_2', 'icon_apple', bw61);
+	// 	// var bw613=createNode(1300, 180, 'ZMM_3', 'icon_apple', bw61);
+	// 	// var bw62=createNode(1280, 270, '数据接口', 'icon_apple', bw);
+	// 	// var bw621=createNode(1300, 280, '/BIC/OC', 'icon_apple', bw62);
+	// 	// var bw622=createNode(1300, 330, '/BIC/OC', 'icon_apple', bw62);
+	// 	// var bw623=createNode(1300, 380, '/BIC/OC', 'icon_apple', bw62);
+	// 	// var bw624=createNode(1300, 430, '/BIC/OC', 'icon_apple', bw62);
+	// 	// var bw625=createNode(1300, 480, '/BIC/OC', 'icon_apple', bw62);
+	// 	// var bw626=createNode(1300, 530, '/BIC/OC', 'icon_apple', bw62);
+	// 	// var bw71=createNode(1450, 70, '数据模型', 'icon_apple', bw);
+	// 	// var bw711=createNode(1470, 80, 'ZMM_1', 'icon_apple', bw71);
+	// 	// var bw712=createNode(1470, 130, 'ZMM_2', 'icon_apple', bw71);
+	// 	// var bw713=createNode(1470, 180, 'ZMM_3', 'icon_apple', bw71);
+	// 	// var bw72=createNode(1450, 270, '应用功能', 'icon_apple', bw);
+	// 	// var bw721=createNode(1470, 280, '/BIC/OC', 'icon_apple', bw72);
+	// 	// var bw722=createNode(1470, 330, '/BIC/OC', 'icon_apple', bw72);
+	// 	// var bw723=createNode(1470, 380, '/BIC/OC', 'icon_apple', bw72);
+	// 	// var bw724=createNode(1470, 430, '/BIC/OC', 'icon_apple', bw72);
+	// 	// var bw725=createNode(1470, 480, '/BIC/OC', 'icon_apple', bw72);
+	// 	// var bw726=createNode(1470, 530, '/BIC/OC', 'icon_apple', bw72);
+	// 	// var bw81=createNode(1620, 70, '数据处理', 'icon_apple', bw);
+	// 	// var bw82=createNode(1620, 120, '应用功能', 'icon_apple', bw);
+	// 	// var bw83=createNode(1620, 170, '数据接口', 'icon_apple', bw);
+	// 	// var bw91=createNode(1790, 70, '数据模型', 'icon_apple', bw);
+	// 	// var node10=createNode(1970, 60, '数据存储中心', 'icon_apple');	
+	// 	// var node11=createNode( 1970, 110, '指标管理平台', 'icon_apple');	
+	// 	node10.setClient('width', 130);
+	// 	node11.setClient('width', 130);
+
+	// 	createLink(box, erp, bw1);
+	// 	createLink(box, erp, node10, 50);
+	// 	createLink(box, erp, node11, 660);
+	// 	createLink(box, bw1, bw2);
+	// 	createLink(box, bw1, bw31, 130);
+	// 	createLink(box, bw1, bw42, 280);
+	// 	createLink(box, bw1, bw531, 300);
+	// 	createLink(box, bw2, bw31);
+	// 	createLink(box, bw2, bw32);
+	// 	createLink(box, bw2, bw33);
+	// 	createLink(box, bw32, bw41);
+	// 	createLink(box, bw31, bw42);
+	// 	createLink(box, bw41, node10, 60);
+	// 	createLink(box, bw42, bw51);
+	// 	createLink(box, bw42, bw52);
+	// 	createLink(box, bw42, bw531);
+	// 	createLink(box, bw42, node10, 70);
+	// 	createLink(box, bw51, bw42, 80, [5, 2]);
+	// 	createLink(box, bw51, bw42, 85, [5, 2]);
+	// 	createLink(box, bw51, bw42, 90, [5, 2]);
+	// 	createLink(box, bw51, bw42, 95, [5, 2]);
+	// 	createLink(box, bw52, bw611);
+	// 	createLink(box, bw52, bw612);
+	// 	createLink(box, bw52, bw613);
+	// 	createLink(box, bw52, bw621);
+	// 	createLink(box, bw52, bw622);
+	// 	createLink(box, bw52, bw623);
+	// 	createLink(box, bw52, bw624);
+	// 	createLink(box, bw52, bw625);
+	// 	createLink(box, bw52, bw626);
+	// 	// createLink(box, bw531, bw532);
+	// 	createLink(box, bw531, node11, 655);
+	// 	createLink(box, bw621, node11, 630);
+	// 	createLink(box, bw622, node11, 635);
+	// 	createLink(box, bw623, node11, 640);
+	// 	createLink(box, bw624, node11, 645);
+	// 	createLink(box, bw625, node11, 650);
+	// 	createLink(box, bw611, node10, 80);
+	// 	createLink(box, bw612, node10, 90);
+	// 	createLink(box, bw612, bw711);
+	// 	createLink(box, bw612, bw712);
+	// 	createLink(box, bw612, bw713);
+	// 	createLink(box, bw613, bw721);
+	// 	createLink(box, bw613, bw722);
+	// 	createLink(box, bw613, bw723);
+	// 	createLink(box, bw613, bw724);
+	// 	createLink(box, bw613, bw725);
+	// 	createLink(box, bw613, bw726);
+	// 	createLink(box, bw711, bw81);
+	// 	createLink(box, bw712, bw81);
+	// 	createLink(box, bw713, bw81);
+	// 	createLink(box, bw721, bw82);
+	// 	createLink(box, bw722, bw82);
+	// 	createLink(box, bw723, bw82);
+	// 	createLink(box, bw724, bw83);
+	// 	createLink(box, bw725, bw83);
+	// 	createLink(box, bw726, bw83);
+	// 	createLink(box, bw81, node10, 100);
+	// 	createLink(box, bw82, bw91);
+	// 	createLink(box, bw83, bw91);
+	// 	createLink(box, bw91, node10);
+	// 	createLink(box, bw91, node11);
+
+	// }
+
+
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

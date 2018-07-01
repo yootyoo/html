@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="../lib/twaver.js"></script>
+  <script>
+    function init() {
+      var box = new twaver.ElementBox();
+      var network = new twaver.vector.Network(box);
+      
+      document.body.appendChild(network.getView());
+      network.adjustBounds({ x: 0, y: 0, width: 500, height: 500 });
+      // 
+      var node = new twaver.ShapeNode();
+      node.setName("rect");
+      node.setStyle('label.position', 'center');
+//        node.setStyle('label.fill', true);
+//        node.setStyle('label.fill.color', '#C0C0C0');
+       // node.setStyle('label.outline.width', 2);
+       // node.setStyle('label.outline.color', '#606060');
+      node.setStyle('label.corner.radius', 1);
+      node.setStyle('vector.fill', true);
+      node.setStyle('vector.fill.color', "rgba(184,211,240,0.5)");
+      // node.setStyle('vector.gradient', 'linear.northwest');
+      node.setStyle("select.color", '#202020');
+      node.setStyle("vector.outline.width", 2);
+      node.setStyle("vector.outline.color", '#FF0000');
+      node.setStyle("shapenode.closed",false);
+
+      var segments = new twaver.List();
+      var pointsList = new twaver.List();
+      segments.add('moveto');
+      pointsList.add({x:100,y:100});
+      segments.add('lineto');
+      pointsList.add({x:500,y:100});
+      segments.add('lineto');
+      pointsList.add({x:500,y:300});
+      segments.add('lineto');
+      pointsList.add({x:200,y:300});
+      
+
+
+      node.setSegments(segments);
+      node.setPoints(pointsList);
+      box.add(node);
+    }
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="js/twaver.js"></script>
+  <script src="config.js"></script>
+  <script type="text/javascript">
+  	var groupData = '[{"bigSysBusiSysList":[{"bigSysBusiSysList":[],"bigSystem":"","projectCode":"CI000998100181","projectName":"电子飞行包"},{"bigSysBusiSysList":[],"bigSystem":"","projectCode":"CI000998100682","projectName":"飞行员个人中心"},{"bigSysBusiSysList":[],"bigSystem":"","projectCode":"CI000036100559","projectName":"电子飞行包"},{"bigSysBusiSysList":[],"bigSystem":"","projectCode":"CI000057100536","projectName":"FOC升级-移动航前简介系统"}],"bigSystem":"PMM","projectCode":"","projectName":"飞行移动"},{"bigSysBusiSysList":[{"bigSysBusiSysList":[],"bigSystem":"","projectCode":"CI000042100272","projectName":"配餐系统三期"}],"bigSystem":"CaM","projectCode":"","projectName":"配餐管理"},{"bigSysBusiSysList":[{"bigSysBusiSysList":[],"bigSystem":"","projectCode":"CI000997100470","projectName":"机场性能分析数据管理"},{"bigSysBusiSysList":[],"bigSystem":"","projectCode":"CI000997100229","projectName":"外联单位数据对接"},{"bigSysBusiSysList":[],"bigSystem":"","projectCode":"CI000998100207","projectName":"FOC-ACARS报文通信服务"},{"bigSysBusiSysList":[],"bigSystem":"","projectCode":"CI000998100689","projectName":"电报网关"},{"bigSysBusiSysList":[],"bigSystem":"","projectCode":"CI000027100701","projectName":"航空资料管理系统"},{"bigSysBusiSysList":[],"bigSystem":"","projectCode":"CI000027100635","projectName":"航线资源管理系统"},{"bigSysBusiSysList":[],"bigSystem":"","projectCode":"CI000036100679","projectName":"运力网络规划管理系统"},{"bigSysBusiSysList":[],"bigSystem":"","projectCode":"CI000036100144","projectName":"运行网"},{"bigSysBusiSysList":[],"bigSystem":"","projectCode":"CI000037100194","projectName":"飞行动态监控系统"},{"bigSysBusiSysList":[],"bigSystem":"","projectCode":"CI000037100398","projectName":"航空气象信息服务网二期"},{"bigSysBusiSysList":[],"bigSystem":"","projectCode":"CI000042100756","projectName":"签派模拟训练系统"},{"bigSysBusiSysList":[],"bigSystem":"","projectCode":"CI000057100656","projectName":"FOC升级-运行管理系统"},{"bigSysBusiSysList":[],"bigSystem":"","projectCode":"CI000057100481","projectName":"FOC升级-运行保障系统"},{"bigSysBusiSysList":[],"bigSystem":"","projectCode":"CI000057100643","projectName":"FOC升级-运行网二期"}],"bigSystem":"OC","projectCode":"","projectName":"运行控制"},{"bigSysBusiSysList":[{"bigSysBusiSysList":[],"bigSystem":"","projectCode":"CI000036100564","projectName":"飞行事件分析系统"},{"bigSysBusiSysList":[],"bigSystem":"","projectCode":"CI000058100059","projectName":"安全管理信息系统功能扩展"}],"bigSystem":"SM","projectCode":"","projectName":"安全管理"},{"bigSysBusiSysList":[{"bigSysBusiSysList":[],"bigSystem":"","projectCode":"CI000998100154","projectName":"飞行资质管理系统"},{"bigSysBusiSysList":[],"bigSystem":"","projectCode":"CI000036100549","projectName":"飞行技术网"}],"bigSystem":"FTM","projectCode":"","projectName":"飞行技术管理"},{"bigSysBusiSysList":[{"bigSysBusiSysList":[],"bigSystem":"","projectCode":"CI000022100308","projectName":"机组资源管理平台"},{"bigSysBusiSysList":[],"bigSystem":"","projectCode":"CI000049100251","projectName":"机组资源管理平台"},{"bigSysBusiSysList":[],"bigSystem":"","projectCode":"CI000057100175","projectName":"FOC升级-机组系统适应性改造"}],"bigSystem":"PM","projectCode":"","projectName":"飞行管理"},{"bigSysBusiSysList":[{"bigSysBusiSysList":[],"bigSystem":"","projectCode":"CI000023100449","projectName":"航班对外申请系统"}],"bigSystem":"OD-ylnet","projectCode":"","projectName":"运力网络大系统"}]';
+  	groupData = eval(groupData);
+  </script>
+  <script>
+    function init() {
+
+      var useConfig = false;
+      var groupXoffset = 500;
+      // var groupYoffset = 400;
+      DemoGroupUI = function (network, element) {
+        twaver.vector.GroupUI.superClass.constructor.call(this, network, element);
+      };
+
+      twaver.Util.ext('DemoGroupUI', twaver.vector.GroupUI, {
+        validateBodyBounds: function () {
+          if(!useConfig){
+            var $math=_twaver.math;
+            this.getBodyRect();
+            if (this._shapeRect) {
+              var rect = this.getPathRect("group", false);
+              var deep = this.getStyle('group.deep');
+              $math.grow(rect,deep+1,deep+1);
+              this.addBodyBounds(rect);
+
+              var bound=_twaver.cloneRect(rect);
+              bound.width+=10;
+              bound.height+=10;
+              this.addBodyBounds(bound);
+
+            } else {
+              twaver.vector.GroupUI.superClass.validateBodyBounds.call(this);
+            } 
+          }else{
+            DemoGroupUI.superClass.validateBodyBounds.apply(this,arguments);
+          }         
+        },
+
+        drawPath : function(ctx, prefix, padding, pattern, points, segments, close) {
+          if(!useConfig){
+            var $g=_twaver.g;
+            var zoomManager = this._network.zoomManager;
+            var node = this._element;
+            var rect = null;
+            if (prefix == 'group') {
+              rect = this._shapeRect;
+            } else {
+              rect = this.getZoomBodyRect();
+            };
+            if (padding) {
+              $math.addPadding(rect, node, prefix + '.padding', 1);
+            }
+            var lineWidth = node.getStyle(prefix + '.outline.width');
+            this.setShadow(this, ctx);
+            if (node.getAngle() != 0) {
+              if (!( node instanceof $Group)) {
+                rect = node.getOriginalRect();
+                rect = zoomManager._getElementZoomRect(this, rect);
+              }
+              ctx.save();
+              twaver.Util.rotateCanvas(ctx, rect, node.getAngle());
+            }
+
+            var fill = node.getStyle(prefix + '.fill');
+            var fillColor;
+            if (fill) {
+              if (this._innerColor && !$element.hasDefault(this._element)) {
+                fillColor = this._innerColor;
+              } else {
+                fillColor = node.getStyle(prefix + '.fill.color');
+              }
+              var gradient = node.getStyle(prefix + '.gradient');
+              if (gradient) {
+                $g.fill(ctx, fillColor, gradient, node.getStyle(prefix + '.gradient.color'), rect);
+              } else {
+                ctx.fillStyle = fillColor;
+              }
+            }       
+
+            //draw round rect body.
+            var roundRadius=10;
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(rect.x+roundRadius, rect.y);
+            ctx.lineTo(rect.x+rect.width-60, rect.y);
+            ctx.lineTo(rect.x+rect.width, rect.y+28);
+            ctx.lineTo(rect.x+rect.width, rect.y+rect.height-roundRadius);
+            ctx.quadraticCurveTo(rect.x+rect.width, rect.y+rect.height, rect.x+rect.width-roundRadius, rect.y+rect.height);
+            ctx.lineTo(rect.x+roundRadius, rect.y+rect.height);
+            ctx.quadraticCurveTo(rect.x, rect.y+rect.height, rect.x, rect.y+rect.height-roundRadius);
+            ctx.lineTo(rect.x, rect.y+roundRadius);
+            ctx.quadraticCurveTo(rect.x, rect.y, rect.x+roundRadius, rect.y);
+
+            ctx.save();
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
+            ctx.shadowBlur = 4;
+            ctx.shadowColor ="#555555";
+            ctx.fill();
+            ctx.restore();
+            
+            ctx.lineWidth=node.getStyle('group.outline.width');
+            ctx.strokeStyle=node.getStyle('group.outline.color');
+            ctx.stroke();   
+
+            ctx.restore();        
+
+            //draw cornor.
+            ctx.fillStyle=node.getStyle('group.outline.color');       
+            ctx.lineWidth=node.getStyle('group.outline.width');
+            ctx.lineJoin='bevel';
+            ctx.beginPath();
+            ctx.moveTo(rect.x+rect.width-60, rect.y);
+            ctx.lineTo(rect.x+rect.width-23-10, rect.y+47-10);
+            ctx.quadraticCurveTo(rect.x+rect.width-23, rect.y+46, rect.x+rect.width-23+10, rect.y+47-10);
+            ctx.lineTo(rect.x+rect.width, rect.y+28);
+            ctx.closePath();
+            ctx.save();
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
+            ctx.shadowBlur = 4;
+            ctx.shadowColor ="#777777";
+            ctx.fill();             
+            ctx.restore();
+            ctx.strokeStyle=node.getStyle('group.outline.color');
+            ctx.stroke();   
+
+            //draw pin.
+            ctx.save();
+            ctx.strokeStyle='#27A3DA';
+            ctx.lineWidth=2;
+            ctx.beginPath();
+            ctx.moveTo(rect.x+31, rect.y+5);
+            ctx.lineTo(rect.x+25, rect.y+20);
+            ctx.bezierCurveTo(rect.x+25, rect.y+26, rect.x+28, rect.y+28, rect.x+32, rect.y+23);
+            ctx.lineTo(rect.x+42, rect.y-2);
+            ctx.bezierCurveTo(rect.x+42, rect.y-12, rect.x+32, rect.y-10, rect.x+32, rect.y-5);
+            ctx.lineTo(rect.x+29, rect.y-1);
+
+            ctx.shadowOffsetX = 1;
+            ctx.shadowOffsetY = 1;
+            ctx.shadowBlur = 1;
+            ctx.shadowColor ="#aaaaaa";
+            ctx.stroke();
+            ctx.restore();
+
+            if (node.getAngle() != 0) {
+              ctx.restore();
+            }
+          }else{
+            DemoGroupUI.superClass.drawPath.apply(this,arguments);
+          }
+          
+        },
+      });
+
+      DemoGroup = function (id) {
+        twaver.Group.superClass.constructor.call(this, id);
+      };
+
+      twaver.Util.ext('DemoGroup', twaver.Group, {
+        getVectorUIClass : function(){
+          return DemoGroupUI;          
+        },
+      });
+
+      var box = new twaver.ElementBox();
+      var network = new twaver.vector.Network(box);
+      
+      document.getElementById('main').appendChild(network.getView());
+      network.adjustBounds({ x: 0, y: 0, width: document.documentElement.clientWidth, height: document.documentElement.clientHeight });
+
+      twaver.Util.registerImage('vector_rect', {
+        w : 32,
+        h : 32,
+        v : [ {
+        shape : 'rect',
+        x : -16,
+        y : -16,
+        w : 32,
+        h : 32,
+        lineColor : config.node_color,
+        fill : config.node_color,
+        lineWidth : 1,
+        } ]
+      });
+
+      var group=null;
+      var groupnode = null;
+      var maxLength = 0;
+      var sumMaxLength = 0;
+      
+      for(var i = 0;i < groupData.length; i++){
+    	  group = new DemoGroup();
+    	  group.setExpanded(true);
+          group.setName(groupData[i].projectName);
+          group.setExpanded(true);
+          group.setStyle('group.fill.color', '#eaf6fd');
+          group.setStyle('group.deep', 0);
+          group.setStyle('group.outline.width', 6);
+          group.setStyle('group.outline.color', '#99caea');
+          group.setStyle('group.shape', 'roundrect');      
+          group.setStyle('select.style', 'none');
+          group.setStyle('vector.outline.pattern', [1,0]);
+          group.setStyle('label.font', '12px "Microsoft Yahei"');
+          group.setStyle('group.padding.top', 30);
+          group.setStyle('group.padding.left', 30);
+          group.setStyle('group.padding.right', 30);
+          group.setStyle('group.padding.bottom', 30);
+          box.add(group);
+          
+         var n = groupData[i].bigSysBusiSysList.length;
+         var len = Math.ceil(groupData[i].bigSysBusiSysList.length/2)+1;//(parseInt(groupData[i].bigSysBusiSysList.length/2))+1;
+         if(i%3 === 0){
+          sumMaxLength = sumMaxLength +maxLength;
+          maxLength = 0;
+         }
+         if(len>maxLength){
+          maxLength = len;
+         }
+         var index=0,m=0;
+         var item="";
+          for(var k=0;k<len;k++){
+        	  for(var j=0;j<2;j++){
+        		  m=j+index;
+        		  if(m<n){
+        			  item = groupData[i].bigSysBusiSysList[m];
+            		  groupnode = new twaver.Node(item.projectCode);
+        	          groupnode.setName(item.projectName);
+                	  box.add(groupnode);
+                      group.addChild(groupnode); 
+                	  if(i%3==0){
+                		  groupnode.setLocation(100+200*j+groupXoffset*0,100+100*k+ sumMaxLength *100); 
+                	  }
+                	  if(i%3==1){
+                		  groupnode.setLocation(100+200*j+groupXoffset*1,100+100*k+sumMaxLength *100);  
+                	  }
+                	  if(i%3==2){
+                		  groupnode.setLocation(100+200*j+groupXoffset*2,100+100*k+sumMaxLength *100);
+                	  }
+        		  }
+        		  
+        	  }
+       		  index=index+2; 
+          }
+      }
+
+
+    }
+  </script>
+</head>
+<body onload="init()">
+   <!-- <div>
+    <input style="margin-left:10%;" type="button" value="original style" id="show_btn"/>
+  </div>  -->
+  
+  <div id="main" style="position:absolute;"></div>
+</body>
+</html>

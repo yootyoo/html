@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Mocha</title>
+    <script type="application/javascript" src="../../lib/twaver.js"></script>
+    <script type="application/javascript" src="CNode.js"></script>
+    <script type="application/javascript">
+        var box = new twaver.ElementBox();
+        var network = new twaver.network.Network(box);
+        var collection = new twaver.List();
+        function init() {
+            var networkDom = network.getView();
+            networkDom.style.width = "100%";
+            networkDom.style.height = "100%";
+            document.getElementById("main").appendChild(networkDom);
+            var node = new CNode();
+            node.setLocation(100,100);
+            node.setName("TWaver");
+            var componentDiv = createComponentDiv(node.getName());
+            node.setStyle('component.content', componentDiv);
+            node.setStyle("component.visible", false);
+            node.setStyle("component.fillcolor", "#ff0000");
+            box.add(node);
+
+            var node1 = new CNode();
+            node1.setLocation(200,100);
+            node1.setName("TWaver Test");
+            var componentDiv = createComponentDiv(node1.getName());
+            node1.setStyle('component.content', componentDiv);
+            node1.setStyle("component.visible", false);
+            box.add(node1);
+
+            network.addInteractionListener(function(event) {
+                if(event.kind === "doubleClickElement") {
+                    if(event.element instanceof twaver.Node) {
+                        collection.clear();
+                        var element = event.element;
+                        element.setStyle("component.visible", true);
+                        collection.add(element);
+                        console.log("doubleClickElement");
+                    }
+                }
+                if(event.kind === "clickBackground") {
+                    collection.forEach(function(element) {
+                        if(element instanceof twaver.Node) {
+                            element.setStyle("component.visible", false);
+                        }
+                    });
+                }
+                if(event.kind === "clickElement"){
+                    console.log("clickElement");
+                }
+            });
+
+            network.addViewListener(function(e) {
+                if(e.kind == "validateEnd") {
+                    console.log("sdfff");
+                }
+            });
+
+            box.addDataPropertyChangeListener(function(e) {
+                if(e.property == "alarmState") {
+                    var element = e.source;
+                    console.log(element);
+                }
+            });
+            network.onDoubleClickElement = function(element,e){};
+            // _twaver.html.addEventListener("dblclick", "handleDoubleClicked", this.network.getView(), this);
+
+            box.getSelectionModel().addSelectionChangeListener(function(e) { 
+                var node = this.network.getSelectionModel().lastData;
+            });
+
+            network.setCreateElementInteractions(function (point) {
+                    var element1 = new twaver.Node();
+                    // element.setImage(imageName);
+                    element1.setCenterLocation(point);
+                    // self.addcount ++;
+                    box.add(element1);
+                    var element2 = new twaver.Node();
+                    element2.setCenterLocation(point.x+200,point.y);
+                    box.add(element2);
+                    var link1_2 = new twaver.Link(element1,element2);
+                    box.add(link1_2);
+            });   
+
+        }
+
+        function createComponentDiv(name) {
+            var div = document.createElement("div");
+            div.style.width = "30px";
+            div.style.height = "20px";
+            div.innerHTML = name;
+            return div;
+        }
+    </script>
+</head>
+<body onload="init()">
+<div id="main"></div>
+</body>
+</html>

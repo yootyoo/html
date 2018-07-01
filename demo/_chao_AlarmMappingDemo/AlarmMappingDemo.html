@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TWaver HTML5 - Alarm Mapping Demo</title>
+    <link rel="stylesheet" href="../css/base.css" type="text/css">
+    <script type="text/javascript" src="../../lib/twaver.js"></script>
+    <script type="text/javascript" src="../demo.js"></script>
+    <script type="text/javascript" src="./AlarmMappingDemo.js"></script>
+    <script type="text/javascript">
+        var alarmMappingDemo = new AlarmMappingDemo();
+        alarmMappingDemo.network.addInteractionListener(function(event) {
+            if(event.kind === "doubleClickElement") {
+                if(event.element instanceof twaver.Node) {
+                    var alarmbox = alarmMappingDemo.box.getAlarmBox();
+                    var alarmFinder = new twaver.QuickFinder(alarmbox, 'MAPPINGID', 'client');
+                    var alarms = alarmFinder.find(event.element.getClient('MAPPINGID'));
+                    for(var i=0;i<alarms.size();i++){
+                        var alarm = alarms.get(i);
+                        var severityName = alarm.getAlarmSeverity().toString();
+                        if(severityName !== "Critical"){
+                            alarmbox.remove(alarm);
+                        }
+                    }
+
+
+                }
+            }
+        });
+        
+
+    </script>
+</head>
+<body onload="alarmMappingDemo.init()">
+    <div id='main'>
+    </div>
+</body>
+</html>

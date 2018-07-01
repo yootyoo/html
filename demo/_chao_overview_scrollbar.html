@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="../lib/twaver.js"></script>
+  <script>
+    var box,network,overview;
+    function init() {
+      box = new twaver.ElementBox();
+      network = new twaver.vector.Network(box);
+
+      overview = new twaver.vector.Overview(network);
+      // var mainSplit = new twaver.controls.SplitPane(overview, network, 'horizontal', 0.2);
+      // var mainSplitView = mainSplit.getView();
+      // mainSplitView.style.position = 'absolute';
+      // mainSplitView.style.left = 0 + 'px';
+      // mainSplitView.style.top = 0 + 'px';
+      // mainSplitView.style.right = 0 + 'px';
+      // mainSplitView.style.bottom = 0 + 'px';
+
+      // document.body.appendChild(mainSplit.getView());
+      // network.adjustBounds({ x: 0, y: 0, width: document.documentElement.clientWidth, height: document.documentElement.clientHeight });
+      network.setLimitViewInCanvas(false);
+      // 
+      document.getElementById("overview").appendChild(overview.getView());
+      overview.adjustBounds({ x: 600, y: 0, width: 600, height: 600 });
+      document.getElementById("network").appendChild(network.getView());
+      network.adjustBounds({ x: 0, y: 0, width:600, height: 600});
+
+      // network.setZoom(0.1);
+
+
+      
+      var node1 = new twaver.Node();
+      node1.setName('TWaver');
+      node1.setLocation(0, 4000);
+      box.add(node1);
+      
+      var node2 = new twaver.Node();
+      node2.setName('HTML5');
+      node2.setLocation(600, 4000);
+      box.add(node2);
+      
+      var link = new twaver.Link(node1, node2);
+      link.setName('Hello!');
+      link.setToolTip('<b>Hello!</b>');
+      box.add(link);
+
+      // network.viewRect.x = 0;
+      // network.viewRect.y = 3000;
+
+      // box.remove(link);
+      // console.log("boxsize "+box.size());
+      // link.setFromNode(node1);
+      // link.setToNode(node2);
+
+      // box.add(link);
+      // console.log("boxsize "+box.size());
+      // 
+      // 
+      network.addViewListener(function(e) {
+        if(e.kind == "validateEnd") {
+          var wholdViewSize = calculateWholeViewSize();
+          overview.adjustBounds({ x: 600, y: 0, width: 100, height: 100 / wholdViewSize.width * wholdViewSize.height});
+    
+          console.log(wholdViewSize.x + " ~~~~~~~~~~~~~~~ "+wholdViewSize.y+" ~~~~~~~~~~~~~~~ "+wholdViewSize.width+ " ~~~~~~~~~~~~~~~ "+wholdViewSize.height);
+        }
+      });
+
+    }
+
+    function calculateWholeViewSize(){
+      var gzoom = network.getGraphicsZoom();
+      var unionBounds = network._unionBounds;
+      unionBounds = _twaver.math.unionRect(unionBounds,{x:0 ,y:0 ,width: unionBounds.x ,height: unionBounds.y});
+      unionBounds = {x:unionBounds.x/gzoom, y:unionBounds.y/gzoom, width:unionBounds.width/gzoom,height:unionBounds.height/gzoom};
+      var viewPort  = {
+          x : network.viewRect.x/gzoom,
+          y : network.viewRect.y/gzoom,
+          width : network.viewRect.width/gzoom,
+          height:network.viewRect.height/gzoom,
+      };
+      var viewSize = _twaver.math.unionRect(unionBounds,viewPort);
+      return viewSize;
+  }
+  </script>
+</head>
+<body onload="init()">
+<div id ="network"></div>
+<div id="overview" style="position:absoulte"></div>
+</body>
+</html>

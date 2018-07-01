@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title> 主机3D </title>
+<script type="text/javascript" src="../Twaver/libs/t.js"></script>
+<script type="text/javascript" src="../Twaver/libs/twaver.js"></script>
+<script type="text/javascript" src="../Twaver/libs/jquery.js"></script>
+<script type="text/javascript" src="../Twaver/libs/mono_toolkits.js"></script>
+<script type='text/javascript'>
+
+	var network3d;
+	var modelManager = new modellib.ModelManager();	//
+	
+	function load(){
+		//参数设置
+	//	 Utils.RelativePath = "../";
+     //    initModelLib();
+	
+		//定义场景
+		var box=new mono.DataBox();
+		var camera=new mono.PerspectiveCamera(30,1.5,0.1,10000);
+		camera.setPosition(1500,500,1500);
+		camera.look(new mono.Vec3(0,0,0));
+		network3d=new mono.Network3D(box,camera,'canvas3d');
+		var interaction2=new mono.SelectionInteraction(network3d);
+		var interaction=new mono.DefaultInteraction(network3d);
+		network3d.setInteractions([interaction,interaction2]);
+		mono.Utils.autoAdjustNetworkBounds(network3d,document.documentElement,'clientWidth','clientHeight',0,35);
+		var pointLight=new mono.PointLight(0xFFFFFF,1);
+		pointLight.setPosition(10000,10000,10000);
+		box.add(pointLight);
+		box.add(new mono.AmbientLight(0x888888));
+		//加载json文件		
+		loadjson();
+		
+	}
+	
+	function loadjson(){
+	
+		//使用jquery从后台加载
+		$.ajax({
+			
+			url:'component.json',
+			//dataType:'json',
+			error:function(xhr,ts){
+				
+				alert("error code is:"+ ts);
+			},
+			success:function(graph){
+			
+			//加载数据
+				//alert(graph.primitives[0].id);
+				//var data = JSON.parse(graph);			//前面所示指定了dataType:'json'，不需要执行JSON.parse(data);
+				mono.Toolkits.loadGraph(network3d,graph,null,false);
+			}			
+		});							
+	}
+
+</script>
+
+
+</head>
+<body>
+
+<div onload="load()">
+
+<div>
+
+	<canvas id = "canvas3d" ></canvas>
+	
+</div>
+
+</div>
+
+<script type='text/javascript'>
+
+	load();
+
+</script>
+
+</body>
+</html>

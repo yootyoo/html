@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TWaver HTML5</title>
+  <script src="js/twaver.js"></script>
+  <script>
+  
+
+    var box = new twaver.ElementBox();
+    var network = new twaver.vector.Network(box);
+    twaver.Styles.setStyle("select.style","none");
+    // twaver.Styles.setStyle("body.type","vector.default");
+    // twaver.Styles.setStyle("vector.shape","circle");
+    twaver.Styles.setStyle("vector.fill.color","rgba(10,193,71,0.1)");
+    twaver.Styles.setStyle("vector.outline.color","#A3F2C2");
+    twaver.Styles.setStyle("vector.outline.width",2);
+    twaver.Styles.setStyle("link.bundle.expanded",false);
+    var init = function() {
+      buildData();
+      registImages(network);
+      twaver.Util.registerImage('node_vector', {    
+        w: '<%=getClient("node.width")%>',
+        h: '<%=getClient("node.height")%>',
+        origin: { x: 0, y: 0 },
+        lineWidth:1,
+        lineColor: '#A3F2C2', 
+        v: [
+        {
+          shape: 'circle',
+          cx: '<%=getClient("node.width")/2%>',
+          cy: '<%=getClient("node.height")/2%>',
+          r: 30,
+          lineColor: '<%=twaver.Styles.getStyle("vector.outline.color")%>',
+          lineWidth: '<%=twaver.Styles.getStyle("vector.outline.width")%>',
+          fill: '<%=twaver.Styles.getStyle("vector.fill.color")%>',
+        },{
+          shape: 'vector',
+          name: '<%=getClient("node.icon")%>',
+          scale: { x: 1, y: 1 },
+          x: 36,
+          y: 35,
+          lineWidth:0,
+        }
+        ],
+      });
+
+      twaver.Util.registerImage('icon_node_vector', {    
+        w: '<%=getClient("node.width")%>',
+        h: '<%=getClient("node.height")%>',
+        origin: { x: 0, y: 0 },
+        lineWidth:1,
+        lineColor: '#A3F2C2', 
+        v: [
+        {
+          shape: 'circle',
+          cx: '<%=getClient("icons.rects")[0].x%>',
+          cy: '<%=getClient("icons.rects")[0].y%>',
+          r: '<%=getClient("icons.radius")%>',
+          lineColor: '<%=getClient("icons.outline.color")%>',
+          lineWidth: '<%=getClient("icons.outline.width")%>',
+          fill: '<%=getClient("icons.fill.color")%>',
+        },{
+          shape: 'vector',
+          name: '<%=getClient("node.atts")[0]%>',
+          scale: { x: 1, y: 1 },
+          x: '<%=getClient("icons.rects")[0].x-4%>',
+          y: '<%=getClient("icons.rects")[0].y-4%>',
+          lineWidth:0,
+        },{
+          shape: 'circle',
+          cx: '<%=getClient("icons.rects")[1].x%>',
+          cy: '<%=getClient("icons.rects")[1].y%>',
+          r: '<%=getClient("icons.radius")%>',
+          lineColor: '<%=getClient("icons.outline.color")%>',
+          lineWidth: '<%=getClient("icons.outline.width")%>',
+          fill: '<%=getClient("icons.fill.color")%>',
+        },{
+          shape: 'vector',
+          name: '<%=getClient("node.atts")[1]%>',
+          scale: { x: 1, y: 1 },
+          x: '<%=getClient("icons.rects")[1].x-4%>',
+          y: '<%=getClient("icons.rects")[1].y-4%>',
+          lineWidth:0,
+        },{
+          shape: 'circle',
+          cx: '<%=getClient("icons.rects")[2].x%>',
+          cy: '<%=getClient("icons.rects")[2].y%>',
+          r: '<%=getClient("icons.radius")%>',
+          lineColor: '<%=getClient("icons.outline.color")%>',
+          lineWidth: '<%=getClient("icons.outline.width")%>',
+          fill: '<%=getClient("icons.fill.color")%>',
+        },{
+          shape: 'vector',
+          name: '<%=getClient("node.atts")[2]%>',
+          scale: { x: 1, y: 1 },
+          x: '<%=getClient("icons.rects")[2].x-4%>',
+          y: '<%=getClient("icons.rects")[2].y-4%>',
+          lineWidth:0,
+        },{
+          shape: 'circle',
+          cx: '<%=getClient("node.width")/2%>',
+          cy: '<%=getClient("node.height")/2%>',
+          r: '<%=getClient("node.width")/2 - getClient("icons.radius") * 2 - getClient("icons.offset")%>',
+          lineColor: '<%=twaver.Styles.getStyle("vector.outline.color")%>',
+          lineWidth: '<%=twaver.Styles.getStyle("vector.outline.width")%>',
+          fill: '<%=twaver.Styles.getStyle("vector.fill.color")%>',
+        },{
+          shape: 'vector',
+          name: '<%=getClient("node.icon")%>',
+          scale: { x: 1, y: 1 },
+          x: 36,
+          y: 35,
+          lineWidth:0,
+        }
+        ],
+      });
+
+      // twaver.Util.registerImage('icon_node_vector_selected', {    
+      //   w: '<%=getClient("node.width")%>',
+      //   h: '<%=getClient("node.height")%>',
+      //   origin: { x: 0, y: 0 },
+      //   lineWidth:1,
+      //   lineColor: '#A3F2C2', 
+      //   v: [
+      //   {
+      //     shape: 'circle',
+      //     cx: '<%=getClient("icons.rects")[0].x%>',
+      //     cy: '<%=getClient("icons.rects")[0].y%>',
+      //     r: '<%=getClient("icons.radius")%>',
+      //     lineColor: '<%=getClient("icons.outline.color")%>',
+      //     lineWidth: '<%=getClient("icons.outline.width")%>',
+      //     fill: '<%=getClient("icons.fill.color")%>',
+      //   },{
+      //     shape: 'vector',
+      //     name: '<%=getClient("node.atts")[0]%>',
+      //     scale: { x: 1, y: 1 },
+      //     x: '<%=getClient("icons.rects")[0].x-4%>',
+      //     y: '<%=getClient("icons.rects")[0].y-4%>',
+      //     lineWidth:0,
+      //   },{
+      //     shape: 'circle',
+      //     cx: '<%=getClient("icons.rects")[1].x%>',
+      //     cy: '<%=getClient("icons.rects")[1].y%>',
+      //     r: '<%=getClient("icons.radius")%>',
+      //     lineColor: '<%=getClient("icons.outline.color")%>',
+      //     lineWidth: '<%=getClient("icons.outline.width")%>',
+      //     fill: '<%=getClient("icons.fill.color")%>',
+      //   },{
+      //     shape: 'vector',
+      //     name: '<%=getClient("node.atts")[1]%>',
+      //     scale: { x: 1, y: 1 },
+      //     x: '<%=getClient("icons.rects")[1].x-4%>',
+      //     y: '<%=getClient("icons.rects")[1].y-4%>',
+      //     lineWidth:0,
+      //   },{
+      //     shape: 'circle',
+      //     cx: '<%=getClient("icons.rects")[2].x%>',
+      //     cy: '<%=getClient("icons.rects")[2].y%>',
+      //     r: '<%=getClient("icons.radius")%>',
+      //     lineColor: '<%=getClient("icons.outline.color")%>',
+      //     lineWidth: '<%=getClient("icons.outline.width")%>',
+      //     fill: '<%=getClient("icons.fill.color")%>',
+      //   },{
+      //     shape: 'vector',
+      //     name: '<%=getClient("node.atts")[2]%>',
+      //     scale: { x: 1, y: 1 },
+      //     x: '<%=getClient("icons.rects")[2].x-4%>',
+      //     y: '<%=getClient("icons.rects")[2].y-4%>',
+      //     lineWidth:0,
+      //   },{
+      //     shape: 'circle',
+      //     cx: '<%=getClient("node.width")/2%>',
+      //     cy: '<%=getClient("node.height")/2%>',
+      //     r: '<%=getClient("node.width")/2 - getClient("icons.radius") * 2 - getClient("icons.offset")%>',
+      //     lineColor: '<%=twaver.Styles.getStyle("vector.outline.color")%>',
+      //     lineWidth: '<%=twaver.Styles.getStyle("vector.outline.width")%>',
+      //     fill: '<%=twaver.Styles.getStyle("vector.fill.color")%>',
+      //   },{
+      //     shape: 'vector',
+      //     name: '<%=getClient("node.icon.invert")%>',
+      //     scale: { x: 1, y: 1 },
+      //     x: 36,
+      //     y: 35,
+      //     lineWidth:0,
+      //   }
+      //   ],
+      // });
+
+      document.body.appendChild(network.getView());
+      network.adjustBounds({ x: 0, y: 0, width: 1024, height: 768 });
+      
+    };
+
+    // var invertColor = function(image,color,rect) {
+    //   var can = document.createElement("canvas");
+    //   var ctx2d = can.getContext("2d");
+    //   var imageAsset = _twaver.images[image];
+    //   ctx2d.drawImage(imageAsset.getImage(color,rect.width,rect.height), 0, 0, rect.width, rect.height);
+    //   var imgd = ctx2d.getImageData(0,0, rect.width, rect.height); 
+    //   var pix = imgd.data; 
+    //   for(var i = 0, n = pix.length; i < n; i += 4) {   
+    //       pix[i] = 255 - pix[i];   
+    //       pix[i + 1] = 255 - pix[i + 1];   
+    //       pix[i + 2] = 255 - pix[i + 2];   
+    //   }
+    //   ctx2d.putImageData(imgd, 0, 0); 
+    //   return can;  
+    // };
+
+    var convertAngleToPosition = function(angle,node){
+      var center = {};
+      center.x = node.getClient("node.width")/2 + Math.sin((angle/180) * Math.PI) * (node.getClient("node.width")/2 - node.getClient("icons.radius")) ;
+      center.y = node.getClient("node.height")/2  - Math.cos((angle/180) * Math.PI) * (node.getClient("node.height")/2 - node.getClient("icons.radius")) ;
+      return center;
+    };
+
+    var buildData = function(){
+      var node1 = new twaver.Node();
+      node1.setLocation(200, 300);
+      node1.setImage("icon_node_vector");
+
+      node1.setClient("icons.offset",5);
+      node1.setClient("icons.position",[0,-40,40]);
+      node1.setClient("icons.radius",7);
+      node1.setClient("icons.outline.width",2);
+      node1.setClient("icons.outline.color","#E7E7E7");
+      node1.setClient("icons.fill.color","#FFFFFF");
+      node1.setClient('node.width', 98);
+      node1.setClient('node.height',98);
+      node1.setClient('node.icon', "node");
+      node1.setClient('node.atts',["att1","att2","att3"]);
+      node1.setClient("icons.rects",[convertAngleToPosition(0, node1),convertAngleToPosition(-40, node1),convertAngleToPosition(40, node1)]);
+
+      // var newRect = {
+      //   width:280,
+      //   height:140
+      // }
+      // node1.setClient("node.icon.invert",invertColor("icon_node_vector","ff0000",newRect));
+
+      box.add(node1);
+      // box.addDataPropertyChangeListener(function(e){
+      //   if(network.isSelected(node1)){
+      //     console.log("+++");
+      //     node1.setImage("icon_node_vector_selected");
+      //   }
+      // });
+
+      var node2 = new twaver.Node();
+      // node2.setClient("vector.radius",30);
+      node2.setImage("node_vector");
+      node2.setLocation(300, 460);
+      node2.setClient('node.width', 98);
+      node2.setClient('node.height',98);
+      node2.setClient('node.icon', "node");
+      box.add(node2);
+      
+      var node4 = new twaver.Node();
+      node4.setName("node4");
+      // node4.setClient("vector.radius",30);
+      node4.setLocation(600, 200);
+      node4.setImage("node_vector");
+      node4.setClient('node.width', 98);
+      node4.setClient('node.height',98);
+      node4.setClient('node.icon', "node");
+      box.add(node4);
+      
+      var link = new twaver.Link(node1, node2);
+      link.setStyle("link.color","#1DB964");
+      box.add(link);
+      
+    };
+
+    var registImages= function (network) {
+        registerImage("images/node.png",network);
+        registerImage("images/att1.png",network);
+        registerImage("images/att2.png",network);
+        registerImage("images/att3.png",network);
+    };
+
+    var registerImage = function (url, network) {
+        var image = new Image();
+        image.src = url;
+        var views = arguments;
+        var that = this;
+        image.onload = function () {
+            twaver.Util.registerImage(that.getImageName(url), image, image.width, image.height, network);
+            image.onload = null;
+            for (var i = 1; i < views.length; i++) {
+                var view = views[i];
+                if (view.invalidateElementUIs) {
+                    view.invalidateElementUIs();
+                }
+                if (view.invalidateDisplay) {
+                    view.invalidateDisplay();
+                }
+            }
+        };
+    };
+    var getImageName = function (url) {
+        var index = url.lastIndexOf('/');
+        var name = url;
+        if (index >= 0) {
+            name = url.substring(index + 1);
+        }
+        index = name.lastIndexOf('.');
+        if (index >= 0) {
+            name = name.substring(0, index);
+        }
+        return name;
+    };
+  </script>
+</head>
+<body onload="init()">
+</body>
+</html>
